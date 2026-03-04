@@ -44720,7 +44720,7 @@ preLocalize("spellLevels");
 
 /* -------------------------------------------- */
 
-const LOTM_MAX_SPELL_LEVEL = 10;
+const LOTM_MAX_SPELL_LEVEL = 9;
 const LOTM_MAX_SEQUENCE = 9;
 
 /**
@@ -44730,7 +44730,7 @@ const LOTM_MAX_SEQUENCE = 9;
  */
 function spellLevelToSequence(level) {
   const numericLevel = Number(level);
-  if ( !Number.isInteger(numericLevel) || (numericLevel < 1) || (numericLevel > LOTM_MAX_SPELL_LEVEL) ) return null;
+  if ( !Number.isInteger(numericLevel) || (numericLevel < 0) || (numericLevel > LOTM_MAX_SPELL_LEVEL) ) return null;
   return LOTM_MAX_SPELL_LEVEL - numericLevel;
 }
 
@@ -44746,7 +44746,7 @@ function sequenceToSpellLevel(sequence) {
   if ( !Number.isInteger(numericSequence) || (numericSequence < 0) || (numericSequence > LOTM_MAX_SEQUENCE) ) {
     return null;
   }
-  return LOTM_MAX_SPELL_LEVEL - numericSequence;
+  return LOTM_MAX_SEQUENCE - numericSequence;
 }
 
 /* -------------------------------------------- */
@@ -54037,7 +54037,7 @@ class BaseActorSheet extends PrimarySheetMixin(
       const baseOrder = config?.order ?? 1000;
       const sequence = config?.slots ? spellLevelToSequence(level) : null;
       const order = config?.slots
-        ? baseOrder + (sequence === null ? LOTM_MAX_SEQUENCE + 1 : sequenceToSpellLevel(sequence) - 1)
+        ? baseOrder + (sequence === null ? LOTM_MAX_SEQUENCE + 1 : sequenceToSpellLevel(sequence))
         : baseOrder;
       const usesSlots = config?.slots && level;
       const section = spellbook[key] = {
