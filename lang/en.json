@@ -3048,6 +3048,10 @@
 "DND5E.HPFormula": "Health Formula",
 "DND5E.HPFormulaError": "The provided hit point formula could not be evaluated.",
 "DND5E.HPFormulaRollMessage": "Roll Hit Point Formula",
+"DND5E.Spirituality": "Spirituality",
+"DND5E.SpiritualityCurrent": "Current Spirituality",
+"DND5E.SpiritualityMax": "Maximum Spirituality",
+"DND5E.SpiritualityFormula": "Spirituality Formula",
 
 "DND5E.HITDICE": {
   "Abbreviation": "HD",

@@ -40457,6 +40457,20 @@ class AttributesFields {
   /* -------------------------------------------- */
 
   /**
+   * Prepare spirituality data for an actor.
+   * @this {CharacterData}
+   */
+  static prepareSpirituality() {
+    const spirituality = this.attributes.spirituality ??= {};
+    spirituality.max = Math.max(Number(spirituality.max) || 0, 0);
+    spirituality.value = Math.clamp(Number(spirituality.value) || 0, 0, spirituality.max);
+    spirituality.pct = Math.clamp(spirituality.max ? (spirituality.value / spirituality.max) * 100 : 0, 0, 100);
+    spirituality.formula = typeof spirituality.formula === "string" ? spirituality.formula : "";
+  }
+
+  /* -------------------------------------------- */
+
+  /**
    * Prepare the initiative data for an actor.
    * @this {CharacterData|NPCData|VehicleData}
    * @param {object} rollData  The Actor's roll data.
@@ -45100,7 +45114,8 @@ preLocalize("cover");
  */
 DND5E.trackableAttributes = [
   "attributes.ac.value", "attributes.init.bonus", "attributes.movement", "attributes.senses",
-  "attributes.spell.attack", "attributes.spell.dc", "attributes.spell.level", "details.cr",
+  "attributes.spell.attack", "attributes.spell.dc", "attributes.spell.level", "attributes.spirituality",
+  "details.cr",
   "details.xp.value", "skills.*.passive", "abilities.*.value"
 ];
 
@@ -68955,6 +68970,15 @@ class CharacterData extends CreatureTemplate {
             overall: new FormulaField({ deterministic: true, label: "DND5E.HitPointsBonusOverall" })
           })
         }, { label: "DND5E.HitPoints" }),
+        spirituality: new SchemaField$j({
+          value: new NumberField$e({
+            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpiritualityCurrent"
+          }),
+          max: new NumberField$e({
+            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpiritualityMax"
+          }),
+          formula: new FormulaField({ deterministic: true, label: "DND5E.SpiritualityFormula" })
+        }, { label: "DND5E.Spirituality" }),
         death: new RollConfigField({
           ability: false,
           success: new NumberField$e({
@@ -69119,6 +69143,7 @@ class CharacterData extends CreatureTemplate {
       hpOptions.mod = this.abilities[CONFIG.DND5E.defaultAbilities.hitPoints ?? "con"]?.mod ?? 0;
     }
     AttributesFields.prepareHitPoints.call(this, this.attributes.hp, hpOptions);
+    AttributesFields.prepareSpirituality.call(this);
   }
 
   /* -------------------------------------------- */
@@ -76031,13 +76056,15 @@ class TokenDocument5e extends SystemFlagsMixin(TokenDocument) {
       movement: game.i18n.localize("DND5E.MOVEMENT.FIELDS.speeds.label"),
       senses: game.i18n.localize("DND5E.Senses"),
       skills: game.i18n.localize("DND5E.SkillPassives"),
-      slots: game.i18n.localize("JOURNALENTRYPAGE.DND5E.Class.SpellSlots")
+      slots: game.i18n.localize("JOURNALENTRYPAGE.DND5E.Class.SpellSlots"),
+      spirituality: game.i18n.localize("DND5E.Spirituality")
     };
     for ( const entry of groups ) {
       const { value } = entry;
       if ( value.startsWith("abilities.") ) entry.group = i18n.abilities;
       else if ( value.startsWith("attributes.movement.") ) entry.group = i18n.movement;
       else if ( value.startsWith("attributes.senses.") ) entry.group = i18n.senses;
+      else if ( value.startsWith("attributes.spirituality") ) entry.group = i18n.spirituality;
       else if ( value.startsWith("skills.") ) entry.group = i18n.skills;
       else if ( value.startsWith("spells.") ) entry.group = i18n.slots;
     }
@@ -79479,8 +79506,12 @@ function _configureTrackableAttributes() {
 
   CONFIG.Actor.trackableAttributes = {
     character: {
-      bar: [...creature.bar, "resources.primary", "resources.secondary", "resources.tertiary", "details.xp"],
-      value: [...creature.value]
+      bar: [
+        ...creature.bar,
+        "attributes.spirituality",
+        "resources.primary", "resources.secondary", "resources.tertiary", "details.xp"
+      ],
+      value: [...creature.value, "attributes.spirituality.value"]
     },
     npc: {
       bar: [...creature.bar, "resources.legact", "resources.legres"],
