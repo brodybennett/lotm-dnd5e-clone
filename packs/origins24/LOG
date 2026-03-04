@@ -1,0 +1,8 @@
+2026/03/04-00:15:24.343 b8f4 Recovering log #62
+2026/03/04-00:15:24.346 b8f4 Delete type=0 #62
+2026/03/04-00:15:24.346 b8f4 Delete type=3 #60
+2026/03/04-01:12:01.111 89b8 Level-0 table #67: started
+2026/03/04-01:12:01.111 89b8 Level-0 table #67: 0 bytes OK
+2026/03/04-01:12:01.112 89b8 Delete type=0 #65
+2026/03/04-01:12:01.115 89b8 Manual compaction at level-0 from '!folders!2Bw096HjE0HyGMwM' @ 72057594037927935 : 1 .. '!items.effects!phbsptStonecunni.SAbuNo2AO3XXtkdv' @ 0 : 0; will stop at (end)
+2026/03/04-01:12:01.115 89b8 Manual compaction at level-1 from '!folders!2Bw096HjE0HyGMwM' @ 72057594037927935 : 1 .. '!items.effects!phbsptStonecunni.SAbuNo2AO3XXtkdv' @ 0 : 0; will stop at (end)
