@@ -5757,26 +5757,32 @@ class ActivityUsageDialog extends Dialog5e {
       value: this.config.consume?.spellSlot
     });
 
-    if ( useSpirituality && (this.item.system.level > 0) && this._shouldDisplay("consume.spirituality") ) {
+    if ( hasSpiritualityConsumptionCost(this.activity, this.config) && this._shouldDisplay("consume.spirituality") ) {
       const spirituality = this.actor.system.attributes?.spirituality ?? {};
       const value = (this.config.consume !== false) && (this.config.consume?.spirituality !== false);
       const cost = spiritualityCostFromUsageConfig(this.activity, this.config);
       const available = Math.max(Number(spirituality.value) || 0, 0);
+      const remaining = Math.max(available - (value ? cost : 0), 0);
+      const warn = value && (cost > available);
       context.fields.push({
         field: new BooleanField$O({
           label: game.i18n.format("DND5E.CONSUMPTION.Type.Action.Prompt", {
             type: game.i18n.localize("DND5E.Spirituality")
           }),
-          hint: game.i18n.format("DND5E.CONSUMPTION.Type.Attribute.PromptHintDecrease", {
-            attribute: game.i18n.localize("DND5E.Spirituality"),
+          hint: game.i18n.format("DND5E.CONSUMPTION.Spirituality.PromptHint", {
             cost: formatNumber(cost),
-            current: formatNumber(available)
+            current: formatNumber(available),
+            remaining: formatNumber(remaining)
           })
         }),
         input: context.inputs.createCheckboxInput,
         name: "consume.spirituality",
         value,
-        warn: value && (cost > available)
+        warn
+      });
+      if ( warn ) context.notes.push({
+        type: "warn",
+        message: formatSpiritualityConsumptionWarning({ cost, available })
       });
     }
 
@@ -7614,7 +7620,7 @@ function ActivityMixin(Base) {
         });
         const hasLinkedConsumption = (linked?.consumption.targets.length > 0) && !ignoreLinkedConsumption;
         const hasSpellSlotConsumption = !useSpirituality && this.requiresSpellSlot && this.consumption.spellSlot;
-        const hasSpiritualityConsumption = useSpirituality && (this.item.system.level > 0);
+        const hasSpiritualityConsumption = hasSpiritualityConsumptionCost(this, config);
         config.consume ??= {};
         config.consume.action ??= hasActionConsumption;
         config.consume.resources ??= Array.from(this.consumption.targets.entries())
@@ -7805,14 +7811,10 @@ function ActivityMixin(Base) {
         if ( shouldConsumeSpirituality ) {
           const cost = spiritualityCostFromUsageConfig(this, config);
           const current = Math.max(Number(this.actor.system.attributes?.spirituality?.value) || 0, 0);
-          let warningMessage;
-          if ( (cost > 0) && !current ) warningMessage = "DND5E.CONSUMPTION.Warning.None";
-          else if ( current < cost ) warningMessage = "DND5E.CONSUMPTION.Warning.NotEnough";
-          if ( warningMessage ) {
-            errors.push(new ConsumptionError(game.i18n.format(warningMessage, {
-              type: game.i18n.localize("DND5E.Spirituality"),
-              cost: formatNumber(cost),
-              available: formatNumber(current)
+          if ( current < cost ) {
+            errors.push(new ConsumptionError(formatSpiritualityConsumptionWarning({
+              cost,
+              available: current
             })));
           } else if ( cost > 0 ) {
             updates.actor["system.attributes.spirituality.value"] = current - cost;
@@ -7898,6 +7900,18 @@ function ActivityMixin(Base) {
         supplements.push(`<strong>${game.i18n.localize("DND5E.Materials")}</strong> ${data.materials.value}`);
       }
       const buttons = this._usageChatButtons(message);
+      let deltas = [];
+      const consumed = foundry.utils.getProperty(message, "data.flags.lotm.use.consumed");
+      if ( consumed && this.item.actor?.testUserPermission(game.user, "OBSERVER") ) {
+        const actorDeltas = {
+          actor: Array.isArray(consumed.actor) ? consumed.actor : [],
+          created: Array.isArray(consumed.created) ? consumed.created : [],
+          deleted: Array.isArray(consumed.deleted) ? consumed.deleted : [],
+          item: (foundry.utils.getType(consumed.item) === "Object") ? consumed.item : {}
+        };
+        const rolls = foundry.utils.getProperty(message, "data.rolls") ?? message.rolls ?? [];
+        deltas = ActorDeltasField.processDeltas.call(actorDeltas, this.item.actor, rolls);
+      }
 
       // Include spell level in the subtitle.
       if ( this.item.type === "spell" ) {
@@ -7916,7 +7930,8 @@ function ActivityMixin(Base) {
         description: data.description,
         properties: properties.length ? properties : null,
         subtitle: this.description.chatFlavor || data.subtitle,
-        supplements
+        supplements,
+        deltas
       };
     }
 
@@ -8282,7 +8297,18 @@ function ActivityMixin(Base) {
         activity: linkedActivity.relativeUUID, resources: linkedActivity.consumption.targets.length > 0
       };
       await this.consume(usageConfig, messageConfig);
-      if ( !foundry.utils.isEmpty(messageConfig.data) ) await message.update(messageConfig.data);
+      if ( !foundry.utils.isEmpty(messageConfig.data) ) {
+        const flags = foundry.utils.mergeObject(
+          foundry.utils.deepClone(message.flags),
+          messageConfig.data.flags ?? {},
+          { inplace: false }
+        );
+        const context = await this._usageChatContext({ hasConsumption: true, data: { flags } });
+        messageConfig.data.content = await foundry.applications.handlebars.renderTemplate(
+          this.metadata.usage.chatCard, context
+        );
+        await message.update(messageConfig.data);
+      }
     }
 
     /* -------------------------------------------- */
@@ -8298,6 +8324,13 @@ function ActivityMixin(Base) {
       if ( !foundry.utils.isEmpty(consumed) ) {
         await this.refund(consumed);
         await message.unsetFlag("lotm", "use.consumed");
+        const context = await this._usageChatContext({
+          hasConsumption: true,
+          data: { flags: foundry.utils.deepClone(message.flags) }
+        });
+        await message.update({
+          content: await foundry.applications.handlebars.renderTemplate(this.metadata.usage.chatCard, context)
+        });
       }
     }
 
@@ -29496,7 +29529,7 @@ class BaseRestDialog extends Dialog5e {
       value: context.config.recoverSpirituality
     });
     if ( hasSpirituality && (this.config.type === "short") ) {
-      const percent = Math.max(Math.round((Number(context.config.recoverSpiritualityFraction) || 0) * 100), 0);
+      const percent = Math.clamp(Math.round((Number(context.config.recoverSpiritualityFraction) || 0) * 100), 0, 100);
       context.fields.push({
         disabled: !!this.config.request,
         field: new BooleanField$s({
@@ -34912,11 +34945,14 @@ class Actor5e extends SystemDocumentMixin(Actor) {
 
     const clone = this.clone();
     const restConfig = CONFIG.DND5E.restTypes.short;
+    const shortRestSpiritualityDefaults = getShortRestSpiritualityDefaults();
     config = foundry.utils.mergeObject({
       type: "short", dialog: true, chat: true, newDay: false, advanceTime: false, autoHD: false, autoHDThreshold: 3,
       duration: CONFIG.DND5E.restTypes.short.duration[game.settings.get("lotm", "restVariant")],
       recoverTemp: restConfig.recoverTemp, recoverTempMax: restConfig.recoverTempMax,
-      recoverSpirituality: false, recoverSpiritualityFraction: 0.5, exhaustionDelta: restConfig.exhaustionDelta
+      recoverSpirituality: shortRestSpiritualityDefaults.recoverSpirituality,
+      recoverSpiritualityFraction: shortRestSpiritualityDefaults.recoverSpiritualityFraction,
+      exhaustionDelta: restConfig.exhaustionDelta
     }, config);
 
     /**
@@ -35291,7 +35327,7 @@ class Actor5e extends SystemDocumentMixin(Actor) {
     if ( (config.type === "long") && (recoverSpirituality !== false) ) {
       recovered = Math.max(0, max - current);
     } else if ( (config.type === "short") && recoverSpirituality ) {
-      const fraction = Math.max(Number(recoverSpiritualityFraction) || 0, 0);
+      const fraction = Math.clamp(Number(recoverSpiritualityFraction) || 0, 0, 1);
       const step = Math.floor(max * fraction);
       recovered = Math.min(max - current, Math.max(step, max > 0 ? 1 : 0));
     }
@@ -44993,6 +45029,54 @@ function spiritualityCostFromUsageConfig(activity, config={}) {
 /* -------------------------------------------- */
 
 /**
+ * Should this activity consume spirituality by default for this usage config?
+ * @param {Activity} activity                 Activity being used.
+ * @param {ActivityUseConfiguration} [config] Usage configuration.
+ * @returns {boolean}
+ */
+function hasSpiritualityConsumptionCost(activity, config={}) {
+  return isSpiritualityConsumptionActivity(activity) && (spiritualityCostFromUsageConfig(activity, config) > 0);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Standardized spirituality insufficiency warning text.
+ * @param {object} [options]
+ * @param {number} [options.cost=0]       Spirituality required.
+ * @param {number} [options.available=0]  Spirituality available.
+ * @returns {string}
+ */
+function formatSpiritualityConsumptionWarning({ cost=0, available=0 }={}) {
+  return game.i18n.format("DND5E.CONSUMPTION.Spirituality.Warning.NotEnough", {
+    cost: formatNumber(cost),
+    available: formatNumber(available)
+  });
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Resolve world default spirituality behavior for short rests.
+ * @returns {{ recoverSpirituality: boolean, recoverSpiritualityFraction: number }}
+ */
+function getShortRestSpiritualityDefaults() {
+  const mode = game.settings.get("lotm", "shortRestSpiritualityMode");
+  const rawFraction = Number(game.settings.get("lotm", "shortRestSpiritualityFraction"));
+  const fraction = Math.clamp(Number.isFinite(rawFraction) ? rawFraction : 0.5, 0, 1);
+  switch ( mode ) {
+    case "full":
+      return { recoverSpirituality: true, recoverSpiritualityFraction: 1 };
+    case "partial":
+      return { recoverSpirituality: true, recoverSpiritualityFraction: fraction };
+    default:
+      return { recoverSpirituality: false, recoverSpiritualityFraction: fraction };
+  }
+}
+
+/* -------------------------------------------- */
+
+/**
  * The available choices for how spell damage scaling may be computed.
  * @enum {string}
  */
@@ -47355,6 +47439,8 @@ class VariantRulesSettingsConfig extends BaseSettingsConfig {
         context.fields = [
           game.settings.get("lotm", "rulesVersion") === "legacy" ? this.createSettingField("allowFeats") : null,
           this.createSettingField("restVariant"),
+          this.createSettingField("shortRestSpiritualityMode"),
+          this.createSettingField("shortRestSpiritualityFraction"),
           this.createSettingField("proficiencyModifier"),
           this.createSettingField("levelingMode")
         ].filter(_ => _);
@@ -48303,6 +48389,33 @@ function registerSystemSettings() {
       gritty: "SETTINGS.DND5E.VARIANT.Rest.Gritty",
       epic: "SETTINGS.DND5E.VARIANT.Rest.Epic"
     }
+  });
+
+  game.settings.register("lotm", "shortRestSpiritualityMode", {
+    name: "SETTINGS.DND5E.VARIANT.ShortRestSpiritualityMode.Name",
+    hint: "SETTINGS.DND5E.VARIANT.ShortRestSpiritualityMode.Hint",
+    scope: "world",
+    config: false,
+    default: "none",
+    type: String,
+    choices: {
+      none: "SETTINGS.DND5E.VARIANT.ShortRestSpiritualityMode.None",
+      partial: "SETTINGS.DND5E.VARIANT.ShortRestSpiritualityMode.Partial",
+      full: "SETTINGS.DND5E.VARIANT.ShortRestSpiritualityMode.Full"
+    }
+  });
+
+  game.settings.register("lotm", "shortRestSpiritualityFraction", {
+    name: "SETTINGS.DND5E.VARIANT.ShortRestSpiritualityFraction.Name",
+    hint: "SETTINGS.DND5E.VARIANT.ShortRestSpiritualityFraction.Hint",
+    scope: "world",
+    config: false,
+    type: new foundry.data.fields.NumberField({
+      required: true,
+      initial: 0.5,
+      min: 0,
+      max: 1
+    })
   });
 
   game.settings.register("lotm", "sanityScore", {
@@ -70096,7 +70209,11 @@ class GroupData extends GroupTemplate {
     // Create a rest chat message
     if ( !config.autoRest ) {
       const restConfig = CONFIG.DND5E.restTypes[config.type];
+      const shortRestSpiritualityDefaults = getShortRestSpiritualityDefaults();
       const spiritualityFraction = Number(config.recoverSpiritualityFraction);
+      const defaultSpiritualityFraction = config.type === "short"
+        ? shortRestSpiritualityDefaults.recoverSpiritualityFraction
+        : 1;
       const messageData = {
         flavor: this.parent.createRestFlavor(config),
         speaker: ChatMessage.getSpeaker({ actor: this.parent, alias: this.parent.name }),
@@ -70110,7 +70227,9 @@ class GroupData extends GroupTemplate {
             recoverTemp: config.recoverTemp === true,
             recoverTempMax: config.recoverTempMax === true,
             recoverSpirituality: config.recoverSpirituality === true,
-            recoverSpiritualityFraction: Number.isFinite(spiritualityFraction) ? spiritualityFraction : 0.5,
+            recoverSpiritualityFraction: Number.isFinite(spiritualityFraction)
+              ? Math.clamp(spiritualityFraction, 0, 1)
+              : defaultSpiritualityFraction,
             type: config.type
           },
           handler: "rest",

@@ -1895,6 +1895,12 @@
       "other": "uses"
     }
   },
+  "Spirituality": {
+    "PromptHint": "Spend <strong>{cost}</strong> Spirituality (current <strong>{current}</strong>, remaining <strong>{remaining}</strong>).",
+    "Warning": {
+      "NotEnough": "Not enough Spirituality to use this ability, {cost} required and only {available} available."
+    }
+  },
   "Warning": {
     "MissingAttribute": "Attribute {attribute} configured to be consumed by {activity} activity on {item} could not be found.",
     "MissingHitDice": "Actor does not have a class with a {denomination} hit die.",
@@ -5875,6 +5881,17 @@
       "Hint": "Configure which rest variant should be used for games within this system.",
       "Name": "Rest Variant",
       "Normal": "Player's Handbook (LR: 8 hours, SR: 1 hour)"
+    },
+    "ShortRestSpiritualityMode": {
+      "Hint": "Set the default Spirituality recovery behavior for short rests.",
+      "Name": "Short Rest Spirituality",
+      "None": "No Spirituality Recovery",
+      "Partial": "Partial Spirituality Recovery",
+      "Full": "Full Spirituality Recovery"
+    },
+    "ShortRestSpiritualityFraction": {
+      "Hint": "When Short Rest Spirituality is set to Partial, this is the default fraction of maximum Spirituality recovered.",
+      "Name": "Short Rest Spirituality Fraction"
     },
     "SanityScore": {
       "Hint": "Enable the use of the optional Sanity ability score.",
