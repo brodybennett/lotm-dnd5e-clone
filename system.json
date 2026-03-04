@@ -1,6 +1,6 @@
 {
-    "id": "dnd5e",
-    "title": "Dungeons & Dragons Fifth Edition",
+    "id": "lotm",
+    "title": "LoTM",
     "description": "A system for playing the fifth edition of the world's most popular role-playing game in the Foundry Virtual Tabletop environment.",
     "version": "5.2.5",
     "compatibility": {
@@ -248,7 +248,7 @@
         {
             "name": "heroes",
             "label": "Starter Heroes",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/heroes",
             "type": "Actor",
             "private": false,
@@ -264,7 +264,7 @@
         {
             "name": "monsters",
             "label": "Monsters (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/monsters",
             "type": "Actor",
             "private": false,
@@ -280,7 +280,7 @@
         {
             "name": "items",
             "label": "Items (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/items",
             "type": "Item",
             "private": false,
@@ -302,7 +302,7 @@
         {
             "name": "tradegoods",
             "label": "Trade Goods (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/tradegoods",
             "type": "Item",
             "private": false,
@@ -318,7 +318,7 @@
         {
             "name": "spells",
             "label": "Spells (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/spells",
             "type": "Item",
             "private": false,
@@ -335,7 +335,7 @@
         {
             "name": "backgrounds",
             "label": "Backgrounds (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/backgrounds",
             "type": "Item",
             "private": false,
@@ -352,7 +352,7 @@
         {
             "name": "classes",
             "label": "Classes (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/classes",
             "type": "Item",
             "private": false,
@@ -368,7 +368,7 @@
         {
             "name": "subclasses",
             "label": "Subclasses (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/subclasses",
             "type": "Item",
             "private": false,
@@ -384,7 +384,7 @@
         {
             "name": "classfeatures",
             "label": "Class & Subclass Features (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/classfeatures",
             "type": "Item",
             "private": false,
@@ -401,7 +401,7 @@
         {
             "name": "races",
             "label": "Races (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/races",
             "type": "Item",
             "private": false,
@@ -418,7 +418,7 @@
         {
             "name": "monsterfeatures",
             "label": "Monster Features (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/monsterfeatures",
             "type": "Item",
             "private": false,
@@ -435,7 +435,7 @@
         {
             "name": "rules",
             "label": "Rules (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/rules",
             "type": "JournalEntry",
             "private": false,
@@ -448,7 +448,7 @@
         {
             "name": "tables",
             "label": "Tables (SRD)",
-            "system": "dnd5e",
+            "system": "lotm",
             "path": "packs/tables",
             "type": "RollTable",
             "private": false,
@@ -463,7 +463,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "display": "table-of-contents"
             }
@@ -477,7 +477,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "dnd5e": {
                     "sourceBook": "SRD 5.2",
@@ -498,7 +498,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "dnd5e": {
                     "sourceBook": "SRD 5.2",
@@ -519,7 +519,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "dnd5e": {
                     "sourceBook": "SRD 5.2",
@@ -538,7 +538,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "dnd5e": {
                     "sorting": "m",
@@ -558,7 +558,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "dnd5e": {
                     "sourceBook": "SRD 5.2",
@@ -583,7 +583,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e"
+            "system": "lotm"
         },
         {
             "name": "actors24",
@@ -594,7 +594,7 @@
                 "PLAYER": "OBSERVER",
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "dnd5e": {
                     "sorting": "m",
@@ -610,7 +610,7 @@
             "ownership": {
                 "ASSISTANT": "OWNER"
             },
-            "system": "dnd5e",
+            "system": "lotm",
             "flags": {
                 "dnd5e": {
                     "sourceBook": "SRD 5.2",
@@ -699,8 +699,8 @@
         },
         {
             "type": "setup",
-            "url": "systems/dnd5e/ui/official/dnd5e-repo.jpg",
-            "thumbnail": "systems/dnd5e/ui/official/dnd5e-thumbnail.jpg"
+            "url": "systems/lotm/ui/official/dnd5e-repo.jpg",
+            "thumbnail": "systems/lotm/ui/official/dnd5e-thumbnail.jpg"
         }
     ],
     "socket": true,
@@ -709,11 +709,11 @@
         "units": "ft"
     },
     "primaryTokenAttribute": "attributes.hp",
-    "background": "systems/dnd5e/ui/official/dnd5e-background.webp",
+    "background": "systems/lotm/ui/official/dnd5e-background.webp",
     "flags": {
         "compendiumArtMappings": {
             "dnd5e": {
-                "mapping": "systems/dnd5e/json/fa-token-mapping.json",
+                "mapping": "systems/lotm/json/fa-token-mapping.json",
                 "credit": "<em>Token artwork by <a href=\"https://www.forgotten-adventures.net/\" target=\"_blank\" rel=\"noopener\">Forgotten Adventures</a>.</em>"
             }
         },

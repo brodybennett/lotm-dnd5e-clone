@@ -806,72 +806,72 @@ function parseOrString(raw) {
 async function preloadHandlebarsTemplates() {
   const partials = [
     // Shared Partials
-    "systems/dnd5e/templates/shared/active-effects.hbs",
-    "systems/dnd5e/templates/apps/parts/trait-list.hbs",
-    "systems/dnd5e/templates/apps/parts/traits-list.hbs",
+    "systems/lotm/templates/shared/active-effects.hbs",
+    "systems/lotm/templates/apps/parts/trait-list.hbs",
+    "systems/lotm/templates/apps/parts/traits-list.hbs",
 
     // Actor Sheet Partials
-    "systems/dnd5e/templates/actors/parts/actor-classes.hbs",
-    "systems/dnd5e/templates/actors/parts/actor-trait-pills.hbs",
-    "systems/dnd5e/templates/actors/parts/actor-traits.hbs",
-    "systems/dnd5e/templates/actors/parts/actor-features.hbs",
-    "systems/dnd5e/templates/actors/parts/actor-spellbook.hbs",
-    "systems/dnd5e/templates/actors/parts/actor-warnings.hbs",
-    "systems/dnd5e/templates/actors/parts/actor-warnings-dialog.hbs",
-    "systems/dnd5e/templates/actors/parts/biography-textbox.hbs",
-    "systems/dnd5e/templates/actors/tabs/character-bastion.hbs",
-    "systems/dnd5e/templates/actors/tabs/character-biography.hbs",
-    "systems/dnd5e/templates/actors/tabs/character-details.hbs",
-    "systems/dnd5e/templates/actors/tabs/creature-special-traits.hbs",
-    "systems/dnd5e/templates/actors/tabs/npc-biography.hbs",
+    "systems/lotm/templates/actors/parts/actor-classes.hbs",
+    "systems/lotm/templates/actors/parts/actor-trait-pills.hbs",
+    "systems/lotm/templates/actors/parts/actor-traits.hbs",
+    "systems/lotm/templates/actors/parts/actor-features.hbs",
+    "systems/lotm/templates/actors/parts/actor-spellbook.hbs",
+    "systems/lotm/templates/actors/parts/actor-warnings.hbs",
+    "systems/lotm/templates/actors/parts/actor-warnings-dialog.hbs",
+    "systems/lotm/templates/actors/parts/biography-textbox.hbs",
+    "systems/lotm/templates/actors/tabs/character-bastion.hbs",
+    "systems/lotm/templates/actors/tabs/character-biography.hbs",
+    "systems/lotm/templates/actors/tabs/character-details.hbs",
+    "systems/lotm/templates/actors/tabs/creature-special-traits.hbs",
+    "systems/lotm/templates/actors/tabs/npc-biography.hbs",
 
     // Chat Message Partials
-    "systems/dnd5e/templates/chat/parts/card-activities.hbs",
-    "systems/dnd5e/templates/chat/parts/card-deltas.hbs",
+    "systems/lotm/templates/chat/parts/card-activities.hbs",
+    "systems/lotm/templates/chat/parts/card-deltas.hbs",
 
     // Item Sheet Partials
-    "systems/dnd5e/templates/items/details/details-background.hbs",
-    "systems/dnd5e/templates/items/details/details-class.hbs",
-    "systems/dnd5e/templates/items/details/details-consumable.hbs",
-    "systems/dnd5e/templates/items/details/details-container.hbs",
-    "systems/dnd5e/templates/items/details/details-equipment.hbs",
-    "systems/dnd5e/templates/items/details/details-facility.hbs",
-    "systems/dnd5e/templates/items/details/details-feat.hbs",
-    "systems/dnd5e/templates/items/details/details-loot.hbs",
-    "systems/dnd5e/templates/items/details/details-mountable.hbs",
-    "systems/dnd5e/templates/items/details/details-species.hbs",
-    "systems/dnd5e/templates/items/details/details-spell.hbs",
-    "systems/dnd5e/templates/items/details/details-spellcasting.hbs",
-    "systems/dnd5e/templates/items/details/details-starting-equipment.hbs",
-    "systems/dnd5e/templates/items/details/details-subclass.hbs",
-    "systems/dnd5e/templates/items/details/details-tool.hbs",
-    "systems/dnd5e/templates/items/details/details-weapon.hbs",
-    "systems/dnd5e/templates/items/parts/item-summary.hbs",
-    "systems/dnd5e/templates/items/parts/item-tooltip.hbs",
-    "systems/dnd5e/templates/items/parts/spell-block.hbs",
+    "systems/lotm/templates/items/details/details-background.hbs",
+    "systems/lotm/templates/items/details/details-class.hbs",
+    "systems/lotm/templates/items/details/details-consumable.hbs",
+    "systems/lotm/templates/items/details/details-container.hbs",
+    "systems/lotm/templates/items/details/details-equipment.hbs",
+    "systems/lotm/templates/items/details/details-facility.hbs",
+    "systems/lotm/templates/items/details/details-feat.hbs",
+    "systems/lotm/templates/items/details/details-loot.hbs",
+    "systems/lotm/templates/items/details/details-mountable.hbs",
+    "systems/lotm/templates/items/details/details-species.hbs",
+    "systems/lotm/templates/items/details/details-spell.hbs",
+    "systems/lotm/templates/items/details/details-spellcasting.hbs",
+    "systems/lotm/templates/items/details/details-starting-equipment.hbs",
+    "systems/lotm/templates/items/details/details-subclass.hbs",
+    "systems/lotm/templates/items/details/details-tool.hbs",
+    "systems/lotm/templates/items/details/details-weapon.hbs",
+    "systems/lotm/templates/items/parts/item-summary.hbs",
+    "systems/lotm/templates/items/parts/item-tooltip.hbs",
+    "systems/lotm/templates/items/parts/spell-block.hbs",
 
     // Field Partials
-    "systems/dnd5e/templates/shared/fields/field-activation.hbs",
-    "systems/dnd5e/templates/shared/fields/field-damage.hbs",
-    "systems/dnd5e/templates/shared/fields/field-duration.hbs",
-    "systems/dnd5e/templates/shared/fields/field-range.hbs",
-    "systems/dnd5e/templates/shared/fields/field-targets.hbs",
-    "systems/dnd5e/templates/shared/fields/field-uses.hbs",
-    "systems/dnd5e/templates/shared/fields/fieldlist.hbs",
-    "systems/dnd5e/templates/shared/fields/formlist.hbs",
+    "systems/lotm/templates/shared/fields/field-activation.hbs",
+    "systems/lotm/templates/shared/fields/field-damage.hbs",
+    "systems/lotm/templates/shared/fields/field-duration.hbs",
+    "systems/lotm/templates/shared/fields/field-range.hbs",
+    "systems/lotm/templates/shared/fields/field-targets.hbs",
+    "systems/lotm/templates/shared/fields/field-uses.hbs",
+    "systems/lotm/templates/shared/fields/fieldlist.hbs",
+    "systems/lotm/templates/shared/fields/formlist.hbs",
 
     // Journal Partials
-    "systems/dnd5e/templates/journal/parts/journal-legacy-traits.hbs",
-    "systems/dnd5e/templates/journal/parts/journal-modern-traits.hbs",
-    "systems/dnd5e/templates/journal/parts/journal-table.hbs",
+    "systems/lotm/templates/journal/parts/journal-legacy-traits.hbs",
+    "systems/lotm/templates/journal/parts/journal-modern-traits.hbs",
+    "systems/lotm/templates/journal/parts/journal-table.hbs",
 
     // Activity Partials
-    "systems/dnd5e/templates/activity/parts/activity-usage-notes.hbs",
+    "systems/lotm/templates/activity/parts/activity-usage-notes.hbs",
 
     // Advancement Partials
-    "systems/dnd5e/templates/advancement/parts/advancement-ability-score-control.hbs",
-    "systems/dnd5e/templates/advancement/parts/advancement-controls.hbs",
-    "systems/dnd5e/templates/advancement/parts/advancement-spell-config.hbs"
+    "systems/lotm/templates/advancement/parts/advancement-ability-score-control.hbs",
+    "systems/lotm/templates/advancement/parts/advancement-controls.hbs",
+    "systems/lotm/templates/advancement/parts/advancement-spell-config.hbs"
   ];
 
   const paths = {};
@@ -2245,7 +2245,7 @@ class Dialog5e extends Application5e {
   /** @override */
   static PARTS = {
     content: {
-      template: "systems/dnd5e/templates/shared/dialog-content.hbs"
+      template: "systems/lotm/templates/shared/dialog-content.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -2338,7 +2338,7 @@ class SetDateDialog extends Dialog5e {
   static PARTS = {
     ...super.PARTS,
     content: {
-      template: "systems/dnd5e/templates/apps/set-date-dialog.hbs"
+      template: "systems/lotm/templates/apps/set-date-dialog.hbs"
     }
   };
 
@@ -2418,15 +2418,15 @@ class CalendarHUD extends BaseCalendarHUD {
   static PARTS = {
     startButtons: {
       classes: ["calendar-buttons"],
-      template: "systems/dnd5e/templates/apps/calendar-buttons.hbs"
+      template: "systems/lotm/templates/apps/calendar-buttons.hbs"
     },
     core: {
       classes: ["calendar-core"],
-      template: "systems/dnd5e/templates/apps/calendar-core.hbs"
+      template: "systems/lotm/templates/apps/calendar-core.hbs"
     },
     endButtons: {
       classes: ["calendar-buttons"],
-      template: "systems/dnd5e/templates/apps/calendar-buttons.hbs"
+      template: "systems/lotm/templates/apps/calendar-buttons.hbs"
     }
   };
 
@@ -4861,26 +4861,26 @@ class ActivitySheet extends PseudoDocumentSheet {
       template: "templates/generic/tab-navigation.hbs"
     },
     identity: {
-      template: "systems/dnd5e/templates/activity/identity.hbs",
+      template: "systems/lotm/templates/activity/identity.hbs",
       templates: [
-        "systems/dnd5e/templates/activity/parts/activity-identity.hbs",
-        "systems/dnd5e/templates/activity/parts/activity-visibility.hbs"
+        "systems/lotm/templates/activity/parts/activity-identity.hbs",
+        "systems/lotm/templates/activity/parts/activity-visibility.hbs"
       ]
     },
     activation: {
-      template: "systems/dnd5e/templates/activity/activation.hbs",
+      template: "systems/lotm/templates/activity/activation.hbs",
       templates: [
-        "systems/dnd5e/templates/activity/parts/activity-time.hbs",
-        "systems/dnd5e/templates/activity/parts/activity-targeting.hbs",
-        "systems/dnd5e/templates/activity/parts/activity-consumption.hbs"
+        "systems/lotm/templates/activity/parts/activity-time.hbs",
+        "systems/lotm/templates/activity/parts/activity-targeting.hbs",
+        "systems/lotm/templates/activity/parts/activity-consumption.hbs"
       ]
     },
     effect: {
-      template: "systems/dnd5e/templates/activity/effect.hbs",
+      template: "systems/lotm/templates/activity/effect.hbs",
       templates: [
-        "systems/dnd5e/templates/activity/parts/activity-effects.hbs",
-        "systems/dnd5e/templates/activity/parts/activity-effect-level-limit.hbs",
-        "systems/dnd5e/templates/activity/parts/activity-effect-settings.hbs"
+        "systems/lotm/templates/activity/parts/activity-effects.hbs",
+        "systems/lotm/templates/activity/parts/activity-effect-level-limit.hbs",
+        "systems/lotm/templates/activity/parts/activity-effect-settings.hbs"
       ]
     }
   };
@@ -5107,7 +5107,7 @@ class ActivitySheet extends PseudoDocumentSheet {
           prefix: `effects.${data._index}.`,
           source: context.source.effects[data._index] ?? data,
           contentLink: data.effect.toAnchor().outerHTML,
-          additionalSettings: "systems/dnd5e/templates/activity/parts/activity-effect-settings.hbs"
+          additionalSettings: "systems/lotm/templates/activity/parts/activity-effect-settings.hbs"
         };
         arr.push(this._prepareAppliedEffectContext(context, effect));
         return arr;
@@ -5516,16 +5516,16 @@ class ActivityUsageDialog extends Dialog5e {
   /** @override */
   static PARTS = {
     scaling: {
-      template: "systems/dnd5e/templates/activity/activity-usage-scaling.hbs"
+      template: "systems/lotm/templates/activity/activity-usage-scaling.hbs"
     },
     concentration: {
-      template: "systems/dnd5e/templates/activity/activity-usage-concentration.hbs"
+      template: "systems/lotm/templates/activity/activity-usage-concentration.hbs"
     },
     consumption: {
-      template: "systems/dnd5e/templates/activity/activity-usage-consumption.hbs"
+      template: "systems/lotm/templates/activity/activity-usage-consumption.hbs"
     },
     creation: {
-      template: "systems/dnd5e/templates/activity/activity-usage-creation.hbs"
+      template: "systems/lotm/templates/activity/activity-usage-creation.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -6637,7 +6637,7 @@ class CreateDocumentDialog extends Dialog5e {
   static PARTS = {
     ...super.PARTS,
     content: {
-      template: "systems/dnd5e/templates/apps/document-create.hbs"
+      template: "systems/lotm/templates/apps/document-create.hbs"
     }
   };
 
@@ -7168,7 +7168,7 @@ function ActivityMixin(Base) {
       sheetClass: ActivitySheet,
       usage: {
         actions: {},
-        chatCard: "systems/dnd5e/templates/chat/activity-card.hbs",
+        chatCard: "systems/lotm/templates/chat/activity-card.hbs",
         dialog: ActivityUsageDialog
       }
     });
@@ -8378,20 +8378,20 @@ class AttackSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     identity: {
-      template: "systems/dnd5e/templates/activity/attack-identity.hbs",
+      template: "systems/lotm/templates/activity/attack-identity.hbs",
       templates: [
         ...super.PARTS.identity.templates,
-        "systems/dnd5e/templates/activity/parts/attack-identity.hbs"
+        "systems/lotm/templates/activity/parts/attack-identity.hbs"
       ]
     },
     effect: {
-      template: "systems/dnd5e/templates/activity/attack-effect.hbs",
+      template: "systems/lotm/templates/activity/attack-effect.hbs",
       templates: [
         ...super.PARTS.effect.templates,
-        "systems/dnd5e/templates/activity/parts/attack-damage.hbs",
-        "systems/dnd5e/templates/activity/parts/attack-details.hbs",
-        "systems/dnd5e/templates/activity/parts/damage-part.hbs",
-        "systems/dnd5e/templates/activity/parts/damage-parts.hbs"
+        "systems/lotm/templates/activity/parts/attack-damage.hbs",
+        "systems/lotm/templates/activity/parts/attack-details.hbs",
+        "systems/lotm/templates/activity/parts/damage-part.hbs",
+        "systems/lotm/templates/activity/parts/damage-parts.hbs"
       ]
     }
   };
@@ -8515,13 +8515,13 @@ class RollConfigurationDialog extends Dialog5e {
   /** @override */
   static PARTS = {
     formulas: {
-      template: "systems/dnd5e/templates/dice/roll-formulas.hbs"
+      template: "systems/lotm/templates/dice/roll-formulas.hbs"
     },
     configuration: {
-      template: "systems/dnd5e/templates/dice/roll-configuration.hbs"
+      template: "systems/lotm/templates/dice/roll-configuration.hbs"
     },
     buttons: {
-      template: "systems/dnd5e/templates/dice/roll-buttons.hbs"
+      template: "systems/lotm/templates/dice/roll-buttons.hbs"
     }
   };
 
@@ -8609,7 +8609,7 @@ class RollConfigurationDialog extends Dialog5e {
       // entirely.
       if ( !this.options.rendering.dice.denominations.has(term.denomination) ) return shouldDisplay = false;
       for ( let i = 0; i < term.number; i++ ) dice.push({
-        icon: `systems/dnd5e/icons/svg/dice/${term.denomination}.svg`,
+        icon: `systems/lotm/icons/svg/dice/${term.denomination}.svg`,
         label: term.denomination,
         denomination: term.denomination
       });
@@ -10813,7 +10813,7 @@ class AttackActivity extends ActivityMixin(BaseAttackActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "attack",
-      img: "systems/dnd5e/icons/svg/activity/attack.svg",
+      img: "systems/lotm/icons/svg/activity/attack.svg",
       title: "DND5E.ATTACK.Title.one",
       hint: "DND5E.ATTACK.Hint",
       sheetClass: AttackSheet,
@@ -10834,7 +10834,7 @@ class AttackActivity extends ActivityMixin(BaseAttackActivityData) {
   _usageChatButtons(message) {
     const buttons = [{
       label: game.i18n.localize("DND5E.Attack"),
-      icon: '<i class="dnd5e-icon" data-src="systems/dnd5e/icons/svg/trait-weapon-proficiencies.svg" inert></i>',
+      icon: '<i class="dnd5e-icon" data-src="systems/lotm/icons/svg/trait-weapon-proficiencies.svg" inert></i>',
       dataset: {
         action: "rollAttack"
       }
@@ -11119,10 +11119,10 @@ class CastSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/cast-effect.hbs",
+      template: "systems/lotm/templates/activity/cast-effect.hbs",
       templates: [
-        "systems/dnd5e/templates/activity/parts/cast-spell.hbs",
-        "systems/dnd5e/templates/activity/parts/cast-details.hbs"
+        "systems/lotm/templates/activity/parts/cast-spell.hbs",
+        "systems/lotm/templates/activity/parts/cast-details.hbs"
       ]
     }
   };
@@ -11317,7 +11317,7 @@ class CastActivity extends ActivityMixin(BaseCastActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "cast",
-      img: "systems/dnd5e/icons/svg/activity/cast.svg",
+      img: "systems/lotm/icons/svg/activity/cast.svg",
       title: "DND5E.CAST.Title",
       hint: "DND5E.CAST.Hint",
       sheetClass: CastSheet
@@ -11409,7 +11409,7 @@ class CastActivity extends ActivityMixin(BaseCastActivityData) {
           _id: this.constructor.ENCHANTMENT_ID,
           type: "enchantment",
           name: game.i18n.localize("DND5E.CAST.Enchantment.Name"),
-          img: "systems/dnd5e/icons/svg/activity/cast.svg",
+          img: "systems/lotm/icons/svg/activity/cast.svg",
           origin: this.uuid,
           changes: this.getSpellChanges()
         }
@@ -12346,10 +12346,10 @@ class CheckSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/check-effect.hbs",
+      template: "systems/lotm/templates/activity/check-effect.hbs",
       templates: [
         ...super.PARTS.effect.templates,
-        "systems/dnd5e/templates/activity/parts/check-details.hbs"
+        "systems/lotm/templates/activity/parts/check-details.hbs"
       ]
     }
   };
@@ -12506,7 +12506,7 @@ class CheckActivity extends ActivityMixin(BaseCheckActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "check",
-      img: "systems/dnd5e/icons/svg/activity/check.svg",
+      img: "systems/lotm/icons/svg/activity/check.svg",
       title: "DND5E.CHECK.Title",
       hint: "DND5E.CHECK.Hint",
       sheetClass: CheckSheet,
@@ -12548,7 +12548,7 @@ class CheckActivity extends ActivityMixin(BaseCheckActivityData) {
           <span class="hidden-dc">${wrap(label)}</span>
         ` : wrap(label),
         icon: checkType === "tool" ? '<i class="fa-solid fa-hammer" inert></i>'
-          : '<i class="dnd5e-icon" data-src="systems/dnd5e/icons/svg/ability-score-improvement.svg" inert></i>',
+          : '<i class="dnd5e-icon" data-src="systems/lotm/icons/svg/ability-score-improvement.svg" inert></i>',
         dataset
       });
     };
@@ -12621,12 +12621,12 @@ class DamageSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/damage-effect.hbs",
+      template: "systems/lotm/templates/activity/damage-effect.hbs",
       templates: [
         ...super.PARTS.effect.templates,
-        "systems/dnd5e/templates/activity/parts/damage-damage.hbs",
-        "systems/dnd5e/templates/activity/parts/damage-part.hbs",
-        "systems/dnd5e/templates/activity/parts/damage-parts.hbs"
+        "systems/lotm/templates/activity/parts/damage-damage.hbs",
+        "systems/lotm/templates/activity/parts/damage-part.hbs",
+        "systems/lotm/templates/activity/parts/damage-parts.hbs"
       ]
     }
   };
@@ -12721,7 +12721,7 @@ class DamageActivity extends ActivityMixin(BaseDamageActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "damage",
-      img: "systems/dnd5e/icons/svg/activity/damage.svg",
+      img: "systems/lotm/icons/svg/activity/damage.svg",
       title: "DND5E.DAMAGE.Title",
       hint: "DND5E.DAMAGE.Hint",
       sheetClass: DamageSheet,
@@ -12788,10 +12788,10 @@ class EnchantSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/enchant-effect.hbs",
+      template: "systems/lotm/templates/activity/enchant-effect.hbs",
       templates: [
-        "systems/dnd5e/templates/activity/parts/enchant-enchantments.hbs",
-        "systems/dnd5e/templates/activity/parts/enchant-restrictions.hbs"
+        "systems/lotm/templates/activity/parts/enchant-enchantments.hbs",
+        "systems/lotm/templates/activity/parts/enchant-restrictions.hbs"
       ]
     }
   };
@@ -12913,7 +12913,7 @@ class EnchantUsageDialog extends ActivityUsageDialog {
   static PARTS = {
     ...super.PARTS,
     creation: {
-      template: "systems/dnd5e/templates/activity/enchant-usage-creation.hbs"
+      template: "systems/lotm/templates/activity/enchant-usage-creation.hbs"
     }
   };
 
@@ -13108,7 +13108,7 @@ class ActivityChoiceDialog extends Application5e {
 
   static PARTS = {
     activities: {
-      template: "systems/dnd5e/templates/activity/activity-choices.hbs"
+      template: "systems/lotm/templates/activity/activity-choices.hbs"
     }
   };
 
@@ -13164,7 +13164,7 @@ class ActivityChoiceDialog extends Application5e {
       controlHint = game.i18n.localize("DND5E.Controls.Activity.FastForwardHint");
       controlHint = controlHint.replace(
         "<left-click>",
-        `<img src="systems/dnd5e/icons/svg/mouse-left.svg" alt="${game.i18n.localize("DND5E.Controls.LeftClick")}">`
+        `<img src="systems/lotm/icons/svg/mouse-left.svg" alt="${game.i18n.localize("DND5E.Controls.LeftClick")}">`
       );
     }
     const activities = this.#item.system.activities
@@ -13269,7 +13269,7 @@ let AdvancementConfig$1 = class AdvancementConfig extends PseudoDocumentSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/advancement/advancement-controls-section.hbs"
+      template: "systems/lotm/templates/advancement/advancement-controls-section.hbs"
     }
   };
 
@@ -13522,7 +13522,7 @@ class AdvancementFlow extends FormApplication {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/advancement/advancement-flow.hbs",
+      template: "systems/lotm/templates/advancement/advancement-flow.hbs",
       popOut: false
     });
   }
@@ -14215,7 +14215,7 @@ class AdvancementManager extends Application5e {
   /** @override */
   static PARTS = {
     manager: {
-      template: "systems/dnd5e/templates/advancement/advancement-manager.hbs"
+      template: "systems/lotm/templates/advancement/advancement-manager.hbs"
     }
   };
 
@@ -15083,7 +15083,7 @@ class AdvancementVisualizer extends Application5e {
   /** @override */
   static PARTS = {
     steps: {
-      template: "systems/dnd5e/templates/advancement/advancement-visualizer.hbs"
+      template: "systems/lotm/templates/advancement/advancement-visualizer.hbs"
     }
   };
 
@@ -15122,7 +15122,7 @@ class AdvancementConfirmationDialog extends Dialog {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/advancement/advancement-confirmation-dialog.hbs",
+      template: "systems/lotm/templates/advancement/advancement-confirmation-dialog.hbs",
       jQuery: false
     });
   }
@@ -15245,7 +15245,7 @@ class CreateScrollDialog extends Dialog5e {
   static PARTS = {
     ...super.PARTS,
     content: {
-      template: "systems/dnd5e/templates/apps/spell-scroll-dialog.hbs"
+      template: "systems/lotm/templates/apps/spell-scroll-dialog.hbs"
     }
   };
 
@@ -15409,23 +15409,23 @@ class TraitConfig extends AdvancementConfig$1 {
   static PARTS = {
     config: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/advancement-controls-section.hbs"
+      template: "systems/lotm/templates/advancement/advancement-controls-section.hbs"
     },
     details: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/trait-config-details.hbs"
+      template: "systems/lotm/templates/advancement/trait-config-details.hbs"
     },
     guaranteed: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/trait-config-guaranteed.hbs"
+      template: "systems/lotm/templates/advancement/trait-config-guaranteed.hbs"
     },
     choices: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/trait-config-choices.hbs"
+      template: "systems/lotm/templates/advancement/trait-config-choices.hbs"
     },
     traits: {
       container: { classes: ["column-container"], id: "column-right" },
-      template: "systems/dnd5e/templates/advancement/trait-config-traits.hbs"
+      template: "systems/lotm/templates/advancement/trait-config-traits.hbs"
     }
   };
 
@@ -15679,7 +15679,7 @@ class TraitFlow extends AdvancementFlow {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/advancement/trait-flow.hbs"
+      template: "systems/lotm/templates/advancement/trait-flow.hbs"
     });
   }
 
@@ -15901,7 +15901,7 @@ class TraitAdvancement extends Advancement {
       },
       order: 30,
       icon: "icons/sundries/scrolls/scroll-yellow-teal.webp",
-      typeIcon: "systems/dnd5e/icons/svg/trait.svg",
+      typeIcon: "systems/lotm/icons/svg/trait.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.Trait.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.Trait.Hint"),
       apps: {
@@ -16589,7 +16589,7 @@ let ItemDataModel$1 = class ItemDataModel extends SystemDataModel$1 {
    * The handlebars template for rendering item tooltips.
    * @type {string}
    */
-  static ITEM_TOOLTIP_TEMPLATE = "systems/dnd5e/templates/items/parts/item-tooltip.hbs";
+  static ITEM_TOOLTIP_TEMPLATE = "systems/lotm/templates/items/parts/item-tooltip.hbs";
 
   /* -------------------------------------------- */
   /*  Properties                                  */
@@ -21045,7 +21045,7 @@ const TextEditor$b = foundry.applications.ux.TextEditor.implementation;
 class Item5e extends SystemDocumentMixin(Item) {
 
   /** @override */
-  static DEFAULT_ICON = "systems/dnd5e/icons/svg/documents/item.svg";
+  static DEFAULT_ICON = "systems/lotm/icons/svg/documents/item.svg";
 
   /* -------------------------------------------- */
 
@@ -21741,7 +21741,7 @@ class Item5e extends SystemDocumentMixin(Item) {
       create: message?.createMessage ?? true,
       data: {
         content: await foundry.applications.handlebars.renderTemplate(
-          "systems/dnd5e/templates/chat/item-card.hbs", context
+          "systems/lotm/templates/chat/item-card.hbs", context
         ),
         flags: {
           "dnd5e.item": { id: this.id, uuid: this.uuid, type: this.type }
@@ -22569,7 +22569,7 @@ class EnchantActivity extends ActivityMixin(BaseEnchantActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "enchant",
-      img: "systems/dnd5e/icons/svg/activity/enchant.svg",
+      img: "systems/lotm/icons/svg/activity/enchant.svg",
       title: "DND5E.ENCHANT.Title",
       hint: "DND5E.ENCHANT.Hint",
       sheetClass: EnchantSheet,
@@ -22837,13 +22837,13 @@ class ForwardSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     activation: {
-      template: "systems/dnd5e/templates/activity/forward-activation.hbs",
+      template: "systems/lotm/templates/activity/forward-activation.hbs",
       templates: [
-        "systems/dnd5e/templates/activity/parts/activity-consumption.hbs"
+        "systems/lotm/templates/activity/parts/activity-consumption.hbs"
       ]
     },
     effect: {
-      template: "systems/dnd5e/templates/activity/forward-effect.hbs"
+      template: "systems/lotm/templates/activity/forward-effect.hbs"
     }
   };
 
@@ -22952,7 +22952,7 @@ class ForwardActivity extends ActivityMixin(BaseForwardActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "forward",
-      img: "systems/dnd5e/icons/svg/activity/forward.svg",
+      img: "systems/lotm/icons/svg/activity/forward.svg",
       title: "DND5E.FORWARD.Title",
       hint: "DND5E.FORWARD.Hint",
       sheetClass: ForwardSheet
@@ -22997,11 +22997,11 @@ class HealSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/heal-effect.hbs",
+      template: "systems/lotm/templates/activity/heal-effect.hbs",
       templates: [
         ...super.PARTS.effect.templates,
-        "systems/dnd5e/templates/activity/parts/damage-part.hbs",
-        "systems/dnd5e/templates/activity/parts/heal-healing.hbs"
+        "systems/lotm/templates/activity/parts/damage-part.hbs",
+        "systems/lotm/templates/activity/parts/heal-healing.hbs"
       ]
     }
   };
@@ -23098,7 +23098,7 @@ class HealActivity extends ActivityMixin(BaseHealActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "heal",
-      img: "systems/dnd5e/icons/svg/activity/heal.svg",
+      img: "systems/lotm/icons/svg/activity/heal.svg",
       title: "DND5E.HEAL.Title",
       hint: "DND5E.HEAL.Hint",
       sheetClass: HealSheet,
@@ -23128,7 +23128,7 @@ class HealActivity extends ActivityMixin(BaseHealActivityData) {
     if ( !this.healing.formula ) return super._usageChatButtons(message);
     return [{
       label: game.i18n.localize("DND5E.Healing"),
-      icon: '<i class="dnd5e-icon" data-src="systems/dnd5e/icons/svg/damage/healing.svg"></i>',
+      icon: '<i class="dnd5e-icon" data-src="systems/lotm/icons/svg/damage/healing.svg"></i>',
       dataset: {
         action: "rollHealing"
       }
@@ -23211,7 +23211,7 @@ class OrderUsageDialog extends ActivityUsageDialog {
   /** @override */
   static PARTS = {
     order: {
-      template: "systems/dnd5e/templates/activity/order-usage.hbs"
+      template: "systems/lotm/templates/activity/order-usage.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -23635,7 +23635,7 @@ class Award extends Application5e {
   /** @override */
   static PARTS = {
     award: {
-      template: "systems/dnd5e/templates/apps/award.hbs"
+      template: "systems/lotm/templates/apps/award.hbs"
     }
   };
 
@@ -23720,7 +23720,7 @@ class Award extends Application5e {
    */
   static prepareDestinations(destinations, savedDestinations) {
     const icons = {
-      container: '<dnd5e-icon class="fa-fw" src="systems/dnd5e/icons/svg/backpack.svg"></dnd5e-icon>',
+      container: '<dnd5e-icon class="fa-fw" src="systems/lotm/icons/svg/backpack.svg"></dnd5e-icon>',
       group: '<i class="fa-solid fa-people-group"></i>',
       vehicle: '<i class="fa-solid fa-sailboat"></i>'
     };
@@ -24066,10 +24066,10 @@ class CurrencyManager extends Application5e {
       template: "templates/generic/tab-navigation.hbs"
     },
     convert: {
-      template: "systems/dnd5e/templates/apps/currency-manager-convert.hbs"
+      template: "systems/lotm/templates/apps/currency-manager-convert.hbs"
     },
     transfer: {
-      template: "systems/dnd5e/templates/apps/currency-manager-transfer.hbs"
+      template: "systems/lotm/templates/apps/currency-manager-transfer.hbs"
     }
   };
 
@@ -24351,13 +24351,13 @@ class OrderActivity extends ActivityMixin(BaseOrderActivityData) {
   /** @inheritDoc */
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
     type: "order",
-    img: "systems/dnd5e/icons/svg/activity/order.svg",
+    img: "systems/lotm/icons/svg/activity/order.svg",
     title: "DND5E.FACILITY.Order.Issue",
     usage: {
       actions: {
         pay: OrderActivity.#onPayOrder
       },
-      chatCard: "systems/dnd5e/templates/chat/order-activity-card.hbs",
+      chatCard: "systems/lotm/templates/chat/order-activity-card.hbs",
       dialog: OrderUsageDialog
     }
   }, { inplace: false }));
@@ -24653,14 +24653,14 @@ class SaveSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/save-effect.hbs",
+      template: "systems/lotm/templates/activity/save-effect.hbs",
       templates: [
         ...super.PARTS.effect.templates,
-        "systems/dnd5e/templates/activity/parts/damage-part.hbs",
-        "systems/dnd5e/templates/activity/parts/damage-parts.hbs",
-        "systems/dnd5e/templates/activity/parts/save-damage.hbs",
-        "systems/dnd5e/templates/activity/parts/save-details.hbs",
-        "systems/dnd5e/templates/activity/parts/save-effect-settings.hbs"
+        "systems/lotm/templates/activity/parts/damage-part.hbs",
+        "systems/lotm/templates/activity/parts/damage-parts.hbs",
+        "systems/lotm/templates/activity/parts/save-damage.hbs",
+        "systems/lotm/templates/activity/parts/save-details.hbs",
+        "systems/lotm/templates/activity/parts/save-effect-settings.hbs"
       ]
     }
   };
@@ -24671,7 +24671,7 @@ class SaveSheet extends ActivitySheet {
 
   /** @override */
   _prepareAppliedEffectContext(context, effect) {
-    effect.additionalSettings = "systems/dnd5e/templates/activity/parts/save-effect-settings.hbs";
+    effect.additionalSettings = "systems/lotm/templates/activity/parts/save-effect-settings.hbs";
     return effect;
   }
 
@@ -24859,7 +24859,7 @@ class SaveActivity extends ActivityMixin(BaseSaveActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "save",
-      img: "systems/dnd5e/icons/svg/activity/save.svg",
+      img: "systems/lotm/icons/svg/activity/save.svg",
       title: "DND5E.SAVE.Title.one",
       hint: "DND5E.SAVE.Hint",
       sheetClass: SaveSheet,
@@ -24992,11 +24992,11 @@ class SummonSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/summon-effect.hbs",
+      template: "systems/lotm/templates/activity/summon-effect.hbs",
       templates: [
         ...super.PARTS.effect.templates,
-        "systems/dnd5e/templates/activity/parts/summon-changes.hbs",
-        "systems/dnd5e/templates/activity/parts/summon-profiles.hbs"
+        "systems/lotm/templates/activity/parts/summon-changes.hbs",
+        "systems/lotm/templates/activity/parts/summon-profiles.hbs"
       ]
     }
   };
@@ -25173,7 +25173,7 @@ class SummonUsageDialog extends ActivityUsageDialog {
   static PARTS = {
     ...super.PARTS,
     creation: {
-      template: "systems/dnd5e/templates/activity/summon-usage-creation.hbs"
+      template: "systems/lotm/templates/activity/summon-usage-creation.hbs"
     }
   };
 
@@ -25686,11 +25686,11 @@ class CompendiumBrowserSettingsConfig extends Application5e {
   static PARTS = {
     sidebar: {
       id: "sidebar",
-      template: "systems/dnd5e/templates/compendium/sources-sidebar.hbs"
+      template: "systems/lotm/templates/compendium/sources-sidebar.hbs"
     },
     packs: {
       id: "packs",
-      template: "systems/dnd5e/templates/compendium/sources-packs.hbs"
+      template: "systems/lotm/templates/compendium/sources-packs.hbs"
     }
   };
 
@@ -26074,41 +26074,41 @@ class CompendiumBrowser extends Application5e {
     header: {
       id: "header",
       classes: ["header"],
-      template: "systems/dnd5e/templates/compendium/browser-header.hbs"
+      template: "systems/lotm/templates/compendium/browser-header.hbs"
     },
     search: {
       id: "sidebar-search",
       classes: ["filter-element"],
       container: { id: "sidebar", classes: ["sidebar", "flexcol"] },
-      template: "systems/dnd5e/templates/compendium/browser-sidebar-search.hbs"
+      template: "systems/lotm/templates/compendium/browser-sidebar-search.hbs"
     },
     types: {
       id: "sidebar-types",
       container: { id: "sidebar", classes: ["sidebar", "flexcol"] },
-      template: "systems/dnd5e/templates/compendium/browser-sidebar-types.hbs"
+      template: "systems/lotm/templates/compendium/browser-sidebar-types.hbs"
     },
     filters: {
       id: "sidebar-filters",
       container: { id: "sidebar", classes: ["sidebar", "flexcol"] },
-      template: "systems/dnd5e/templates/compendium/browser-sidebar-filters.hbs",
-      templates: ["systems/dnd5e/templates/compendium/browser-sidebar-filter-set.hbs"]
+      template: "systems/lotm/templates/compendium/browser-sidebar-filters.hbs",
+      templates: ["systems/lotm/templates/compendium/browser-sidebar-filter-set.hbs"]
     },
     results: {
       id: "results",
       classes: ["results"],
-      template: "systems/dnd5e/templates/compendium/browser-results.hbs",
-      templates: ["systems/dnd5e/templates/compendium/browser-entry.hbs"],
+      template: "systems/lotm/templates/compendium/browser-results.hbs",
+      templates: ["systems/lotm/templates/compendium/browser-entry.hbs"],
       scrollable: [""]
     },
     footer: {
       id: "footer",
       classes: ["footer"],
-      template: "systems/dnd5e/templates/compendium/browser-footer.hbs"
+      template: "systems/lotm/templates/compendium/browser-footer.hbs"
     },
     tabs: {
       id: "tabs",
       classes: ["tabs", "tabs-left"],
-      template: "systems/dnd5e/templates/compendium/browser-tabs.hbs"
+      template: "systems/lotm/templates/compendium/browser-tabs.hbs"
     }
   };
 
@@ -26122,21 +26122,21 @@ class CompendiumBrowser extends Application5e {
     {
       tab: "classes",
       label: "TYPES.Item.classPl",
-      svg: "systems/dnd5e/icons/svg/items/class.svg",
+      svg: "systems/lotm/icons/svg/items/class.svg",
       documentClass: "Item",
       types: ["class"]
     },
     {
       tab: "subclasses",
       label: "TYPES.Item.subclassPl",
-      svg: "systems/dnd5e/icons/svg/items/subclass.svg",
+      svg: "systems/lotm/icons/svg/items/subclass.svg",
       documentClass: "Item",
       types: ["subclass"]
     },
     {
       tab: "races",
       label: "TYPES.Item.racePl",
-      svg: "systems/dnd5e/icons/svg/items/race.svg",
+      svg: "systems/lotm/icons/svg/items/race.svg",
       documentClass: "Item",
       types: ["race"]
     },
@@ -26150,14 +26150,14 @@ class CompendiumBrowser extends Application5e {
     {
       tab: "backgrounds",
       label: "TYPES.Item.backgroundPl",
-      svg: "systems/dnd5e/icons/svg/items/background.svg",
+      svg: "systems/lotm/icons/svg/items/background.svg",
       documentClass: "Item",
       types: ["background"]
     },
     {
       tab: "physical",
       label: "DND5E.CompendiumBrowser.Tabs.Item.other",
-      svg: "systems/dnd5e/icons/svg/backpack.svg",
+      svg: "systems/lotm/icons/svg/backpack.svg",
       documentClass: "Item",
       types: ["physical"]
     },
@@ -26171,28 +26171,28 @@ class CompendiumBrowser extends Application5e {
     {
       tab: "monsters",
       label: "DND5E.CompendiumBrowser.Tabs.Monster.other",
-      svg: "systems/dnd5e/icons/svg/actors/npc.svg",
+      svg: "systems/lotm/icons/svg/actors/npc.svg",
       documentClass: "Actor",
       types: ["npc"]
     },
     {
       tab: "vehicles",
       label: "TYPES.Actor.vehiclePl",
-      svg: "systems/dnd5e/icons/svg/actors/vehicle.svg",
+      svg: "systems/lotm/icons/svg/actors/vehicle.svg",
       documentClass: "Actor",
       types: ["vehicle"]
     },
     {
       tab: "actors",
       label: "DOCUMENT.Actors",
-      svg: "systems/dnd5e/icons/svg/actors/npc.svg",
+      svg: "systems/lotm/icons/svg/actors/npc.svg",
       documentClass: "Actor",
       advanced: true
     },
     {
       tab: "items",
       label: "DOCUMENT.Items",
-      svg: "systems/dnd5e/icons/svg/backpack.svg",
+      svg: "systems/lotm/icons/svg/backpack.svg",
       documentClass: "Item",
       advanced: true
     }
@@ -26637,7 +26637,7 @@ class CompendiumBrowser extends Application5e {
       selected: this.#selected.has(uuid)
     };
     const html = await foundry.applications.handlebars.renderTemplate(
-      "systems/dnd5e/templates/compendium/browser-entry.hbs", context
+      "systems/lotm/templates/compendium/browser-entry.hbs", context
     );
     const template = document.createElement("template");
     template.innerHTML = html;
@@ -26698,7 +26698,7 @@ class CompendiumBrowser extends Application5e {
       return obj;
     }, {});
     const filter = await foundry.applications.handlebars.renderTemplate(
-      "systems/dnd5e/templates/compendium/browser-sidebar-filter-set.hbs",
+      "systems/lotm/templates/compendium/browser-sidebar-filter-set.hbs",
       {
         locked,
         value: locked,
@@ -27724,7 +27724,7 @@ class SummonActivity extends ActivityMixin(BaseSummonActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "summon",
-      img: "systems/dnd5e/icons/svg/activity/summon.svg",
+      img: "systems/lotm/icons/svg/activity/summon.svg",
       title: "DND5E.SUMMON.Title",
       hint: "DND5E.SUMMON.Hint",
       sheetClass: SummonSheet,
@@ -28527,11 +28527,11 @@ class TransformSheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/transform-effect.hbs",
+      template: "systems/lotm/templates/activity/transform-effect.hbs",
       templates: [
         ...super.PARTS.effect.templates,
-        "systems/dnd5e/templates/activity/parts/transform-profiles.hbs",
-        "systems/dnd5e/templates/activity/parts/transform-settings.hbs"
+        "systems/lotm/templates/activity/parts/transform-profiles.hbs",
+        "systems/lotm/templates/activity/parts/transform-settings.hbs"
       ]
     }
   };
@@ -28725,7 +28725,7 @@ class TransformUsageDialog extends ActivityUsageDialog {
   static PARTS = {
     ...super.PARTS,
     creation: {
-      template: "systems/dnd5e/templates/activity/transform-usage-creation.hbs"
+      template: "systems/lotm/templates/activity/transform-usage-creation.hbs"
     }
   };
 
@@ -28894,7 +28894,7 @@ class TransformActivity extends ActivityMixin(BaseTransformActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "transform",
-      img: "systems/dnd5e/icons/svg/activity/transform.svg",
+      img: "systems/lotm/icons/svg/activity/transform.svg",
       title: "DND5E.TRANSFORM.Title",
       hint: "DND5E.TRANSFORM.Hint",
       sheetClass: TransformSheet,
@@ -29059,7 +29059,7 @@ class UtilitySheet extends ActivitySheet {
   static PARTS = {
     ...super.PARTS,
     effect: {
-      template: "systems/dnd5e/templates/activity/utility-effect.hbs",
+      template: "systems/lotm/templates/activity/utility-effect.hbs",
       templates: super.PARTS.effect.templates
     }
   };
@@ -29145,7 +29145,7 @@ class UtilityActivity extends ActivityMixin(BaseUtilityActivityData) {
   static metadata = Object.freeze(
     foundry.utils.mergeObject(super.metadata, {
       type: "utility",
-      img: "systems/dnd5e/icons/svg/activity/utility.svg",
+      img: "systems/lotm/icons/svg/activity/utility.svg",
       title: "DND5E.UTILITY.Title",
       hint: "DND5E.UTILITY.Hint",
       sheetClass: UtilitySheet,
@@ -29301,7 +29301,7 @@ class BaseRestDialog extends Dialog5e {
     position: {
       width: 380
     },
-    templates: ["systems/dnd5e/templates/actors/rest/rest-request.hbs"]
+    templates: ["systems/lotm/templates/actors/rest/rest-request.hbs"]
   };
 
   /* -------------------------------------------- */
@@ -29515,7 +29515,7 @@ class ShortRestDialog extends BaseRestDialog {
   static PARTS = {
     ...super.PARTS,
     content: {
-      template: "systems/dnd5e/templates/actors/rest/short-rest.hbs"
+      template: "systems/lotm/templates/actors/rest/short-rest.hbs"
     }
   };
 
@@ -29612,7 +29612,7 @@ class LongRestDialog extends BaseRestDialog {
   static PARTS = {
     ...super.PARTS,
     content: {
-      template: "systems/dnd5e/templates/actors/rest/long-rest.hbs"
+      template: "systems/lotm/templates/actors/rest/long-rest.hbs"
     }
   };
 
@@ -29722,7 +29722,7 @@ class PropertyAttribution extends Application5e {
   /** @override */
   static PARTS = {
     attribution: {
-      template: "systems/dnd5e/templates/apps/property-attribution.hbs"
+      template: "systems/lotm/templates/apps/property-attribution.hbs"
     }
   };
 
@@ -31383,7 +31383,7 @@ function createRollLabel(config) {
     switch ( config.type ) {
       case "check":
       case "skill":
-        label = `<i class="dnd5e-icon" data-src="systems/dnd5e/icons/svg/ability-score-improvement.svg"></i>${label}`;
+        label = `<i class="dnd5e-icon" data-src="systems/lotm/icons/svg/ability-score-improvement.svg"></i>${label}`;
         break;
       case "tool":
         label = `<i class="fas fa-hammer"></i>${label}`;
@@ -31564,7 +31564,7 @@ async function rollAction(event) {
     const chatData = {
       user: game.user.id,
       content: await foundry.applications.handlebars.renderTemplate(
-        "systems/dnd5e/templates/chat/roll-request-card.hbs", { buttons }
+        "systems/lotm/templates/chat/roll-request-card.hbs", { buttons }
       ),
       flavor: game.i18n.localize("EDITOR.DND5E.Inline.RollRequest"),
       speaker: MessageClass.getSpeaker({user: game.user})
@@ -32693,7 +32693,7 @@ class ActiveEffect5e extends DependentDocumentMixin(ActiveEffect) {
 
     return {
       content: await foundry.applications.handlebars.renderTemplate(
-        "systems/dnd5e/templates/effects/parts/effect-tooltip.hbs", {
+        "systems/lotm/templates/effects/parts/effect-tooltip.hbs", {
           effect: this,
           description: await TextEditor$a.enrichHTML(this.description ?? "", { relativeTo: this, ...enrichmentOptions }),
           durationParts: this.duration.remaining ? this.duration.label.split(", ") : [],
@@ -32744,7 +32744,7 @@ class ActiveEffect5e extends DependentDocumentMixin(ActiveEffect) {
 class Actor5e extends SystemDocumentMixin(Actor) {
 
   /** @override */
-  static DEFAULT_ICON = "systems/dnd5e/icons/svg/documents/actor.svg";
+  static DEFAULT_ICON = "systems/lotm/icons/svg/documents/actor.svg";
 
   /* -------------------------------------------- */
 
@@ -33778,7 +33778,7 @@ class Actor5e extends SystemDocumentMixin(Actor) {
 
     return ChatMessage.implementation.create({
       content: await foundry.applications.handlebars.renderTemplate(
-        "systems/dnd5e/templates/chat/roll-request-card.hbs",
+        "systems/lotm/templates/chat/roll-request-card.hbs",
         {
           buttons: [{
             dataset: { ...dataset, type: "concentration", visbility: "all" },
@@ -36412,11 +36412,11 @@ class AbilityScoreImprovementConfig extends AdvancementConfig$1 {
   static PARTS = {
     ...super.PARTS,
     details: {
-      template: "systems/dnd5e/templates/advancement/ability-score-improvement-config-details.hbs"
+      template: "systems/lotm/templates/advancement/ability-score-improvement-config-details.hbs"
     },
     scores: {
-      template: "systems/dnd5e/templates/advancement/ability-score-improvement-config-scores.hbs",
-      templates: ["systems/dnd5e/templates/advancement/parts/advancement-ability-score-control-v2.hbs"]
+      template: "systems/lotm/templates/advancement/ability-score-improvement-config-scores.hbs",
+      templates: ["systems/lotm/templates/advancement/parts/advancement-ability-score-control-v2.hbs"]
     }
   };
 
@@ -36540,7 +36540,7 @@ class AbilityScoreImprovementFlow extends AdvancementFlow {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       dragDrop: [{ dropSelector: "form" }],
-      template: "systems/dnd5e/templates/advancement/ability-score-improvement-flow.hbs"
+      template: "systems/lotm/templates/advancement/ability-score-improvement-flow.hbs"
     });
   }
 
@@ -36847,7 +36847,7 @@ class AbilityScoreImprovementAdvancement extends Advancement {
       },
       order: 20,
       icon: "icons/magic/symbols/star-solid-gold.webp",
-      typeIcon: "systems/dnd5e/icons/svg/ability-score-improvement.svg",
+      typeIcon: "systems/lotm/icons/svg/ability-score-improvement.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.AbilityScoreImprovement.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.AbilityScoreImprovement.Hint"),
       apps: {
@@ -37084,7 +37084,7 @@ let HitPointsConfig$1 = class HitPointsConfig extends AdvancementConfig$1 {
   static PARTS = {
     ...super.PARTS,
     hitPoints: {
-      template: "systems/dnd5e/templates/advancement/hit-points-config.hbs"
+      template: "systems/lotm/templates/advancement/hit-points-config.hbs"
     }
   };
 
@@ -37108,7 +37108,7 @@ class HitPointsFlow extends AdvancementFlow {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/advancement/hit-points-flow.hbs"
+      template: "systems/lotm/templates/advancement/hit-points-flow.hbs"
     });
   }
 
@@ -37194,7 +37194,7 @@ class HitPointsAdvancement extends Advancement {
     return foundry.utils.mergeObject(super.metadata, {
       order: 10,
       icon: "icons/magic/life/heart-pink.webp",
-      typeIcon: "systems/dnd5e/icons/svg/hit-points.svg",
+      typeIcon: "systems/lotm/icons/svg/hit-points.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.HitPoints.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.HitPoints.Hint"),
       multiLevel: true,
@@ -37402,23 +37402,23 @@ class ItemChoiceConfig extends AdvancementConfig$1 {
   static PARTS = {
     config: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/advancement-controls-section.hbs"
+      template: "systems/lotm/templates/advancement/advancement-controls-section.hbs"
     },
     details: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/item-choice-config-details.hbs"
+      template: "systems/lotm/templates/advancement/item-choice-config-details.hbs"
     },
     spellConfig: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/advancement-spell-config-section.hbs"
+      template: "systems/lotm/templates/advancement/advancement-spell-config-section.hbs"
     },
     items: {
       container: { classes: ["column-container"], id: "column-center" },
-      template: "systems/dnd5e/templates/advancement/item-choice-config-items.hbs"
+      template: "systems/lotm/templates/advancement/item-choice-config-items.hbs"
     },
     levels: {
       container: { classes: ["column-container"], id: "column-right" },
-      template: "systems/dnd5e/templates/advancement/item-choice-config-levels.hbs"
+      template: "systems/lotm/templates/advancement/item-choice-config-levels.hbs"
     }
   };
 
@@ -37531,7 +37531,7 @@ class ItemGrantFlow extends AdvancementFlow {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/advancement/item-grant-flow.hbs"
+      template: "systems/lotm/templates/advancement/item-grant-flow.hbs"
     });
   }
 
@@ -37669,7 +37669,7 @@ class ItemChoiceFlow extends ItemGrantFlow {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       dragDrop: [{ dropSelector: ".drop-target" }],
-      template: "systems/dnd5e/templates/advancement/item-choice-flow.hbs"
+      template: "systems/lotm/templates/advancement/item-choice-flow.hbs"
     });
   }
 
@@ -38232,13 +38232,13 @@ class ItemGrantConfig extends AdvancementConfig$1 {
   static PARTS = {
     ...super.PARTS,
     details: {
-      template: "systems/dnd5e/templates/advancement/item-grant-config-details.hbs"
+      template: "systems/lotm/templates/advancement/item-grant-config-details.hbs"
     },
     spellConfig: {
-      template: "systems/dnd5e/templates/advancement/advancement-spell-config-section.hbs"
+      template: "systems/lotm/templates/advancement/advancement-spell-config-section.hbs"
     },
     items: {
-      template: "systems/dnd5e/templates/advancement/item-grant-config-items.hbs"
+      template: "systems/lotm/templates/advancement/item-grant-config-items.hbs"
     }
   };
 
@@ -38356,7 +38356,7 @@ class ItemGrantAdvancement extends Advancement {
       },
       order: 40,
       icon: "icons/sundries/books/book-open-purple.webp",
-      typeIcon: "systems/dnd5e/icons/svg/item-grant.svg",
+      typeIcon: "systems/lotm/icons/svg/item-grant.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.ItemGrant.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.ItemGrant.Hint"),
       apps: {
@@ -38523,7 +38523,7 @@ class ItemChoiceAdvancement extends ItemGrantAdvancement {
       },
       order: 50,
       icon: "icons/magic/symbols/cog-orange-red.webp",
-      typeIcon: "systems/dnd5e/icons/svg/item-choice.svg",
+      typeIcon: "systems/lotm/icons/svg/item-choice.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.ItemChoice.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.ItemChoice.Hint"),
       multiLevel: true,
@@ -39203,15 +39203,15 @@ class ScaleValueConfig extends AdvancementConfig$1 {
   static PARTS = {
     config: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/advancement-controls-section.hbs"
+      template: "systems/lotm/templates/advancement/advancement-controls-section.hbs"
     },
     details: {
       container: { classes: ["column-container"], id: "column-left" },
-      template: "systems/dnd5e/templates/advancement/scale-value-config-details.hbs"
+      template: "systems/lotm/templates/advancement/scale-value-config-details.hbs"
     },
     levels: {
       container: { classes: ["column-container"], id: "column-right" },
-      template: "systems/dnd5e/templates/advancement/scale-value-config-levels.hbs"
+      template: "systems/lotm/templates/advancement/scale-value-config-levels.hbs"
     }
   };
 
@@ -39366,7 +39366,7 @@ class ScaleValueFlow extends AdvancementFlow {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/advancement/scale-value-flow.hbs"
+      template: "systems/lotm/templates/advancement/scale-value-flow.hbs"
     });
   }
 
@@ -39394,7 +39394,7 @@ class ScaleValueAdvancement extends Advancement {
       },
       order: 60,
       icon: "icons/sundries/gaming/dice-pair-white-green.webp",
-      typeIcon: "systems/dnd5e/icons/svg/scale-value.svg",
+      typeIcon: "systems/lotm/icons/svg/scale-value.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.ScaleValue.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.ScaleValue.Hint"),
       multiLevel: true,
@@ -39531,7 +39531,7 @@ class SizeConfig extends AdvancementConfig$1 {
   static PARTS = {
     ...super.PARTS,
     details: {
-      template: "systems/dnd5e/templates/advancement/size-config-details.hbs"
+      template: "systems/lotm/templates/advancement/size-config-details.hbs"
     }
   };
 
@@ -39577,7 +39577,7 @@ class SizeFlow extends AdvancementFlow {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/advancement/size-flow.hbs"
+      template: "systems/lotm/templates/advancement/size-flow.hbs"
     });
   }
 
@@ -39646,7 +39646,7 @@ class SizeAdvancement extends Advancement {
       },
       order: 25,
       icon: "icons/environment/wilderness/tree-ash.webp",
-      typeIcon: "systems/dnd5e/icons/svg/size.svg",
+      typeIcon: "systems/lotm/icons/svg/size.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.Size.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.Size.Hint"),
       apps: {
@@ -39753,7 +39753,7 @@ class SubclassFlow extends AdvancementFlow {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       dragDrop: [{ dropSelector: "form" }],
-      template: "systems/dnd5e/templates/advancement/subclass-flow.hbs"
+      template: "systems/lotm/templates/advancement/subclass-flow.hbs"
     });
   }
 
@@ -39901,7 +39901,7 @@ class SubclassAdvancement extends Advancement {
       },
       order: 70,
       icon: "icons/skills/trades/mining-pickaxe-yellow-blue.webp",
-      typeIcon: "systems/dnd5e/icons/svg/subclass.svg",
+      typeIcon: "systems/lotm/icons/svg/subclass.svg",
       title: game.i18n.localize("DND5E.ADVANCEMENT.Subclass.Title"),
       hint: game.i18n.localize("DND5E.ADVANCEMENT.Subclass.Hint"),
       apps: {
@@ -41553,7 +41553,7 @@ DND5E.abilities = {
     type: "physical",
     fullKey: "strength",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.nUPv6C66Ur64BIUH",
-    icon: "systems/dnd5e/icons/svg/abilities/strength.svg"
+    icon: "systems/lotm/icons/svg/abilities/strength.svg"
   },
   dex: {
     label: "DND5E.AbilityDex",
@@ -41561,7 +41561,7 @@ DND5E.abilities = {
     type: "physical",
     fullKey: "dexterity",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.ER8CKDUWLsFXuARJ",
-    icon: "systems/dnd5e/icons/svg/abilities/dexterity.svg"
+    icon: "systems/lotm/icons/svg/abilities/dexterity.svg"
   },
   con: {
     label: "DND5E.AbilityCon",
@@ -41569,7 +41569,7 @@ DND5E.abilities = {
     type: "physical",
     fullKey: "constitution",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.MpA4jnwD17Q0RPg7",
-    icon: "systems/dnd5e/icons/svg/abilities/constitution.svg"
+    icon: "systems/lotm/icons/svg/abilities/constitution.svg"
   },
   int: {
     label: "DND5E.AbilityInt",
@@ -41577,7 +41577,7 @@ DND5E.abilities = {
     type: "mental",
     fullKey: "intelligence",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.WzWWcTIppki35YvF",
-    icon: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
+    icon: "systems/lotm/icons/svg/abilities/intelligence.svg",
     defaults: { vehicle: 0 }
   },
   wis: {
@@ -41586,7 +41586,7 @@ DND5E.abilities = {
     type: "mental",
     fullKey: "wisdom",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.v3IPyTtqvXqN934s",
-    icon: "systems/dnd5e/icons/svg/abilities/wisdom.svg",
+    icon: "systems/lotm/icons/svg/abilities/wisdom.svg",
     defaults: { vehicle: 0 }
   },
   cha: {
@@ -41595,7 +41595,7 @@ DND5E.abilities = {
     type: "mental",
     fullKey: "charisma",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.9FyghudYFV5QJOuG",
-    icon: "systems/dnd5e/icons/svg/abilities/charisma.svg",
+    icon: "systems/lotm/icons/svg/abilities/charisma.svg",
     defaults: { vehicle: 0 }
   },
   hon: {
@@ -42021,50 +42021,50 @@ DND5E.facilities = {
   orders: {
     build: {
       label: "DND5E.FACILITY.Orders.build.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/build.svg"
+      icon: "systems/lotm/icons/svg/facilities/build.svg"
     },
     change: {
       label: "DND5E.FACILITY.Orders.change.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/change.svg",
+      icon: "systems/lotm/icons/svg/facilities/change.svg",
       duration: 21
     },
     craft: {
       label: "DND5E.FACILITY.Orders.craft.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/craft.svg"
+      icon: "systems/lotm/icons/svg/facilities/craft.svg"
     },
     empower: {
       label: "DND5E.FACILITY.Orders.empower.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/empower.svg"
+      icon: "systems/lotm/icons/svg/facilities/empower.svg"
     },
     enlarge: {
       label: "DND5E.FACILITY.Orders.enlarge.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/enlarge.svg",
+      icon: "systems/lotm/icons/svg/facilities/enlarge.svg",
       basic: true
     },
     harvest: {
       label: "DND5E.FACILITY.Orders.harvest.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/harvest.svg"
+      icon: "systems/lotm/icons/svg/facilities/harvest.svg"
     },
     maintain: {
       label: "DND5E.FACILITY.Orders.maintain.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/maintain.svg"
+      icon: "systems/lotm/icons/svg/facilities/maintain.svg"
     },
     recruit: {
       label: "DND5E.FACILITY.Orders.recruit.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/recruit.svg"
+      icon: "systems/lotm/icons/svg/facilities/recruit.svg"
     },
     repair: {
       label: "DND5E.FACILITY.Orders.repair.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/repair.svg",
+      icon: "systems/lotm/icons/svg/facilities/repair.svg",
       hidden: true
     },
     research: {
       label: "DND5E.FACILITY.Orders.research.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/research.svg"
+      icon: "systems/lotm/icons/svg/facilities/research.svg"
     },
     trade: {
       label: "DND5E.FACILITY.Orders.trade.inf",
-      icon: "systems/dnd5e/icons/svg/facilities/trade.svg"
+      icon: "systems/lotm/icons/svg/facilities/trade.svg"
     }
   },
   sizes: {
@@ -43370,7 +43370,7 @@ DND5E.itemProperties = {
   concentration: {
     label: "DND5E.ITEM.Property.Concentration",
     abbreviation: "DND5E.ConcentrationAbbr",
-    icon: "systems/dnd5e/icons/svg/statuses/concentrating.svg",
+    icon: "systems/lotm/icons/svg/statuses/concentrating.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.ow58p27ctAnr4VPH",
     isTag: true
   },
@@ -43399,7 +43399,7 @@ DND5E.itemProperties = {
   },
   mgc: {
     label: "DND5E.ITEM.Property.Magical",
-    icon: "systems/dnd5e/icons/svg/properties/magical.svg",
+    icon: "systems/lotm/icons/svg/properties/magical.svg",
     isPhysical: true
   },
   rch: {
@@ -43414,7 +43414,7 @@ DND5E.itemProperties = {
   ritual: {
     label: "DND5E.ITEM.Property.Ritual",
     abbreviation: "DND5E.RitualAbbr",
-    icon: "systems/dnd5e/icons/svg/items/spell.svg",
+    icon: "systems/lotm/icons/svg/items/spell.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.FjWqT5iyJ89kohdA",
     isTag: true
   },
@@ -43567,31 +43567,31 @@ DND5E.currencies = {
     label: "DND5E.CurrencyPP",
     abbreviation: "DND5E.CurrencyAbbrPP",
     conversion: 0.1,
-    icon: "systems/dnd5e/icons/currency/platinum.webp"
+    icon: "systems/lotm/icons/currency/platinum.webp"
   },
   gp: {
     label: "DND5E.CurrencyGP",
     abbreviation: "DND5E.CurrencyAbbrGP",
     conversion: 1,
-    icon: "systems/dnd5e/icons/currency/gold.webp"
+    icon: "systems/lotm/icons/currency/gold.webp"
   },
   ep: {
     label: "DND5E.CurrencyEP",
     abbreviation: "DND5E.CurrencyAbbrEP",
     conversion: 2,
-    icon: "systems/dnd5e/icons/currency/electrum.webp"
+    icon: "systems/lotm/icons/currency/electrum.webp"
   },
   sp: {
     label: "DND5E.CurrencySP",
     abbreviation: "DND5E.CurrencyAbbrSP",
     conversion: 10,
-    icon: "systems/dnd5e/icons/currency/silver.webp"
+    icon: "systems/lotm/icons/currency/silver.webp"
   },
   cp: {
     label: "DND5E.CurrencyCP",
     abbreviation: "DND5E.CurrencyAbbrCP",
     conversion: 100,
-    icon: "systems/dnd5e/icons/currency/copper.webp"
+    icon: "systems/lotm/icons/currency/copper.webp"
   }
 };
 preLocalize("currencies", { keys: ["label", "abbreviation"] });
@@ -43720,82 +43720,82 @@ preLocalize("damageScalingModes", { keys: ["label", "labelCantrip"] });
 DND5E.damageTypes = {
   acid: {
     label: "DND5E.DamageAcid",
-    icon: "systems/dnd5e/icons/svg/damage/acid.svg",
+    icon: "systems/lotm/icons/svg/damage/acid.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.IQhbKRPe1vCPdh8v",
     color: new Color(0x839D50)
   },
   bludgeoning: {
     label: "DND5E.DamageBludgeoning",
-    icon: "systems/dnd5e/icons/svg/damage/bludgeoning.svg",
+    icon: "systems/lotm/icons/svg/damage/bludgeoning.svg",
     isPhysical: true,
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.39LFrlef94JIYO8m",
     color: new Color(0x0000A0)
   },
   cold: {
     label: "DND5E.DamageCold",
-    icon: "systems/dnd5e/icons/svg/damage/cold.svg",
+    icon: "systems/lotm/icons/svg/damage/cold.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.4xsFUooHDEdfhw6g",
     color: new Color(0xADD8E6)
   },
   fire: {
     label: "DND5E.DamageFire",
-    icon: "systems/dnd5e/icons/svg/damage/fire.svg",
+    icon: "systems/lotm/icons/svg/damage/fire.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.f1S66aQJi4PmOng6",
     color: new Color(0xFF4500)
   },
   force: {
     label: "DND5E.DamageForce",
-    icon: "systems/dnd5e/icons/svg/damage/force.svg",
+    icon: "systems/lotm/icons/svg/damage/force.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.eFTWzngD8dKWQuUR",
     color: new Color(0x800080)
   },
   lightning: {
     label: "DND5E.DamageLightning",
-    icon: "systems/dnd5e/icons/svg/damage/lightning.svg",
+    icon: "systems/lotm/icons/svg/damage/lightning.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.9SaxFJ9bM3SutaMC",
     color: new Color(0x1E90FF)
   },
   necrotic: {
     label: "DND5E.DamageNecrotic",
-    icon: "systems/dnd5e/icons/svg/damage/necrotic.svg",
+    icon: "systems/lotm/icons/svg/damage/necrotic.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.klOVUV5G1U7iaKoG",
     color: new Color(0x006400)
   },
   piercing: {
     label: "DND5E.DamagePiercing",
-    icon: "systems/dnd5e/icons/svg/damage/piercing.svg",
+    icon: "systems/lotm/icons/svg/damage/piercing.svg",
     isPhysical: true,
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.95agSnEGTdAmKhyC",
     color: new Color(0xC0C0C0)
   },
   poison: {
     label: "DND5E.DamagePoison",
-    icon: "systems/dnd5e/icons/svg/damage/poison.svg",
+    icon: "systems/lotm/icons/svg/damage/poison.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.k5wOYXdWPzcWwds1",
     color: new Color(0x8A2BE2)
   },
   psychic: {
     label: "DND5E.DamagePsychic",
-    icon: "systems/dnd5e/icons/svg/damage/psychic.svg",
+    icon: "systems/lotm/icons/svg/damage/psychic.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.YIKbDv4zYqbE5teJ",
     color: new Color(0xFF1493)
   },
   radiant: {
     label: "DND5E.DamageRadiant",
-    icon: "systems/dnd5e/icons/svg/damage/radiant.svg",
+    icon: "systems/lotm/icons/svg/damage/radiant.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.5tcK9buXWDOw8yHH",
     color: new Color(0xFFD700)
   },
   slashing: {
     label: "DND5E.DamageSlashing",
-    icon: "systems/dnd5e/icons/svg/damage/slashing.svg",
+    icon: "systems/lotm/icons/svg/damage/slashing.svg",
     isPhysical: true,
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.sz2XKQ5lgsdPEJOa",
     color: new Color(0x8B0000)
   },
   thunder: {
     label: "DND5E.DamageThunder",
-    icon: "systems/dnd5e/icons/svg/damage/thunder.svg",
+    icon: "systems/lotm/icons/svg/damage/thunder.svg",
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.iqsmMHk7FSpiNkQy",
     color: new Color(0x708090)
   }
@@ -43819,12 +43819,12 @@ DND5E.aggregateDamageDisplay = true;
 DND5E.healingTypes = {
   healing: {
     label: "DND5E.Healing",
-    icon: "systems/dnd5e/icons/svg/damage/healing.svg",
+    icon: "systems/lotm/icons/svg/damage/healing.svg",
     color: new Color(0x46C252)
   },
   temphp: {
     label: "DND5E.HealingTemp",
-    icon: "systems/dnd5e/icons/svg/damage/temphp.svg",
+    icon: "systems/lotm/icons/svg/damage/temphp.svg",
     color: new Color(0x4B66DE)
   }
 };
@@ -44156,15 +44156,15 @@ DND5E.encumbrance = {
   effects: {
     encumbered: {
       name: "EFFECT.DND5E.StatusEncumbered",
-      img: "systems/dnd5e/icons/svg/statuses/encumbered.svg"
+      img: "systems/lotm/icons/svg/statuses/encumbered.svg"
     },
     heavilyEncumbered: {
       name: "EFFECT.DND5E.StatusHeavilyEncumbered",
-      img: "systems/dnd5e/icons/svg/statuses/heavily-encumbered.svg"
+      img: "systems/lotm/icons/svg/statuses/heavily-encumbered.svg"
     },
     exceedingCarryingCapacity: {
       name: "EFFECT.DND5E.StatusExceedingCarryingCapacity",
-      img: "systems/dnd5e/icons/svg/statuses/exceeding-carrying-capacity.svg"
+      img: "systems/lotm/icons/svg/statuses/exceeding-carrying-capacity.svg"
     }
   },
   threshold: {
@@ -44572,7 +44572,7 @@ DND5E.spellcasting = {
     cantrips: true,
     prepares: true,
     order: 20,
-    img: "systems/dnd5e/icons/spell-tiers/{id}.webp",
+    img: "systems/lotm/icons/spell-tiers/{id}.webp",
     table: SPELL_SLOT_TABLE,
     progression: {
       full: {
@@ -44750,49 +44750,49 @@ preLocalize("spellScalingModes", { sort: true });
 DND5E.spellSchools = {
   abj: {
     label: "DND5E.SchoolAbj",
-    icon: "systems/dnd5e/icons/svg/schools/abjuration.svg",
+    icon: "systems/lotm/icons/svg/schools/abjuration.svg",
     fullKey: "abjuration",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.849AYEWw9FHD6JNz"
   },
   con: {
     label: "DND5E.SchoolCon",
-    icon: "systems/dnd5e/icons/svg/schools/conjuration.svg",
+    icon: "systems/lotm/icons/svg/schools/conjuration.svg",
     fullKey: "conjuration",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.TWyKMhZJZGqQ6uls"
   },
   div: {
     label: "DND5E.SchoolDiv",
-    icon: "systems/dnd5e/icons/svg/schools/divination.svg",
+    icon: "systems/lotm/icons/svg/schools/divination.svg",
     fullKey: "divination",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.HoD2MwzmVbMqj9se"
   },
   enc: {
     label: "DND5E.SchoolEnc",
-    icon: "systems/dnd5e/icons/svg/schools/enchantment.svg",
+    icon: "systems/lotm/icons/svg/schools/enchantment.svg",
     fullKey: "enchantment",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.SehPXk24ySBVOwCZ"
   },
   evo: {
     label: "DND5E.SchoolEvo",
-    icon: "systems/dnd5e/icons/svg/schools/evocation.svg",
+    icon: "systems/lotm/icons/svg/schools/evocation.svg",
     fullKey: "evocation",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.kGp1RNuxL2SELLRC"
   },
   ill: {
     label: "DND5E.SchoolIll",
-    icon: "systems/dnd5e/icons/svg/schools/illusion.svg",
+    icon: "systems/lotm/icons/svg/schools/illusion.svg",
     fullKey: "illusion",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.smEk7kvVyslFozrB"
   },
   nec: {
     label: "DND5E.SchoolNec",
-    icon: "systems/dnd5e/icons/svg/schools/necromancy.svg",
+    icon: "systems/lotm/icons/svg/schools/necromancy.svg",
     fullKey: "necromancy",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.W0eyiV1FBmngb6Qh"
   },
   trs: {
     label: "DND5E.SchoolTrs",
-    icon: "systems/dnd5e/icons/svg/schools/transmutation.svg",
+    icon: "systems/lotm/icons/svg/schools/transmutation.svg",
     fullKey: "transmutation",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.IYWewSailtmv6qEb"
   }
@@ -45088,145 +45088,145 @@ DND5E.consumableResources = [
 DND5E.conditionTypes = {
   bleeding: {
     name: "EFFECT.DND5E.StatusBleeding",
-    img: "systems/dnd5e/icons/svg/statuses/bleeding.svg",
+    img: "systems/lotm/icons/svg/statuses/bleeding.svg",
     pseudo: true
   },
   blinded: {
     name: "DND5E.ConBlinded",
-    img: "systems/dnd5e/icons/svg/statuses/blinded.svg",
+    img: "systems/lotm/icons/svg/statuses/blinded.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.uDogReMO6QtH6NDw",
     special: "BLIND"
   },
   burning: {
     name: "EFFECT.DND5E.StatusBurning",
-    img: "systems/dnd5e/icons/svg/statuses/burning.svg",
+    img: "systems/lotm/icons/svg/statuses/burning.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.mPBGM1vguT5IPzxT",
     pseudo: true
   },
   charmed: {
     name: "DND5E.ConCharmed",
-    img: "systems/dnd5e/icons/svg/statuses/charmed.svg",
+    img: "systems/lotm/icons/svg/statuses/charmed.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.vLAsIUa0FhZNsyLk"
   },
   cursed: {
     name: "EFFECT.DND5E.StatusCursed",
-    img: "systems/dnd5e/icons/svg/statuses/cursed.svg",
+    img: "systems/lotm/icons/svg/statuses/cursed.svg",
     pseudo: true
   },
   dehydration: {
     name: "EFFECT.DND5E.StatusDehydration",
-    img: "systems/dnd5e/icons/svg/statuses/dehydration.svg",
+    img: "systems/lotm/icons/svg/statuses/dehydration.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.FZFvLNOX0lHaHZ1k",
     pseudo: true
   },
   deafened: {
     name: "DND5E.ConDeafened",
-    img: "systems/dnd5e/icons/svg/statuses/deafened.svg",
+    img: "systems/lotm/icons/svg/statuses/deafened.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.qlRw66tJhk0zLnwq"
   },
   diseased: {
     name: "DND5E.ConDiseased",
-    img: "systems/dnd5e/icons/svg/statuses/diseased.svg",
+    img: "systems/lotm/icons/svg/statuses/diseased.svg",
     pseudo: true,
     reference: "Compendium.dnd5e.rules.JournalEntry.NizgRXLNUqtdlC1s.JournalEntryPage.oNQWvyRZkTOJ8PBq"
   },
   exhaustion: {
     name: "DND5E.ConExhaustion",
-    img: "systems/dnd5e/icons/svg/statuses/exhaustion.svg",
+    img: "systems/lotm/icons/svg/statuses/exhaustion.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.jSQtPgNm0i4f3Qi3",
     levels: 6,
     reduction: { rolls: 2, speed: 5 }
   },
   falling: {
     name: "EFFECT.DND5E.StatusFalling",
-    img: "systems/dnd5e/icons/svg/statuses/falling.svg",
+    img: "systems/lotm/icons/svg/statuses/falling.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.kREHL5pgNUOhay9f",
     pseudo: true
   },
   frightened: {
     name: "DND5E.ConFrightened",
-    img: "systems/dnd5e/icons/svg/statuses/frightened.svg",
+    img: "systems/lotm/icons/svg/statuses/frightened.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.93uaingTESo8N1qL"
   },
   grappled: {
     name: "DND5E.ConGrappled",
-    img: "systems/dnd5e/icons/svg/statuses/grappled.svg",
+    img: "systems/lotm/icons/svg/statuses/grappled.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.KbQ1k0OIowtZeQgp"
   },
   incapacitated: {
     name: "DND5E.ConIncapacitated",
-    img: "systems/dnd5e/icons/svg/statuses/incapacitated.svg",
+    img: "systems/lotm/icons/svg/statuses/incapacitated.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.4i3G895hy99piand",
     neverBlockMovement: true
   },
   invisible: {
     name: "DND5E.ConInvisible",
-    img: "systems/dnd5e/icons/svg/statuses/invisible.svg",
+    img: "systems/lotm/icons/svg/statuses/invisible.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.MQIZ1zRLWRcNOtPN"
   },
   malnutrition: {
     name: "EFFECT.DND5E.StatusMalnutrition",
-    img: "systems/dnd5e/icons/svg/statuses/malnutrition.svg",
+    img: "systems/lotm/icons/svg/statuses/malnutrition.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.earBo4vQPC1ti4g7",
     pseudo: true
   },
   paralyzed: {
     name: "DND5E.ConParalyzed",
-    img: "systems/dnd5e/icons/svg/statuses/paralyzed.svg",
+    img: "systems/lotm/icons/svg/statuses/paralyzed.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.RnxZoTglPnLc6UPb",
     statuses: ["incapacitated"]
   },
   petrified: {
     name: "DND5E.ConPetrified",
-    img: "systems/dnd5e/icons/svg/statuses/petrified.svg",
+    img: "systems/lotm/icons/svg/statuses/petrified.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.6vtLuQT9lwZ9N299",
     statuses: ["incapacitated"]
   },
   poisoned: {
     name: "DND5E.ConPoisoned",
-    img: "systems/dnd5e/icons/svg/statuses/poisoned.svg",
+    img: "systems/lotm/icons/svg/statuses/poisoned.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.HWs8kEojffqwTSJz"
   },
   prone: {
     name: "DND5E.ConProne",
-    img: "systems/dnd5e/icons/svg/statuses/prone.svg",
+    img: "systems/lotm/icons/svg/statuses/prone.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.QxCrRcgMdUd3gfzz"
   },
   restrained: {
     name: "DND5E.ConRestrained",
-    img: "systems/dnd5e/icons/svg/statuses/restrained.svg",
+    img: "systems/lotm/icons/svg/statuses/restrained.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.dqLeGdpHtb8FfcxX"
   },
   silenced: {
     name: "EFFECT.DND5E.StatusSilenced",
-    img: "systems/dnd5e/icons/svg/statuses/silenced.svg",
+    img: "systems/lotm/icons/svg/statuses/silenced.svg",
     pseudo: true
   },
   stunned: {
     name: "DND5E.ConStunned",
-    img: "systems/dnd5e/icons/svg/statuses/stunned.svg",
+    img: "systems/lotm/icons/svg/statuses/stunned.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.EjbXjvyQAMlDyANI",
     statuses: ["incapacitated"]
   },
   suffocation: {
     name: "EFFECT.DND5E.StatusSuffocation",
-    img: "systems/dnd5e/icons/svg/statuses/suffocation.svg",
+    img: "systems/lotm/icons/svg/statuses/suffocation.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.gAvV8TLyS8UGq00x",
     pseudo: true
   },
   surprised: {
     name: "EFFECT.DND5E.StatusSurprised",
-    img: "systems/dnd5e/icons/svg/statuses/surprised.svg",
+    img: "systems/lotm/icons/svg/statuses/surprised.svg",
     pseudo: true
   },
   transformed: {
     name: "EFFECT.DND5E.StatusTransformed",
-    img: "systems/dnd5e/icons/svg/statuses/transformed.svg",
+    img: "systems/lotm/icons/svg/statuses/transformed.svg",
     pseudo: true
   },
   unconscious: {
     name: "DND5E.ConUnconscious",
-    img: "systems/dnd5e/icons/svg/statuses/unconscious.svg",
+    img: "systems/lotm/icons/svg/statuses/unconscious.svg",
     reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixCRule.JournalEntryPage.fZCRaKEJd4KoQCqH",
     statuses: ["incapacitated"],
     riders: ["prone"]
@@ -45267,76 +45267,76 @@ DND5E.conditionEffects = {
 DND5E.statusEffects = {
   burrowing: {
     name: "EFFECT.DND5E.StatusBurrowing",
-    img: "systems/dnd5e/icons/svg/statuses/burrowing.svg",
+    img: "systems/lotm/icons/svg/statuses/burrowing.svg",
     special: "BURROW"
   },
   concentrating: {
     name: "EFFECT.DND5E.StatusConcentrating",
-    img: "systems/dnd5e/icons/svg/statuses/concentrating.svg",
+    img: "systems/lotm/icons/svg/statuses/concentrating.svg",
     special: "CONCENTRATING"
   },
   coverHalf: {
     name: "EFFECT.DND5E.StatusHalfCover",
-    img: "systems/dnd5e/icons/svg/statuses/cover-half.svg",
+    img: "systems/lotm/icons/svg/statuses/cover-half.svg",
     order: 2,
     exclusiveGroup: "cover",
     coverBonus: 2
   },
   coverThreeQuarters: {
     name: "EFFECT.DND5E.StatusThreeQuartersCover",
-    img: "systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg",
+    img: "systems/lotm/icons/svg/statuses/cover-three-quarters.svg",
     order: 3,
     exclusiveGroup: "cover",
     coverBonus: 5
   },
   coverTotal: {
     name: "EFFECT.DND5E.StatusTotalCover",
-    img: "systems/dnd5e/icons/svg/statuses/cover-total.svg",
+    img: "systems/lotm/icons/svg/statuses/cover-total.svg",
     order: 4,
     exclusiveGroup: "cover"
   },
   dead: {
     name: "EFFECT.DND5E.StatusDead",
-    img: "systems/dnd5e/icons/svg/statuses/dead.svg",
+    img: "systems/lotm/icons/svg/statuses/dead.svg",
     special: "DEFEATED",
     order: 1,
     neverBlockMovement: true
   },
   dodging: {
     name: "EFFECT.DND5E.StatusDodging",
-    img: "systems/dnd5e/icons/svg/statuses/dodging.svg"
+    img: "systems/lotm/icons/svg/statuses/dodging.svg"
   },
   ethereal: {
     name: "EFFECT.DND5E.StatusEthereal",
-    img: "systems/dnd5e/icons/svg/statuses/ethereal.svg",
+    img: "systems/lotm/icons/svg/statuses/ethereal.svg",
     neverBlockMovement: true
   },
   flying: {
     name: "EFFECT.DND5E.StatusFlying",
-    img: "systems/dnd5e/icons/svg/statuses/flying.svg",
+    img: "systems/lotm/icons/svg/statuses/flying.svg",
     special: "FLY"
   },
   hiding: {
     name: "EFFECT.DND5E.StatusHiding",
-    img: "systems/dnd5e/icons/svg/statuses/hiding.svg"
+    img: "systems/lotm/icons/svg/statuses/hiding.svg"
   },
   hovering: {
     name: "EFFECT.DND5E.StatusHovering",
-    img: "systems/dnd5e/icons/svg/statuses/hovering.svg",
+    img: "systems/lotm/icons/svg/statuses/hovering.svg",
     special: "HOVER"
   },
   marked: {
     name: "EFFECT.DND5E.StatusMarked",
-    img: "systems/dnd5e/icons/svg/statuses/marked.svg"
+    img: "systems/lotm/icons/svg/statuses/marked.svg"
   },
   sleeping: {
     name: "EFFECT.DND5E.StatusSleeping",
-    img: "systems/dnd5e/icons/svg/statuses/sleeping.svg",
+    img: "systems/lotm/icons/svg/statuses/sleeping.svg",
     statuses: ["incapacitated", "unconscious"]
   },
   stable: {
     name: "EFFECT.DND5E.StatusStable",
-    img: "systems/dnd5e/icons/svg/statuses/stable.svg"
+    img: "systems/lotm/icons/svg/statuses/stable.svg"
   }
 };
 
@@ -45356,7 +45356,7 @@ DND5E.neverBlockStatuses = new Set();
  */
 DND5E.bloodied = {
   name: "EFFECT.DND5E.StatusBloodied",
-  img: "systems/dnd5e/icons/svg/statuses/bloodied.svg",
+  img: "systems/lotm/icons/svg/statuses/bloodied.svg",
   threshold: .5
 };
 
@@ -45658,7 +45658,7 @@ DND5E.traits = {
       title: "DND5E.DamImm",
       localization: "DND5E.TraitDIPlural"
     },
-    icon: "systems/dnd5e/icons/svg/trait-damage-immunities.svg",
+    icon: "systems/lotm/icons/svg/trait-damage-immunities.svg",
     configKey: "damageTypes"
   },
   dr: {
@@ -45666,7 +45666,7 @@ DND5E.traits = {
       title: "DND5E.DamRes",
       localization: "DND5E.TraitDRPlural"
     },
-    icon: "systems/dnd5e/icons/svg/trait-damage-resistances.svg",
+    icon: "systems/lotm/icons/svg/trait-damage-resistances.svg",
     configKey: "damageTypes"
   },
   dv: {
@@ -45674,7 +45674,7 @@ DND5E.traits = {
       title: "DND5E.DamVuln",
       localization: "DND5E.TraitDVPlural"
     },
-    icon: "systems/dnd5e/icons/svg/trait-damage-vulnerabilities.svg",
+    icon: "systems/lotm/icons/svg/trait-damage-vulnerabilities.svg",
     configKey: "damageTypes"
   },
   dm: {
@@ -45690,7 +45690,7 @@ DND5E.traits = {
       title: "DND5E.ConImm",
       localization: "DND5E.TraitCIPlural"
     },
-    icon: "systems/dnd5e/icons/svg/trait-condition-immunities.svg",
+    icon: "systems/lotm/icons/svg/trait-condition-immunities.svg",
     configKey: "conditionTypes",
     labelKeyPath: "name"
   }
@@ -45948,26 +45948,26 @@ DND5E.advancementTypes = {
  */
 DND5E.defaultArtwork = {
   Actor: {
-    character: "systems/dnd5e/icons/svg/actors/character.svg",
-    encounter: "systems/dnd5e/icons/svg/actors/encounter.svg",
-    group: "systems/dnd5e/icons/svg/actors/group.svg",
-    npc: "systems/dnd5e/icons/svg/actors/npc.svg",
-    vehicle: "systems/dnd5e/icons/svg/actors/vehicle.svg"
+    character: "systems/lotm/icons/svg/actors/character.svg",
+    encounter: "systems/lotm/icons/svg/actors/encounter.svg",
+    group: "systems/lotm/icons/svg/actors/group.svg",
+    npc: "systems/lotm/icons/svg/actors/npc.svg",
+    vehicle: "systems/lotm/icons/svg/actors/vehicle.svg"
   },
   Item: {
-    background: "systems/dnd5e/icons/svg/items/background.svg",
-    class: "systems/dnd5e/icons/svg/items/class.svg",
-    consumable: "systems/dnd5e/icons/svg/items/consumable.svg",
-    container: "systems/dnd5e/icons/svg/items/container.svg",
-    equipment: "systems/dnd5e/icons/svg/items/equipment.svg",
-    facility: "systems/dnd5e/icons/svg/items/facility.svg",
-    feat: "systems/dnd5e/icons/svg/items/feature.svg",
-    loot: "systems/dnd5e/icons/svg/items/loot.svg",
-    race: "systems/dnd5e/icons/svg/items/race.svg",
-    spell: "systems/dnd5e/icons/svg/items/spell.svg",
-    subclass: "systems/dnd5e/icons/svg/items/subclass.svg",
-    tool: "systems/dnd5e/icons/svg/items/tool.svg",
-    weapon: "systems/dnd5e/icons/svg/items/weapon.svg"
+    background: "systems/lotm/icons/svg/items/background.svg",
+    class: "systems/lotm/icons/svg/items/class.svg",
+    consumable: "systems/lotm/icons/svg/items/consumable.svg",
+    container: "systems/lotm/icons/svg/items/container.svg",
+    equipment: "systems/lotm/icons/svg/items/equipment.svg",
+    facility: "systems/lotm/icons/svg/items/facility.svg",
+    feat: "systems/lotm/icons/svg/items/feature.svg",
+    loot: "systems/lotm/icons/svg/items/loot.svg",
+    race: "systems/lotm/icons/svg/items/race.svg",
+    spell: "systems/lotm/icons/svg/items/spell.svg",
+    subclass: "systems/lotm/icons/svg/items/subclass.svg",
+    tool: "systems/lotm/icons/svg/items/tool.svg",
+    weapon: "systems/lotm/icons/svg/items/weapon.svg"
   }
 };
 
@@ -46448,7 +46448,7 @@ class BaseSettingsConfig extends Application5e {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -46541,7 +46541,7 @@ class BastionSettingsConfig extends BaseSettingsConfig {
   static PARTS = {
     ...super.PARTS,
     config: {
-      template: "systems/dnd5e/templates/settings/bastion-config.hbs"
+      template: "systems/lotm/templates/settings/bastion-config.hbs"
     }
   };
 
@@ -46628,10 +46628,10 @@ class CalendarSettingsConfig extends BaseSettingsConfig {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     preferences: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -46761,13 +46761,13 @@ class CombatSettingsConfig extends BaseSettingsConfig {
   /** @override */
   static PARTS = {
     initiative: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     criticals: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     npcs: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -46977,7 +46977,7 @@ class ModuleArtSettingsConfig extends FormApplication {
     return foundry.utils.mergeObject(super.defaultOptions, {
       title: game.i18n.localize("DND5E.ModuleArtConfigL"),
       id: "module-art-config",
-      template: "systems/dnd5e/templates/apps/module-art-config.hbs",
+      template: "systems/lotm/templates/apps/module-art-config.hbs",
       popOut: true,
       width: 600,
       height: "auto"
@@ -47064,13 +47064,13 @@ class VariantRulesSettingsConfig extends BaseSettingsConfig {
   /** @override */
   static PARTS = {
     general: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     encumbrance: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     abilities: {
-      template: "systems/dnd5e/templates/settings/base-config.hbs"
+      template: "systems/lotm/templates/settings/base-config.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -48790,7 +48790,7 @@ class AdvancementMigrationDialog extends Dialog5e {
         }
       ],
       content: await foundry.applications.handlebars.renderTemplate(
-        "systems/dnd5e/templates/advancement/advancement-migration-dialog.hbs",
+        "systems/lotm/templates/advancement/advancement-migration-dialog.hbs",
         { item, advancements: advancementContext }
       ),
       rejectClose: false,
@@ -49006,7 +49006,7 @@ class EffectsElement extends (foundry.applications.elements.AdoptableHTMLElement
       },
       {
         name: "DND5E.ConcentrationBreak",
-        icon: '<dnd5e-icon src="systems/dnd5e/icons/svg/break-concentration.svg"></dnd5e-icon>',
+        icon: '<dnd5e-icon src="systems/lotm/icons/svg/break-concentration.svg"></dnd5e-icon>',
         condition: () => isConcentrationEffect,
         callback: () => this.document.endConcentration(effect),
         group: "state"
@@ -49189,7 +49189,7 @@ class CreatureTypeConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/shared/config/creature-type-config.hbs"
+      template: "systems/lotm/templates/shared/config/creature-type-config.hbs"
     }
   };
 
@@ -49261,7 +49261,7 @@ class MovementSensesConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/shared/config/movement-senses-config.hbs"
+      template: "systems/lotm/templates/shared/config/movement-senses-config.hbs"
     }
   };
 
@@ -49448,7 +49448,7 @@ class SourceConfig extends DocumentSheet5e {
   /** @override */
   static PARTS = {
     source: {
-      template: "systems/dnd5e/templates/apps/source-config.hbs"
+      template: "systems/lotm/templates/apps/source-config.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -49513,7 +49513,7 @@ class StartingEquipmentConfig extends DocumentSheet5e {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/apps/starting-equipment-config.hbs"
+      template: "systems/lotm/templates/apps/starting-equipment-config.hbs"
     }
   };
 
@@ -49813,31 +49813,31 @@ class ItemSheet5e extends PrimarySheetMixin(DocumentSheet5e) {
   /** @override */
   static PARTS = {
     header: {
-      template: "systems/dnd5e/templates/items/header.hbs"
+      template: "systems/lotm/templates/items/header.hbs"
     },
     tabs: {
-      template: "systems/dnd5e/templates/shared/horizontal-tabs.hbs",
+      template: "systems/lotm/templates/shared/horizontal-tabs.hbs",
       templates: ["templates/generic/tab-navigation.hbs"]
     },
     activities: {
-      template: "systems/dnd5e/templates/items/activities.hbs",
-      templates: ["systems/dnd5e/templates/shared/activities.hbs"],
+      template: "systems/lotm/templates/items/activities.hbs",
+      templates: ["systems/lotm/templates/shared/activities.hbs"],
       scrollable: [""]
     },
     advancement: {
-      template: "systems/dnd5e/templates/items/advancement.hbs",
+      template: "systems/lotm/templates/items/advancement.hbs",
       scrollable: [""]
     },
     description: {
-      template: "systems/dnd5e/templates/items/description.hbs",
+      template: "systems/lotm/templates/items/description.hbs",
       scrollable: [""]
     },
     details: {
-      template: "systems/dnd5e/templates/items/details.hbs",
+      template: "systems/lotm/templates/items/details.hbs",
       scrollable: [""]
     },
     effects: {
-      template: "systems/dnd5e/templates/items/effects.hbs",
+      template: "systems/lotm/templates/items/effects.hbs",
       scrollable: [""]
     }
   };
@@ -50282,12 +50282,12 @@ class ItemSheet5e extends PrimarySheetMixin(DocumentSheet5e) {
     if ( advancement.classRestriction === "primary" ) {
       tags.push({
         label: "DND5E.AdvancementClassRestrictionPrimary",
-        icon: "systems/dnd5e/icons/svg/original-class.svg"
+        icon: "systems/lotm/icons/svg/original-class.svg"
       });
     } else if ( advancement.classRestriction === "secondary" ) {
       tags.push({
         label: "DND5E.AdvancementClassRestrictionSecondary",
-        icon: "systems/dnd5e/icons/svg/multiclass.svg"
+        icon: "systems/lotm/icons/svg/multiclass.svg"
       });
     }
     return tags;
@@ -51521,7 +51521,7 @@ class AbilityConfig extends BaseProficiencyConfig {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/ability-config.hbs"
+      template: "systems/lotm/templates/actors/config/ability-config.hbs"
     }
   };
 
@@ -51568,7 +51568,7 @@ class ArmorClassConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/armor-class-config.hbs"
+      template: "systems/lotm/templates/actors/config/armor-class-config.hbs"
     }
   };
 
@@ -51658,7 +51658,7 @@ class ConcentrationConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/concentration-config.hbs"
+      template: "systems/lotm/templates/actors/config/concentration-config.hbs"
     }
   };
 
@@ -51716,7 +51716,7 @@ class TraitsConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     traits: {
-      template: "systems/dnd5e/templates/actors/config/traits-config.hbs"
+      template: "systems/lotm/templates/actors/config/traits-config.hbs"
     }
   };
 
@@ -51860,7 +51860,7 @@ class DamagesConfig extends TraitsConfig {
   /** @override */
   static PARTS = {
     traits: {
-      template: "systems/dnd5e/templates/actors/config/damages-config.hbs"
+      template: "systems/lotm/templates/actors/config/damages-config.hbs"
     }
   };
 
@@ -51950,7 +51950,7 @@ class DeathConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/death-config.hbs"
+      template: "systems/lotm/templates/actors/config/death-config.hbs"
     }
   };
 
@@ -52006,7 +52006,7 @@ class HitDiceConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/hit-dice-config.hbs"
+      template: "systems/lotm/templates/actors/config/hit-dice-config.hbs"
     }
   };
 
@@ -52102,7 +52102,7 @@ class HitPointsConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/hit-points-config.hbs"
+      template: "systems/lotm/templates/actors/config/hit-points-config.hbs"
     }
   };
 
@@ -52221,7 +52221,7 @@ class InitiativeConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/initiative-config.hbs"
+      template: "systems/lotm/templates/actors/config/initiative-config.hbs"
     }
   };
 
@@ -52295,7 +52295,7 @@ class LanguagesConfig extends TraitsConfig {
   /** @override */
   static PARTS = {
     traits: {
-      template: "systems/dnd5e/templates/actors/config/languages-config.hbs"
+      template: "systems/lotm/templates/actors/config/languages-config.hbs"
     }
   };
 
@@ -52340,7 +52340,7 @@ class SkillToolConfig extends BaseProficiencyConfig {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/skill-tool-config.hbs"
+      template: "systems/lotm/templates/actors/config/skill-tool-config.hbs"
     }
   };
 
@@ -52390,7 +52390,7 @@ class SkillsConfig extends TraitsConfig {
   /** @override */
   static PARTS = {
     traits: {
-      template: "systems/dnd5e/templates/actors/config/skills-config.hbs"
+      template: "systems/lotm/templates/actors/config/skills-config.hbs"
     }
   };
 
@@ -52463,7 +52463,7 @@ class SpellSlotsConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/spell-slots-config.hbs"
+      template: "systems/lotm/templates/actors/config/spell-slots-config.hbs"
     }
   };
 
@@ -52536,7 +52536,7 @@ class ToolsConfig extends TraitsConfig {
   /** @override */
   static PARTS = {
     traits: {
-      template: "systems/dnd5e/templates/actors/config/tools-config.hbs"
+      template: "systems/lotm/templates/actors/config/tools-config.hbs"
     }
   };
 
@@ -52617,7 +52617,7 @@ class WeaponsConfig extends TraitsConfig {
   /** @override */
   static PARTS = {
     traits: {
-      template: "systems/dnd5e/templates/actors/config/weapons-config.hbs"
+      template: "systems/lotm/templates/actors/config/weapons-config.hbs"
     }
   };
 
@@ -52702,15 +52702,15 @@ class TransformDialog extends Dialog5e {
   /** @override */
   static PARTS = {
     details: {
-      template: "systems/dnd5e/templates/apps/transform-details.hbs"
+      template: "systems/lotm/templates/apps/transform-details.hbs"
     },
     presets: {
       container: { id: "settings-area" },
-      template: "systems/dnd5e/templates/apps/transform-presets.hbs"
+      template: "systems/lotm/templates/apps/transform-presets.hbs"
     },
     settings: {
       container: { id: "settings-area" },
-      template: "systems/dnd5e/templates/apps/transform-settings.hbs"
+      template: "systems/lotm/templates/apps/transform-settings.hbs"
     },
     footer: {
       template: "templates/generic/form-footer.hbs"
@@ -53529,11 +53529,11 @@ class BaseActorSheet extends PrimarySheetMixin(
    */
   static LIMITED_PARTS = {
     header: {
-      template: "systems/dnd5e/templates/actors/limited-header.hbs"
+      template: "systems/lotm/templates/actors/limited-header.hbs"
     },
     biography: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/limited-body.hbs",
+      template: "systems/lotm/templates/actors/limited-body.hbs",
       scrollable: [""]
     }
   };
@@ -54485,7 +54485,7 @@ class BaseActorSheet extends PrimarySheetMixin(
         const button = document.createElement("button");
         Object.assign(button, { type: "button", className: classes, ariaLabel: label, ariaPressed: filled });
         Object.assign(button.dataset, { n, tooltip, action: "togglePip" });
-        const icon = '<dnd5e-icon src="systems/dnd5e/icons/svg/spell-slot.svg"></dnd5e-icon>';
+        const icon = '<dnd5e-icon src="systems/lotm/icons/svg/spell-slot.svg"></dnd5e-icon>';
         button.insertAdjacentHTML("afterbegin", icon);
         slots.append(button);
       });
@@ -55575,70 +55575,70 @@ class CharacterActorSheet extends BaseActorSheet {
   /** @override */
   static PARTS = {
     header: {
-      template: "systems/dnd5e/templates/actors/character-header.hbs"
+      template: "systems/lotm/templates/actors/character-header.hbs"
     },
     sidebar: {
       container: { classes: ["main-content"], id: "main" },
-      template: "systems/dnd5e/templates/actors/character-sidebar.hbs"
+      template: "systems/lotm/templates/actors/character-sidebar.hbs"
     },
     details: {
       classes: ["col-2"],
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/character-details.hbs",
+      template: "systems/lotm/templates/actors/tabs/character-details.hbs",
       scrollable: [""]
     },
     inventory: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/character-inventory.hbs",
+      template: "systems/lotm/templates/actors/tabs/character-inventory.hbs",
       templates: [
-        "systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs",
-        "systems/dnd5e/templates/inventory/encumbrance.hbs", "systems/dnd5e/templates/inventory/containers.hbs"
+        "systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs",
+        "systems/lotm/templates/inventory/encumbrance.hbs", "systems/lotm/templates/inventory/containers.hbs"
       ],
       scrollable: [""]
     },
     features: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/character-features.hbs",
-      templates: ["systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs"],
+      template: "systems/lotm/templates/actors/tabs/character-features.hbs",
+      templates: ["systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs"],
       scrollable: [""]
     },
     spells: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/creature-spells.hbs",
-      templates: ["systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs"],
+      template: "systems/lotm/templates/actors/tabs/creature-spells.hbs",
+      templates: ["systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs"],
       scrollable: [""]
     },
     effects: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/actor-effects.hbs",
+      template: "systems/lotm/templates/actors/tabs/actor-effects.hbs",
       scrollable: [""]
     },
     biography: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/character-biography.hbs",
+      template: "systems/lotm/templates/actors/tabs/character-biography.hbs",
       scrollable: [""]
     },
     bastion: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/character-bastion.hbs",
+      template: "systems/lotm/templates/actors/tabs/character-bastion.hbs",
       scrollable: [""]
     },
     specialTraits: {
       classes: ["flexcol"],
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/creature-special-traits.hbs",
+      template: "systems/lotm/templates/actors/tabs/creature-special-traits.hbs",
       scrollable: [""]
     },
     abilityScores: {
-      template: "systems/dnd5e/templates/actors/character-ability-scores.hbs"
+      template: "systems/lotm/templates/actors/character-ability-scores.hbs"
     },
     warnings: {
-      template: "systems/dnd5e/templates/actors/parts/actor-warnings-dialog.hbs"
+      template: "systems/lotm/templates/actors/parts/actor-warnings-dialog.hbs"
     },
     tabs: {
       id: "tabs",
       classes: ["tabs-right"],
-      template: "systems/dnd5e/templates/shared/sidebar-tabs.hbs"
+      template: "systems/lotm/templates/shared/sidebar-tabs.hbs"
     }
   };
 
@@ -55660,7 +55660,7 @@ class CharacterActorSheet extends BaseActorSheet {
   /** @override */
   static TABS = [
     { tab: "details", label: "DND5E.Details", icon: "fas fa-cog" },
-    { tab: "inventory", label: "DND5E.Inventory", svg: "systems/dnd5e/icons/svg/backpack.svg" },
+    { tab: "inventory", label: "DND5E.Inventory", svg: "systems/lotm/icons/svg/backpack.svg" },
     { tab: "features", label: "DND5E.Features", icon: "fas fa-list" },
     { tab: "spells", label: "TYPES.Item.spellPl", icon: "fas fa-book" },
     { tab: "effects", label: "DND5E.Effects", icon: "fas fa-bolt" },
@@ -57162,26 +57162,26 @@ class EncounterActorSheet extends MultiActorSheet {
   /** @override */
   static PARTS = {
     header: {
-      template: "systems/dnd5e/templates/actors/encounter/header.hbs"
+      template: "systems/lotm/templates/actors/encounter/header.hbs"
     },
     tabs: {
-      template: "systems/dnd5e/templates/shared/horizontal-tabs.hbs",
+      template: "systems/lotm/templates/shared/horizontal-tabs.hbs",
       templates: ["templates/generic/tab-navigation.hbs"]
     },
     members: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/encounter/members.hbs",
+      template: "systems/lotm/templates/actors/encounter/members.hbs",
       scrollable: [""]
     },
     inventory: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/actor-inventory.hbs",
-      templates: ["systems/dnd5e/templates/inventory/inventory.hbs"],
+      template: "systems/lotm/templates/actors/tabs/actor-inventory.hbs",
+      templates: ["systems/lotm/templates/inventory/inventory.hbs"],
       scrollable: [""]
     },
     description: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/group/biography.hbs",
+      template: "systems/lotm/templates/actors/group/biography.hbs",
       scrollable: [""]
     }
   };
@@ -57499,32 +57499,32 @@ class GroupActorSheet extends MultiActorSheet {
   /** @override */
   static PARTS = {
     header: {
-      template: "systems/dnd5e/templates/actors/group/header.hbs"
+      template: "systems/lotm/templates/actors/group/header.hbs"
     },
     members: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/group/members.hbs",
-      templates: ["systems/dnd5e/templates/actors/group/member.hbs"],
+      template: "systems/lotm/templates/actors/group/members.hbs",
+      templates: ["systems/lotm/templates/actors/group/member.hbs"],
       scrollable: [""]
     },
     inventory: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/group/inventory.hbs",
+      template: "systems/lotm/templates/actors/group/inventory.hbs",
       templates: [
-        "systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs",
-        "systems/dnd5e/templates/inventory/containers.hbs", "systems/dnd5e/templates/inventory/encumbrance.hbs"
+        "systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs",
+        "systems/lotm/templates/inventory/containers.hbs", "systems/lotm/templates/inventory/encumbrance.hbs"
       ],
       scrollable: [".sidebar", ".body"]
     },
     biography: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/group/biography.hbs",
+      template: "systems/lotm/templates/actors/group/biography.hbs",
       scrollable: [""]
     },
     tabs: {
       id: "tabs",
       classes: ["tabs-right"],
-      template: "systems/dnd5e/templates/shared/sidebar-tabs.hbs"
+      template: "systems/lotm/templates/shared/sidebar-tabs.hbs"
     }
   };
 
@@ -57533,7 +57533,7 @@ class GroupActorSheet extends MultiActorSheet {
   /** @override */
   static TABS = [
     { tab: "members", label: "DND5E.Group.Member.other", icon: "fa-solid fa-users"},
-    { tab: "inventory", label: "DND5E.Inventory", svg: "systems/dnd5e/icons/svg/backpack.svg" },
+    { tab: "inventory", label: "DND5E.Inventory", svg: "systems/lotm/icons/svg/backpack.svg" },
     { tab: "biography", label: "DND5E.Biography", icon: "fa-solid fa-feather" }
   ];
 
@@ -57943,7 +57943,7 @@ class HabitatConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/habitat-config.hbs"
+      template: "systems/lotm/templates/actors/config/habitat-config.hbs"
     }
   };
 
@@ -58026,7 +58026,7 @@ class TreasureConfig extends BaseConfigSheet {
   /** @override */
   static PARTS = {
     config: {
-      template: "systems/dnd5e/templates/actors/config/treasure-config.hbs"
+      template: "systems/lotm/templates/actors/config/treasure-config.hbs"
     }
   };
 
@@ -58095,59 +58095,59 @@ class NPCActorSheet extends BaseActorSheet {
   /** @override */
   static PARTS = {
     header: {
-      template: "systems/dnd5e/templates/actors/npc-header.hbs"
+      template: "systems/lotm/templates/actors/npc-header.hbs"
     },
     sidebarCollapser: {
       container: { classes: ["main-content"], id: "main" },
-      template: "systems/dnd5e/templates/actors/parts/sidebar-collapser.hbs"
+      template: "systems/lotm/templates/actors/parts/sidebar-collapser.hbs"
     },
     sidebar: {
       container: { classes: ["main-content"], id: "main" },
-      template: "systems/dnd5e/templates/actors/npc-sidebar.hbs"
+      template: "systems/lotm/templates/actors/npc-sidebar.hbs"
     },
     features: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/actor-features.hbs",
-      templates: ["systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs"],
+      template: "systems/lotm/templates/actors/tabs/actor-features.hbs",
+      templates: ["systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs"],
       scrollable: [""]
     },
     inventory: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/actor-inventory.hbs",
+      template: "systems/lotm/templates/actors/tabs/actor-inventory.hbs",
       templates: [
-        "systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs",
-        "systems/dnd5e/templates/inventory/encumbrance.hbs"
+        "systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs",
+        "systems/lotm/templates/inventory/encumbrance.hbs"
       ],
       scrollable: [""]
     },
     spells: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/creature-spells.hbs",
+      template: "systems/lotm/templates/actors/tabs/creature-spells.hbs",
       scrollable: [""]
     },
     effects: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/actor-effects.hbs",
+      template: "systems/lotm/templates/actors/tabs/actor-effects.hbs",
       scrollable: [""]
     },
     biography: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/npc-biography.hbs",
+      template: "systems/lotm/templates/actors/tabs/npc-biography.hbs",
       scrollable: [""]
     },
     specialTraits: {
       classes: ["flexcol"],
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/creature-special-traits.hbs",
+      template: "systems/lotm/templates/actors/tabs/creature-special-traits.hbs",
       scrollable: [""]
     },
     warnings: {
-      template: "systems/dnd5e/templates/actors/parts/actor-warnings-dialog.hbs"
+      template: "systems/lotm/templates/actors/parts/actor-warnings-dialog.hbs"
     },
     tabs: {
       id: "tabs",
       classes: ["tabs-right"],
-      template: "systems/dnd5e/templates/shared/sidebar-tabs.hbs"
+      template: "systems/lotm/templates/shared/sidebar-tabs.hbs"
     }
   };
 
@@ -58156,7 +58156,7 @@ class NPCActorSheet extends BaseActorSheet {
   /** @override */
   static TABS = [
     { tab: "features", label: "DND5E.Features", icon: "fas fa-list" },
-    { tab: "inventory", label: "DND5E.Inventory", svg: "systems/dnd5e/icons/svg/backpack.svg" },
+    { tab: "inventory", label: "DND5E.Inventory", svg: "systems/lotm/icons/svg/backpack.svg" },
     { tab: "spells", label: "TYPES.Item.spellPl", icon: "fas fa-book" },
     { tab: "effects", label: "DND5E.Effects", icon: "fas fa-bolt" },
     { tab: "biography", label: "DND5E.Biography", icon: "fas fa-feather" },
@@ -58697,47 +58697,47 @@ class VehicleActorSheet extends BaseActorSheet {
   /** @override */
   static PARTS = {
     sidebarCollapser: {
-      template: "systems/dnd5e/templates/actors/parts/sidebar-collapser.hbs"
+      template: "systems/lotm/templates/actors/parts/sidebar-collapser.hbs"
     },
     sidebar: {
-      template: "systems/dnd5e/templates/actors/vehicle/sidebar.hbs",
+      template: "systems/lotm/templates/actors/vehicle/sidebar.hbs",
       templates: [
-        "systems/dnd5e/templates/actors/parts/actor-trait-line.hbs",
-        "systems/dnd5e/templates/actors/parts/actor-trait-pills.hbs"
+        "systems/lotm/templates/actors/parts/actor-trait-line.hbs",
+        "systems/lotm/templates/actors/parts/actor-trait-pills.hbs"
       ],
       scrollable: [""]
     },
     stations: {
-      template: "systems/dnd5e/templates/actors/vehicle/stations.hbs",
-      templates: ["systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs"],
+      template: "systems/lotm/templates/actors/vehicle/stations.hbs",
+      templates: ["systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs"],
       scrollable: [""]
     },
     tabs: {
-      template: "systems/dnd5e/templates/shared/horizontal-tabs.hbs",
+      template: "systems/lotm/templates/shared/horizontal-tabs.hbs",
       templates: ["templates/generic/tab-navigation.hbs"]
     },
     inventory: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/actor-inventory.hbs",
+      template: "systems/lotm/templates/actors/tabs/actor-inventory.hbs",
       templates: [
-        "systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/activity.hbs",
-        "systems/dnd5e/templates/inventory/containers.hbs", "systems/dnd5e/templates/inventory/encumbrance.hbs"
+        "systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/activity.hbs",
+        "systems/lotm/templates/inventory/containers.hbs", "systems/lotm/templates/inventory/encumbrance.hbs"
       ],
       scrollable: [""]
     },
     crew: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/vehicle/crew.hbs",
+      template: "systems/lotm/templates/actors/vehicle/crew.hbs",
       scrollable: [""]
     },
     effects: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/tabs/actor-effects.hbs",
+      template: "systems/lotm/templates/actors/tabs/actor-effects.hbs",
       scrollable: [""]
     },
     description: {
       container: { classes: ["tab-body"], id: "tabs" },
-      template: "systems/dnd5e/templates/actors/vehicle/description.hbs",
+      template: "systems/lotm/templates/actors/vehicle/description.hbs",
       scrollable: [""]
     }
   };
@@ -59424,7 +59424,7 @@ class AdvancementConfig extends FormApplication {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["dnd5e", "advancement", "dialog"],
-      template: "systems/dnd5e/templates/advancement/advancement-config.hbs",
+      template: "systems/lotm/templates/advancement/advancement-config.hbs",
       width: 400,
       height: "auto",
       submitOnChange: true,
@@ -60462,7 +60462,7 @@ class DamageApplicationElement extends TargetedApplicationMixin(ChatTrayElement)
     if ( thresholdButton && !active.threshold ) thresholdButton.remove();
     else if ( !thresholdButton && active.threshold ) {
       const button = this.getChangeSourceButton({
-        change: "threshold", icon: "systems/dnd5e/icons/svg/damage/threshold.svg", type: "threshold"
+        change: "threshold", icon: "systems/lotm/icons/svg/damage/threshold.svg", type: "threshold"
       }, this.getTargetOptions(entry.dataset.uuid));
       entry.querySelector(".subtitle").insertAdjacentHTML("beforeend", button);
     }
@@ -61419,7 +61419,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       width: 200,
       order: 800,
       priority: 1000,
-      template: "systems/dnd5e/templates/inventory/columns/capacity.hbs"
+      template: "systems/lotm/templates/inventory/columns/capacity.hbs"
     },
     charges: {
       id: "charges",
@@ -61427,14 +61427,14 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 800,
       priority: 600,
       label: "DND5E.Charges",
-      template: "systems/dnd5e/templates/inventory/columns/uses.hbs"
+      template: "systems/lotm/templates/inventory/columns/uses.hbs"
     },
     controls: {
       id: "controls",
       width: 70,
       order: 1000,
       priority: 1000,
-      template: "systems/dnd5e/templates/inventory/columns/controls.hbs"
+      template: "systems/lotm/templates/inventory/columns/controls.hbs"
     },
     formula: {
       id: "formula",
@@ -61442,7 +61442,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 700,
       priority: 700,
       label: "DND5E.SpellHeader.Formula",
-      template: "systems/dnd5e/templates/inventory/columns/formula.hbs"
+      template: "systems/lotm/templates/inventory/columns/formula.hbs"
     },
     price: {
       id: "price",
@@ -61450,7 +61450,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 300,
       priority: 300,
       label: "DND5E.Price",
-      template: "systems/dnd5e/templates/inventory/columns/price.hbs"
+      template: "systems/lotm/templates/inventory/columns/price.hbs"
     },
     range: {
       id: "range",
@@ -61458,7 +61458,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 300,
       priority: 800,
       label: "DND5E.SpellHeader.Range",
-      template: "systems/dnd5e/templates/inventory/columns/range.hbs"
+      template: "systems/lotm/templates/inventory/columns/range.hbs"
     },
     recovery: {
       id: "recovery",
@@ -61466,7 +61466,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 400,
       priority: 500,
       label: "DND5E.Recovery",
-      template: "systems/dnd5e/templates/inventory/columns/recovery.hbs"
+      template: "systems/lotm/templates/inventory/columns/recovery.hbs"
     },
     roll: {
       id: "roll",
@@ -61474,7 +61474,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 600,
       priority: 800,
       label: "DND5E.SpellHeader.Roll",
-      template: "systems/dnd5e/templates/inventory/columns/roll.hbs"
+      template: "systems/lotm/templates/inventory/columns/roll.hbs"
     },
     school: {
       id: "school",
@@ -61482,7 +61482,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 100,
       priority: 100,
       label: "DND5E.SpellHeader.School",
-      template: "systems/dnd5e/templates/inventory/columns/school.hbs"
+      template: "systems/lotm/templates/inventory/columns/school.hbs"
     },
     target: {
       id: "target",
@@ -61490,7 +61490,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 400,
       priority: 800,
       label: "DND5E.SpellHeader.Target",
-      template: "systems/dnd5e/templates/inventory/columns/target.hbs"
+      template: "systems/lotm/templates/inventory/columns/target.hbs"
     },
     time: {
       id: "time",
@@ -61498,7 +61498,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 200,
       priority: 800,
       label: "DND5E.SpellHeader.Time",
-      template: "systems/dnd5e/templates/inventory/columns/time.hbs"
+      template: "systems/lotm/templates/inventory/columns/time.hbs"
     },
     quantity: {
       id: "quantity",
@@ -61506,7 +61506,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 500,
       priority: 500,
       label: "DND5E.Quantity",
-      template: "systems/dnd5e/templates/inventory/columns/quantity.hbs"
+      template: "systems/lotm/templates/inventory/columns/quantity.hbs"
     },
     uses: {
       id: "uses",
@@ -61514,7 +61514,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 500,
       priority: 600,
       label: "DND5E.Uses",
-      template: "systems/dnd5e/templates/inventory/columns/uses.hbs"
+      template: "systems/lotm/templates/inventory/columns/uses.hbs"
     },
     weight: {
       id: "weight",
@@ -61522,7 +61522,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       order: 400,
       priority: 400,
       label: "DND5E.Weight",
-      template: "systems/dnd5e/templates/inventory/columns/weight.hbs"
+      template: "systems/lotm/templates/inventory/columns/weight.hbs"
     }
   };
 
@@ -61763,7 +61763,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       group: "action"
     }, {
       name: "DND5E.ConcentrationBreak",
-      icon: '<dnd5e-icon src="systems/dnd5e/icons/svg/break-concentration.svg"></dnd5e-icon>',
+      icon: '<dnd5e-icon src="systems/lotm/icons/svg/break-concentration.svg"></dnd5e-icon>',
       condition: () => this.actor?.concentration?.items.has(item),
       callback: () => this.actor?.endConcentration(item),
       group: "state"
@@ -62129,7 +62129,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       } else {
         const chatData = await item.getChatData({secrets: item.isOwner});
         const summary = $(await foundry.applications.handlebars.renderTemplate(
-          "systems/dnd5e/templates/items/parts/item-summary.hbs", chatData
+          "systems/lotm/templates/items/parts/item-summary.hbs", chatData
         ));
         $(li).append(summary.hide());
         summary.slideDown(200);
@@ -62153,7 +62153,7 @@ class InventoryElement extends (foundry.applications.elements.AdoptableHTMLEleme
       this.app.expandedSections.set(item.id, false);
     } else {
       const context = await item.getChatData({ secrets: item.isOwner });
-      const template = "systems/dnd5e/templates/items/parts/item-summary.hbs";
+      const template = "systems/lotm/templates/items/parts/item-summary.hbs";
       const content = await foundry.applications.handlebars.renderTemplate(template, context);
       summary.querySelectorAll(".item-summary").forEach(el => el.remove());
       summary.insertAdjacentHTML("beforeend", content);
@@ -62653,7 +62653,7 @@ class DamageRollConfigurationDialog extends RollConfigurationDialog {
   static PARTS = {
     ...super.PARTS,
     formulas: {
-      template: "systems/dnd5e/templates/dice/damage-formulas.hbs"
+      template: "systems/lotm/templates/dice/damage-formulas.hbs"
     }
   };
 
@@ -62756,9 +62756,9 @@ class ContainerSheet extends ItemSheet5e {
   static PARTS = {
     ...super.PARTS,
     contents: {
-      template: "systems/dnd5e/templates/items/contents.hbs",
+      template: "systems/lotm/templates/items/contents.hbs",
       templates: [
-        "systems/dnd5e/templates/inventory/inventory.hbs", "systems/dnd5e/templates/inventory/encumbrance.hbs"
+        "systems/lotm/templates/inventory/inventory.hbs", "systems/lotm/templates/inventory/encumbrance.hbs"
       ],
       scrollable: [""]
     }
@@ -63347,7 +63347,7 @@ class JournalEditor extends DocumentSheet5e {
   /** @override */
   static PARTS = {
     editor: {
-      template: "systems/dnd5e/templates/journal/journal-editor.hbs"
+      template: "systems/lotm/templates/journal/journal-editor.hbs"
     }
   };
 
@@ -63411,7 +63411,7 @@ class JournalClassPageSheet extends JournalEntryPageHandlebarsSheet$1 {
     header: super.EDIT_PARTS.header,
     config: {
       classes: ["standard-form"],
-      template: "systems/dnd5e/templates/journal/page-{type}-edit.hbs"
+      template: "systems/lotm/templates/journal/page-{type}-edit.hbs"
     }
   };
 
@@ -63421,7 +63421,7 @@ class JournalClassPageSheet extends JournalEntryPageHandlebarsSheet$1 {
   static VIEW_PARTS = {
     content: {
       root: true,
-      template: "systems/dnd5e/templates/journal/page-{type}-view.hbs"
+      template: "systems/lotm/templates/journal/page-{type}-view.hbs"
     }
   };
 
@@ -64043,7 +64043,7 @@ class JournalRulePageSheet extends foundry.applications.sheets.journal.JournalEn
     header: super.EDIT_PARTS.header,
     content: super.EDIT_PARTS.content,
     tooltip: {
-      template: "systems/dnd5e/templates/journal/page-rule-edit.hbs"
+      template: "systems/lotm/templates/journal/page-rule-edit.hbs"
     },
     footer: super.EDIT_PARTS.footer
   };
@@ -64309,10 +64309,10 @@ class SpellsUnlinkedConfig extends DocumentSheet5e {
   /** @override */
   static PARTS = {
     spell: {
-      template: "systems/dnd5e/templates/journal/spell/unlinked-spell.hbs"
+      template: "systems/lotm/templates/journal/spell/unlinked-spell.hbs"
     },
     source: {
-      template: "systems/dnd5e/templates/journal/spell/unlinked-source.hbs"
+      template: "systems/lotm/templates/journal/spell/unlinked-source.hbs"
     }
   };
 
@@ -64383,11 +64383,11 @@ class JournalSpellListPageSheet extends JournalEntryPageHandlebarsSheet {
     header: super.EDIT_PARTS.header,
     config: {
       classes: ["standard-form"],
-      template: "systems/dnd5e/templates/journal/spell/config.hbs"
+      template: "systems/lotm/templates/journal/spell/config.hbs"
     },
     list: {
       classes: ["right", "spell-list"],
-      template: "systems/dnd5e/templates/journal/spell/list.hbs"
+      template: "systems/lotm/templates/journal/spell/list.hbs"
     }
   };
 
@@ -64397,7 +64397,7 @@ class JournalSpellListPageSheet extends JournalEntryPageHandlebarsSheet {
   static VIEW_PARTS = {
     content: {
       root: true,
-      template: "systems/dnd5e/templates/journal/spell/view.hbs"
+      template: "systems/lotm/templates/journal/spell/view.hbs"
     }
   };
 
@@ -64427,7 +64427,7 @@ class JournalSpellListPageSheet extends JournalEntryPageHandlebarsSheet {
   _configureRenderParts(options) {
     const parts = super._configureRenderParts(options);
     if ( ("content" in parts) && this.options.displayAsTable ) {
-      parts.content.template = "systems/dnd5e/templates/journal/spell/table.hbs";
+      parts.content.template = "systems/lotm/templates/journal/spell/table.hbs";
     }
     return parts;
   }
@@ -64698,7 +64698,7 @@ class TableOfContentsCompendium extends foundry.applications.sidebar.apps.Compen
   static PARTS = {
     article: {
       root: true,
-      template: "systems/dnd5e/templates/journal/table-of-contents.hbs"
+      template: "systems/lotm/templates/journal/table-of-contents.hbs"
     }
   };
 
@@ -64912,7 +64912,7 @@ class RotateAreaConfig extends foundry.applications.sheets.RegionBehaviorConfig 
   /** @override */
   static PARTS = {
     form: {
-      template: "systems/dnd5e/templates/region-behaviors/rotate-area-config.hbs",
+      template: "systems/lotm/templates/region-behaviors/rotate-area-config.hbs",
       scrollable: [""]
     },
     footer: {
@@ -65059,7 +65059,7 @@ function renderSettings(html) {
   section.innerHTML = `
     <h4 class="divider">${game.i18n.localize("WORLD.FIELDS.system.label")}</h4>
     <div class="system-badge">
-      <img src="systems/dnd5e/ui/official/dnd-badge-32.webp" data-tooltip="${dnd5e.title}" alt="${dnd5e.title}">
+      <img src="systems/lotm/ui/official/dnd-badge-32.webp" data-tooltip="${dnd5e.title}" alt="${dnd5e.title}">
       <span class="system-info">${dnd5e.version}</span>
     </div>
   `;
@@ -67158,7 +67158,7 @@ class SheetConfig5e extends foundry.applications.apps.DocumentSheetConfig {
   /** @inheritDoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      template: "systems/dnd5e/templates/shared/sheet-config.hbs"
+      template: "systems/lotm/templates/shared/sheet-config.hbs"
     });
   }
 
@@ -70399,7 +70399,7 @@ class NPCData extends CreatureTemplate {
     }
     const template = document.createElement("template");
     template.innerHTML = await foundry.applications.handlebars.renderTemplate(
-      "systems/dnd5e/templates/actors/embeds/npc-embed.hbs", context
+      "systems/lotm/templates/actors/embeds/npc-embed.hbs", context
     );
 
     /**
@@ -70787,7 +70787,7 @@ class RequestMessageData extends ChatMessageDataModel {
     actions: {
       handleRequest: RequestMessageData.#handleRequest
     },
-    template: "systems/dnd5e/templates/chat/request-card.hbs"
+    template: "systems/lotm/templates/chat/request-card.hbs"
   }, { inplace: false }));
 
   /* -------------------------------------------- */
@@ -70958,7 +70958,7 @@ class RestMessageData extends ChatMessageDataModel {
 
   /** @inheritDoc */
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
-    template: "systems/dnd5e/templates/chat/rest-card.hbs"
+    template: "systems/lotm/templates/chat/rest-card.hbs"
   }, { inplace: false }));
 
   /* -------------------------------------------- */
@@ -71027,7 +71027,7 @@ class TurnMessageData extends ChatMessageDataModel {
 
   /** @inheritDoc */
   static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
-    template: "systems/dnd5e/templates/chat/turn-card.hbs"
+    template: "systems/lotm/templates/chat/turn-card.hbs"
   }, { inplace: false }));
 
   /* -------------------------------------------- */
@@ -73826,7 +73826,7 @@ class RuleJournalPageData extends foundry.abstract.TypeDataModel {
     };
     return {
       content: await foundry.applications.handlebars.renderTemplate(
-        "systems/dnd5e/templates/journal/page-rule-tooltip.hbs", context
+        "systems/lotm/templates/journal/page-rule-tooltip.hbs", context
       ),
       classes: ["dnd5e-tooltip", "rule-tooltip", "dnd5e2", "themed", "theme-light"]
     };
@@ -76173,13 +76173,13 @@ class Bastion {
    * The template for the chat card summary of a bastion attack.
    * @type {string}
    */
-  static ATTACK_TEMPLATE = "systems/dnd5e/templates/chat/bastion-attack-summary.hbs";
+  static ATTACK_TEMPLATE = "systems/lotm/templates/chat/bastion-attack-summary.hbs";
 
   /**
    * The template for the chat card summary of a bastion turn.
    * @type {string}
    */
-  static TURN_TEMPLATE = "systems/dnd5e/templates/chat/bastion-turn-summary.hbs";
+  static TURN_TEMPLATE = "systems/lotm/templates/chat/bastion-turn-summary.hbs";
 
   /* -------------------------------------------- */
   /*  Public API                                  */
@@ -76778,7 +76778,7 @@ class BastionAttackDialog extends Dialog5e {
   static PARTS = {
     ...super.PARTS,
     content: {
-      template: "systems/dnd5e/templates/apps/bastion-attack-dialog.hbs"
+      template: "systems/lotm/templates/apps/bastion-attack-dialog.hbs"
     }
   };
 
@@ -77622,8 +77622,8 @@ const migrateSceneData = function(scene, migrationData) {
 const getMigrationData = async function() {
   const data = {};
   try {
-    const icons = await fetch("systems/dnd5e/json/icon-migration.json");
-    const spellIcons = await fetch("systems/dnd5e/json/spell-icon-migration.json");
+    const icons = await fetch("systems/lotm/json/icon-migration.json");
+    const spellIcons = await fetch("systems/lotm/json/spell-icon-migration.json");
     data.iconMap = {...await icons.json(), ...await spellIcons.json()};
   } catch(err) {
     console.warn(`Failed to retrieve icon migration data: ${err.message}`);
@@ -77755,7 +77755,7 @@ function _migrateTokenImage(actorData, updateData) {
     const v = foundry.utils.getProperty(actorData, path);
     if ( oldSystemPNG.test(v) ) {
       const [type, fileName] = v.match(oldSystemPNG).slice(1);
-      updateData[path] = `systems/dnd5e/tokens/${type}/${fileName}.webp`;
+      updateData[path] = `systems/lotm/tokens/${type}/${fileName}.webp`;
     }
   }
   return updateData;
@@ -79008,7 +79008,7 @@ class Tooltips5e {
     this.tooltip.classList.add("dnd5e-tooltip", "passive-tooltip", "dnd5e2", "themed", "theme-light");
     this.tooltip.classList.remove("theme-dark");
     this.tooltip.innerHTML = await foundry.applications.handlebars.renderTemplate(
-      "systems/dnd5e/templates/journal/passive-tooltip.hbs", context
+      "systems/lotm/templates/journal/passive-tooltip.hbs", context
     );
     game.tooltip._setAnchor(TooltipManager.TOOLTIP_DIRECTIONS.DOWN);
   }
@@ -79131,7 +79131,7 @@ Hooks.once("init", function() {
   CONFIG.Token.movement.TerrainData = TerrainData5e;
   CONFIG.User.documentClass = User5e;
   CONFIG.time.roundTime = 6;
-  Roll.TOOLTIP_TEMPLATE = "systems/dnd5e/templates/chat/roll-breakdown.hbs";
+  Roll.TOOLTIP_TEMPLATE = "systems/lotm/templates/chat/roll-breakdown.hbs";
   CONFIG.Dice.BasicRoll = BasicRoll;
   CONFIG.Dice.DamageRoll = DamageRoll;
   CONFIG.Dice.D20Die = D20Die;
@@ -79418,20 +79418,20 @@ function _configureFonts() {
     Roboto: {
       editor: true,
       fonts: [
-        { urls: ["systems/dnd5e/fonts/roboto/Roboto-Regular.woff2"] },
-        { urls: ["systems/dnd5e/fonts/roboto/Roboto-Bold.woff2"], weight: "bold" },
-        { urls: ["systems/dnd5e/fonts/roboto/Roboto-Italic.woff2"], style: "italic" },
-        { urls: ["systems/dnd5e/fonts/roboto/Roboto-BoldItalic.woff2"], weight: "bold", style: "italic" }
+        { urls: ["systems/lotm/fonts/roboto/Roboto-Regular.woff2"] },
+        { urls: ["systems/lotm/fonts/roboto/Roboto-Bold.woff2"], weight: "bold" },
+        { urls: ["systems/lotm/fonts/roboto/Roboto-Italic.woff2"], style: "italic" },
+        { urls: ["systems/lotm/fonts/roboto/Roboto-BoldItalic.woff2"], weight: "bold", style: "italic" }
       ]
     },
     "Roboto Condensed": {
       editor: true,
       fonts: [
-        { urls: ["systems/dnd5e/fonts/roboto-condensed/RobotoCondensed-Regular.woff2"] },
-        { urls: ["systems/dnd5e/fonts/roboto-condensed/RobotoCondensed-Bold.woff2"], weight: "bold" },
-        { urls: ["systems/dnd5e/fonts/roboto-condensed/RobotoCondensed-Italic.woff2"], style: "italic" },
+        { urls: ["systems/lotm/fonts/roboto-condensed/RobotoCondensed-Regular.woff2"] },
+        { urls: ["systems/lotm/fonts/roboto-condensed/RobotoCondensed-Bold.woff2"], weight: "bold" },
+        { urls: ["systems/lotm/fonts/roboto-condensed/RobotoCondensed-Italic.woff2"], style: "italic" },
         {
-          urls: ["systems/dnd5e/fonts/roboto-condensed/RobotoCondensed-BoldItalic.woff2"], weight: "bold",
+          urls: ["systems/lotm/fonts/roboto-condensed/RobotoCondensed-BoldItalic.woff2"], weight: "bold",
           style: "italic"
         }
       ]
@@ -79439,8 +79439,8 @@ function _configureFonts() {
     "Roboto Slab": {
       editor: true,
       fonts: [
-        { urls: ["systems/dnd5e/fonts/roboto-slab/RobotoSlab-Regular.ttf"] },
-        { urls: ["systems/dnd5e/fonts/roboto-slab/RobotoSlab-Bold.ttf"], weight: "bold" }
+        { urls: ["systems/lotm/fonts/roboto-slab/RobotoSlab-Regular.ttf"] },
+        { urls: ["systems/lotm/fonts/roboto-slab/RobotoSlab-Bold.ttf"], weight: "bold" }
       ]
     }
   });
@@ -79644,7 +79644,7 @@ Hooks.on("renderGamePause", (app, html) => {
   container.append(...html.children);
   html.append(container);
   const img = html.querySelector("img");
-  img.src = "systems/dnd5e/ui/official/ampersand.svg";
+  img.src = "systems/lotm/ui/official/ampersand.svg";
   img.className = "";
 });
 

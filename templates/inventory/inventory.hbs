@@ -153,7 +153,7 @@
                             {{#if ctx.activities.length}}
                             <ol class="activities unlist">
                                 {{#each ctx.activities}}
-                                {{> "systems/dnd5e/templates/inventory/activity.hbs" columns=../../columns
+                                {{> "systems/lotm/templates/inventory/activity.hbs" columns=../../columns
                                     item=../item }}
                                 {{/each}}
                             </ol>
@@ -182,7 +182,7 @@
     {{#if encumbrance}}
     <div class="bottom">
         <div class="encumbrance">
-            {{> "systems/dnd5e/templates/inventory/encumbrance.hbs" hasBreakpoints=true }}
+            {{> "systems/lotm/templates/inventory/encumbrance.hbs" hasBreakpoints=true }}
         </div>
     </div>
     {{/if}}
