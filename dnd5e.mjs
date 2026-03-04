@@ -20987,7 +20987,7 @@ function SystemFlagsMixin(Base) {
     prepareData() {
       super.prepareData();
       if ( ("dnd5e" in this.flags) && this._systemFlagsDataModel ) {
-        this.flags.lotm = new this._systemFlagsDataModel(this._source.flags.lotm, { parent: this });
+        this.flags.lotm = new this._systemFlagsDataModel(this._source.flags.dnd5e, { parent: this });
       }
     }
 
@@ -46868,7 +46868,10 @@ class ModuleArt {
     let settings = game.settings.get("lotm", "moduleArtConfiguration")?.[moduleId];
     settings ??= {portraits: true, tokens: true};
     for ( const [packName, actors] of Object.entries(mapping) ) {
-      const pack = game.packs.get(packName);
+      let pack = game.packs.get(packName);
+      if ( !pack && packName.startsWith(`${LEGACY_SYSTEM_ID}.`) ) {
+        pack = game.packs.get(`${game.system.id}.${packName.slice(LEGACY_SYSTEM_ID.length + 1)}`);
+      }
       if ( !pack ) continue;
       for ( let [actorId, info] of Object.entries(actors) ) {
         const entry = pack.index.get(actorId);
@@ -64748,7 +64751,7 @@ class TableOfContentsCompendium extends foundry.applications.sidebar.apps.Compen
     context.chapters = [];
     const specialEntries = [];
     for ( const entry of documents ) {
-      const flags = entry.flags?.lotm;
+      const flags = entry.flags?.lotm ?? entry.flags?.[LEGACY_SYSTEM_ID];
       if ( !flags ) continue;
       const keys = Object.keys(flags);
       if ( flags.tocHidden || !keys.length || ((keys.length === 1) && (keys[0] === "navigation")) ) continue;
@@ -64767,11 +64770,14 @@ class TableOfContentsCompendium extends foundry.applications.sidebar.apps.Compen
         type, flags,
         id: entry.id,
         name: flags.title ?? entry.name,
-        pages: Array.from(entry.pages).map(({ flags, id, name, sort }) => ({
-          id, sort, flags,
-          name: flags.lotm?.title ?? name,
-          entryId: entry.id
-        }))
+        pages: Array.from(entry.pages).map(({ flags: pageFlags, id, name, sort }) => {
+          const systemFlags = pageFlags?.lotm ?? pageFlags?.[LEGACY_SYSTEM_ID] ?? {};
+          return {
+            id, sort, flags: systemFlags,
+            name: systemFlags.title ?? name,
+            entryId: entry.id
+          };
+        })
       };
 
       if ( type === "special" ) {
@@ -77859,8 +77865,8 @@ function _migrateMacroCommands(macro, updateData) {
  */
 async function purgeFlags(pack) {
   const cleanFlags = flags => {
-    const flags5e = flags.lotm || null;
-    return flags5e ? {dnd5e: flags5e} : {};
+    const flags5e = flags.lotm ?? flags.dnd5e ?? null;
+    return flags5e ? {lotm: flags5e} : {};
   };
   await pack.configure({locked: false});
   const content = await pack.getDocuments();
@@ -78029,7 +78035,10 @@ function registerModuleRedirects() {
       log(`Skipped redirects for ${moduleId}`);
     } else {
       log(`Registered redirects to SRD for ${moduleId}`);
-      Object.assign(CONFIG.compendium.uuidRedirects, redirects);
+      const normalized = Object.fromEntries(Object.entries(redirects).map(([source, target]) => {
+        return [source, remapLegacyCompendiumUuid(target)];
+      }));
+      Object.assign(CONFIG.compendium.uuidRedirects, normalized);
     }
   }
   console.groupEnd();

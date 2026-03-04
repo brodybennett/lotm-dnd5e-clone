@@ -1,5 +1,5 @@
 {
-  "dnd5e.actors24": {
+  "lotm.actors24": {
     "mmAdultCopperDra": {
       "actor": "systems/lotm/tokens/thumbs/dragon/CopperDragonAdult.webp",
       "token": {
@@ -2359,7 +2359,7 @@
       }
     }
   },
-  "dnd5e.monsters": {
+  "lotm.monsters": {
     "irz834sqAxRihtSG": {
       "actor": "systems/lotm/tokens/thumbs/dragon/CopperDragonAdult.webp",
       "token": {
@@ -4477,7 +4477,7 @@
       }
     }
   },
-  "dnd5e.heroes": {
+  "lotm.heroes": {
     "125qFnXvT9z0iOic": {
       "actor": "systems/lotm/tokens/heroes/MonkStaff.webp",
       "token": {
