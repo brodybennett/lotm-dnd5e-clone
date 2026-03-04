@@ -79091,11 +79091,71 @@ globalThis.dnd5e = {
 };
 
 /* -------------------------------------------- */
+/*  LoTM Compatibility                          */
+/* -------------------------------------------- */
+
+const LEGACY_SYSTEM_ID = "dnd5e";
+
+function remapLegacyCompendiumUuid(uuid) {
+  if ( typeof uuid !== "string" ) return uuid;
+  return uuid.replaceAll(`Compendium.${LEGACY_SYSTEM_ID}.`, `Compendium.${game.system.id}.`);
+}
+
+function remapLegacySystemPath(path) {
+  if ( typeof path !== "string" ) return path;
+  const prefix = `systems/${LEGACY_SYSTEM_ID}/`;
+  if ( !path.startsWith(prefix) ) return path;
+  return `systems/${game.system.id}/${path.slice(prefix.length)}`;
+}
+
+function remapLegacyPathsInElement(root) {
+  if ( !root ) return;
+  const candidates = [];
+  if ( root.hasAttribute?.("src") || root.hasAttribute?.("data-src") ) candidates.push(root);
+  if ( root.querySelectorAll ) candidates.push(...root.querySelectorAll("[src], [data-src]"));
+  for ( const el of candidates ) {
+    if ( el.hasAttribute("src") ) {
+      const remapped = remapLegacySystemPath(el.getAttribute("src"));
+      if ( remapped !== el.getAttribute("src") ) el.setAttribute("src", remapped);
+    }
+    if ( el.hasAttribute("data-src") ) {
+      const remapped = remapLegacySystemPath(el.getAttribute("data-src"));
+      if ( remapped !== el.getAttribute("data-src") ) el.setAttribute("data-src", remapped);
+    }
+  }
+}
+
+function installLotmCompatibility() {
+  if ( game.system.id !== "lotm" ) return;
+  if ( globalThis.__lotmCompatInstalled ) return;
+  globalThis.__lotmCompatInstalled = true;
+
+  for ( const fnName of ["fromUuid", "fromUuidSync"] ) {
+    const original = globalThis[fnName];
+    if ( typeof original !== "function" ) continue;
+    globalThis[fnName] = function(uuid, ...args) {
+      return original.call(this, remapLegacyCompendiumUuid(uuid), ...args);
+    };
+  }
+
+  const originalLoadTexture = globalThis.loadTexture;
+  if ( typeof originalLoadTexture === "function" ) {
+    globalThis.loadTexture = function(path, ...args) {
+      return originalLoadTexture.call(this, remapLegacySystemPath(path), ...args);
+    };
+  }
+
+  Hooks.on("renderApplication", (app, html) => remapLegacyPathsInElement(html?.[0] ?? html));
+  Hooks.on("renderApplicationV2", (app, html) => remapLegacyPathsInElement(html?.[0] ?? html));
+}
+
+/* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
 /* -------------------------------------------- */
 
 Hooks.once("init", function() {
   globalThis.dnd5e = game.dnd5e = Object.assign(game.system, globalThis.dnd5e);
+  installLotmCompatibility();
   log(`Initializing the D&D Fifth Game System - Version ${dnd5e.version}\n${DND5E.ASCII}`);
 
   // Record Configuration Values
@@ -79280,6 +79340,24 @@ Hooks.once("init", function() {
 
   // Setup Calendar
   _configureCalendar();
+});
+
+Hooks.once("ready", () => {
+  if ( game.system.id !== "lotm" ) return;
+  remapLegacyPathsInElement(document);
+  const observer = new MutationObserver(mutations => {
+    for ( const mutation of mutations ) {
+      if ( mutation.type === "attributes" ) remapLegacyPathsInElement(mutation.target);
+      for ( const node of mutation.addedNodes ?? [] ) remapLegacyPathsInElement(node);
+    }
+  });
+  observer.observe(document.body, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ["src", "data-src"]
+  });
+  game.dnd5e._lotmPathObserver = observer;
 });
 
 /* -------------------------------------------- */
