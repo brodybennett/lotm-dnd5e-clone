@@ -120,7 +120,7 @@
 "DND5E.AbilityPromptTitle": "{ability} Ability Check",
 "DND5E.AbilityUseChargesLabel": "{value} Charges",
 "DND5E.AbilityUseConsumableLabel": "{max} per {per}",
-"DND5E.AbilityUseCast": "Cast Spell",
+"DND5E.AbilityUseCast": "Use Ability",
 "DND5E.AbilityUseUse": "Use Ability",
 "DND5E.AbilityUseConfig": "Usage Configuration",
 "DND5E.AbilityBonuses": "Ability Bonuses",
@@ -138,10 +138,10 @@
 "DND5E.ActionAbil": "Ability Check",
 "DND5E.ActionEnch": "Enchant",
 "DND5E.ActionHeal": "Heal",
-"DND5E.ActionMSAK": "Melee Spell Attack",
+"DND5E.ActionMSAK": "Melee Ability Attack",
 "DND5E.ActionMWAK": "Melee Weapon Attack",
 "DND5E.ActionOther": "Other",
-"DND5E.ActionRSAK": "Ranged Spell Attack",
+"DND5E.ActionRSAK": "Ranged Ability Attack",
 "DND5E.ActionRWAK": "Ranged Weapon Attack",
 "DND5E.ActionSave": "Saving Throw",
 "DND5E.ActionSumm": "Summon",
@@ -661,12 +661,12 @@
   "SPELLCONFIG": {
     "FIELDS": {
       "spell": {
-        "label": "Spell Details",
+        "label": "Ability Details",
         "ability": {
           "label": "Ability"
         },
         "method": {
-          "label": "Spellcasting Method"
+          "label": "Ability Casting Method"
         },
         "prepared": {
           "label": "Preparation"
@@ -1051,12 +1051,12 @@
         }
       },
       "msak": {
-        "label": "Melee Spell Bonuses",
+        "label": "Melee Ability Bonuses",
         "attack": {
-          "label": "Melee Spell Attack Bonus"
+          "label": "Melee Ability Attack Bonus"
         },
         "damage": {
-          "label": "Melee Spell Damage Bonus"
+          "label": "Melee Ability Damage Bonus"
         }
       },
       "mwak": {
@@ -1069,12 +1069,12 @@
         }
       },
       "rsak": {
-        "label": "Ranged Spell Bonuses",
+        "label": "Ranged Ability Bonuses",
         "attack": {
-          "label": "Ranged Spell Attack Bonus"
+          "label": "Ranged Ability Attack Bonus"
         },
         "damage": {
-          "label": "Ranged Spell Damage Bonus"
+          "label": "Ranged Ability Damage Bonus"
         }
       },
       "rwak": {
@@ -1087,9 +1087,9 @@
         }
       },
       "spell": {
-        "label": "Global Spell Bonuses",
+        "label": "Global Ability Bonuses",
         "dc": {
-          "label": "Global Spell DC Bonus"
+          "label": "Global Ability DC Bonus"
         }
       }
     }
@@ -1557,7 +1557,7 @@
     "Label": "Filters",
     "Grouped": "{type} ({group})",
     "HasDarkvision": "Has Darkvision",
-    "HasSpellcasting": "Has Spellcasting",
+    "HasSpellcasting": "Has Ability Casting",
     "SearchResults": "Search results"
   },
   "Selection": {
@@ -2754,7 +2754,7 @@
   }
 },
 "DND5E.Focus": {
-  "Label": "Spellcasting Focus",
+  "Label": "Ability Casting Focus",
   "Arcane": "Arcane Focus",
   "Druidic": "Druidic Focus",
   "Holy": "Holy Focus"
@@ -4009,19 +4009,19 @@
 },
 "DND5E.Speed": "Speed",
 "DND5E.SpeedSpecial": "Special Movement",
-"DND5E.SpellAbility": "Spellcasting Ability",
-"DND5E.SpellAbilitySet": "Set as Primary Spellcasting Ability",
+"DND5E.SpellAbility": "Ability Casting Attribute",
+"DND5E.SpellAbilitySet": "Set as Primary Ability Casting Attribute",
 "DND5E.SpellAdd": "Add Ability",
-"DND5E.SpellAttackBonus": "Spell Attack Bonus",
-"DND5E.SpellCantrip": "Cantrip",
-"DND5E.SpellCastConsume": "Consume Spell Slot?",
-"DND5E.SpellCastNoSlots": "You have no available {level} spell slots with which to cast {name}",
-"DND5E.SpellCastNoSlotsLeft": "You have no available spell slots with which to cast {name}!",
-"DND5E.SpellCastTime": "Casting Time",
-"DND5E.SpellCastUpcast": "Cast at Level",
-"DND5E.SpellcasterLevel": "Spellcaster Level",
-"DND5E.SpellCastingHeader": "Spell Casting",
-"DND5E.Spellcasting": "Spellcasting",
+"DND5E.SpellAttackBonus": "Ability Attack Bonus",
+"DND5E.SpellCantrip": "Sequence 9",
+"DND5E.SpellCastConsume": "Consume Ability Slot?",
+"DND5E.SpellCastNoSlots": "You have no available {level} ability slots with which to use {name}",
+"DND5E.SpellCastNoSlotsLeft": "You have no available ability slots with which to use {name}!",
+"DND5E.SpellCastTime": "Ability Time",
+"DND5E.SpellCastUpcast": "Use at Sequence",
+"DND5E.SpellcasterLevel": "Ability Caster Level",
+"DND5E.SpellCastingHeader": "Ability Casting",
+"DND5E.Spellcasting": "Ability Casting",
 
 "DND5E.SPELLCASTING": {
   "METHODS": {
@@ -4029,13 +4029,13 @@
       "label": "At-Will"
     },
     "Innate": {
-      "label": "Innate Spellcasting"
+      "label": "Innate Ability Use"
     },
     "Ritual": {
       "label": "Ritual Only"
     },
     "Spell": {
-      "label": "Spellcasting",
+      "label": "Ability Casting",
       "Full": {
         "label": "Full Caster"
       },
@@ -4058,32 +4058,32 @@
     }
   },
   "SLOTS": {
-    "spell0": "Cantrips",
-    "spell1": "1st Level",
-    "spell2": "2nd Level",
-    "spell3": "3rd Level",
-    "spell4": "4th Level",
-    "spell5": "5th Level",
-    "spell6": "6th Level",
-    "spell7": "7th Level",
-    "spell8": "8th Level",
-    "spell9": "9th Level"
+    "spell0": "Sequence 9",
+    "spell1": "Sequence 8",
+    "spell2": "Sequence 7",
+    "spell3": "Sequence 6",
+    "spell4": "Sequence 5",
+    "spell5": "Sequence 4",
+    "spell6": "Sequence 3",
+    "spell7": "Sequence 2",
+    "spell8": "Sequence 1",
+    "spell9": "Sequence 0"
   },
   "STATES": {
     "Unprepared": "Not Prepared",
     "Prepared": "Prepared",
     "AlwaysPrepared": "Always Prepared"
   },
-  "Unlabeled": "Unlabeled Spellcasting"
+  "Unlabeled": "Unlabeled Ability Casting"
 },
 
 "DND5E.SpellcastingClass": "{class} Ability List",
-"DND5E.SpellComponent": "Spell Component",
-"DND5E.SpellComponents": "Spell Components",
+"DND5E.SpellComponent": "Ability Component",
+"DND5E.SpellComponents": "Ability Components",
 "DND5E.SpellCreate": "Create Ability",
-"DND5E.SpellDC": "Spell DC",
-"DND5E.SpellDetails": "Spell Details",
-"DND5E.SpellEffects": "Spell Effects",
+"DND5E.SpellDC": "Ability DC",
+"DND5E.SpellDetails": "Ability Details",
+"DND5E.SpellEffects": "Ability Effects",
 "DND5E.SpellHeader": {
   "Formula": "Formula",
   "Range": "Range",
@@ -4106,34 +4106,34 @@
 "DND5E.SpellLevel9": "Sequence 9",
 "DND5E.SpellLevelSpell": "{level} ({n} Ability Slots)",
 "DND5E.SpellLevelPact": "Pact Slot [Sequence {level}] ({n} Slots)",
-"DND5E.SpellMaterials": "Spellcasting Materials",
+"DND5E.SpellMaterials": "Ability Materials",
 "DND5E.SpellMaterialsConsumed": "Consume Materials",
 "DND5E.SpellMaterialsCost": "Material Cost",
 "DND5E.SpellMaterialsDescription": "Material Description",
 "DND5E.SpellMaterialsSupply": "Material Supply",
-"DND5E.SpellName": "Spell Name",
+"DND5E.SpellName": "Ability Name",
 "DND5E.SpellNone": "None",
 "DND5E.SpellPrepAtWill": "At-Will",
-"DND5E.SpellPrepInnate": "Innate Spellcasting",
+"DND5E.SpellPrepInnate": "Innate Ability Use",
 "DND5E.SpellPrepRitual": "Ritual Only",
 "DND5E.SpellPrepPrepared": "Prepared",
 "DND5E.SpellPrepAlways": "Always Prepared",
 "DND5E.SpellPreparation": {
-  "Label": "Spell Preparation",
+  "Label": "Ability Preparation",
   "Formula": "Preparation Formula",
-  "Method": "Spellcasting Method"
+  "Method": "Ability Casting Method"
 },
-"DND5E.SpellSourceClass": "Source Class",
+"DND5E.SpellSourceClass": "Source Pathway",
 "DND5E.SpellPrepared": "Prepared",
 "DND5E.SpellProgArt": "Artificer",
-"DND5E.SpellProgAvailable": "Available slots",
+"DND5E.SpellProgAvailable": "Available ability slots",
 "DND5E.SpellProgFull": "Full Caster",
 "DND5E.SpellProgHalf": "Half Caster",
 "DND5E.SpellProgLeveled": "Leveled Magic",
 "DND5E.SpellProgOverride": "Override slots",
 "DND5E.SpellProgPact": "Pact Magic",
 "DND5E.SpellProgThird": "Third Caster",
-"DND5E.SpellProgression": "Spell Progression",
+"DND5E.SpellProgression": "Ability Progression",
 "DND5E.SpellsSearch": "Search abilities",
 "DND5E.SpellSchool": "Ability School",
 "DND5E.SpellScroll": "Spell Scroll",
@@ -4149,7 +4149,7 @@
 "DND5E.SpellSlotsN.other": "{n}th Level Slots",
 "DND5E.SpellSlotsPact": "Pact Slots",
 "DND5E.SpellSlotsConfig": "Configure Spell Slots",
-"DND5E.SpellTag": "Spell Tag",
+"DND5E.SpellTag": "Ability Tag",
 "DND5E.SpellTarget": "Ability Target",
 "DND5E.SpellUnprepared": "Unprepared",
 "DND5E.SpellUsage": "Ability Usage",
@@ -4164,7 +4164,7 @@
   },
   "Choice": {
     "Armor": "Choose Armor",
-    "Focus": "Choose Spellcasting Focus",
+    "Focus": "Choose Ability Casting Focus",
     "Tool": "Choose Tool",
     "Weapon": "Choose Weapon"
   },
