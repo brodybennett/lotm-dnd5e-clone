@@ -3688,6 +3688,16 @@
     "Hint": "Remove any adjustments to a character's maximum Hit Points.",
     "Label": "Recover Max HP"
   },
+  "RecoverSpirituality": {
+    "Long": {
+      "Hint": "Restore all Spirituality during this long rest.",
+      "Label": "Recover Spirituality"
+    },
+    "Short": {
+      "Hint": "Restore {percent}% of maximum Spirituality (minimum 1) during this short rest.",
+      "Label": "Recover Partial Spirituality"
+    }
+  },
   "Request": {
     "AutoRest": {
       "Hint": "Automatically perform the rest for selected party actors, rather than sending a rest request to players.",

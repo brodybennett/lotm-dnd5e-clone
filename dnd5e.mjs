@@ -29471,6 +29471,35 @@ class BaseRestDialog extends Dialog5e {
     });
 
     const rest = CONFIG.DND5E.restTypes[this.config.type];
+    const hasSpirituality = this.isPartyGroup
+      ? this.actor.system.members.some(m => (m.actor?.type === "character")
+        && foundry.utils.hasProperty(m.actor, "system.attributes.spirituality"))
+      : (this.actor.type === "character")
+        && foundry.utils.hasProperty(this.actor, "system.attributes.spirituality");
+    if ( hasSpirituality && (this.config.type === "long") ) context.fields.push({
+      disabled: !!this.config.request,
+      field: new BooleanField$s({
+        label: game.i18n.localize("DND5E.REST.RecoverSpirituality.Long.Label"),
+        hint: game.i18n.localize("DND5E.REST.RecoverSpirituality.Long.Hint")
+      }),
+      input: context.inputs.createCheckboxInput,
+      name: "recoverSpirituality",
+      value: context.config.recoverSpirituality
+    });
+    if ( hasSpirituality && (this.config.type === "short") ) {
+      const percent = Math.max(Math.round((Number(context.config.recoverSpiritualityFraction) || 0) * 100), 0);
+      context.fields.push({
+        disabled: !!this.config.request,
+        field: new BooleanField$s({
+          label: game.i18n.localize("DND5E.REST.RecoverSpirituality.Short.Label"),
+          hint: game.i18n.format("DND5E.REST.RecoverSpirituality.Short.Hint", { percent: formatNumber(percent) })
+        }),
+        input: context.inputs.createCheckboxInput,
+        name: "recoverSpirituality",
+        value: context.config.recoverSpirituality
+      });
+    }
+
     if ( "recoverTemp" in rest ) context.hitPoints.push({
       disabled: !!this.config.request,
       field: new BooleanField$s({
@@ -34878,7 +34907,7 @@ class Actor5e extends SystemDocumentMixin(Actor) {
       type: "short", dialog: true, chat: true, newDay: false, advanceTime: false, autoHD: false, autoHDThreshold: 3,
       duration: CONFIG.DND5E.restTypes.short.duration[game.settings.get("lotm", "restVariant")],
       recoverTemp: restConfig.recoverTemp, recoverTempMax: restConfig.recoverTempMax,
-      exhaustionDelta: restConfig.exhaustionDelta
+      recoverSpirituality: false, recoverSpiritualityFraction: 0.5, exhaustionDelta: restConfig.exhaustionDelta
     }, config);
 
     /**
@@ -34941,7 +34970,7 @@ class Actor5e extends SystemDocumentMixin(Actor) {
       type: "long", dialog: true, chat: true, newDay: true, advanceTime: false,
       duration: restConfig.duration[game.settings.get("lotm", "restVariant")],
       recoverTemp: restConfig.recoverTemp, recoverTempMax: restConfig.recoverTempMax,
-      exhaustionDelta: restConfig.exhaustionDelta
+      recoverSpirituality: true, exhaustionDelta: restConfig.exhaustionDelta
     }, config);
 
     /**
@@ -35022,6 +35051,7 @@ class Actor5e extends SystemDocumentMixin(Actor) {
 
     this._getRestHitDiceRecovery(config, result);
     this._getRestHitPointRecovery(config, result);
+    this._getRestSpiritualityRecovery(config, result);
     this._getRestResourceRecovery(config, result);
     this._getRestSpellRecovery(config, result);
     await this._getRestItemUsesRecovery(config, result);
@@ -35228,6 +35258,38 @@ class Actor5e extends SystemDocumentMixin(Actor) {
     foundry.utils.setProperty(
       result, "deltas.hitPoints", (result.deltas?.hitPoints ?? 0) + Math.max(0, max - hp.value)
     );
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Recovers actor spirituality.
+   * @param {RestConfiguration} [config={}]
+   * @param {boolean} [config.recoverSpirituality]          Recover spirituality during this rest.
+   * @param {number} [config.recoverSpiritualityFraction]   Fraction of maximum spirituality recovered on short rests.
+   * @param {RestResult} [result={}]                        Rest result being constructed.
+   * @protected
+   */
+  _getRestSpiritualityRecovery({ recoverSpirituality, recoverSpiritualityFraction, ...config }={}, result={}) {
+    if ( this.type !== "character" ) return;
+    const spirituality = this.system.attributes?.spirituality;
+    if ( !spirituality ) return;
+
+    const max = Math.max(Number(spirituality.max) || 0, 0);
+    const current = Math.clamp(Number(spirituality.value) || 0, 0, max);
+    let recovered = 0;
+
+    if ( (config.type === "long") && (recoverSpirituality !== false) ) {
+      recovered = Math.max(0, max - current);
+    } else if ( (config.type === "short") && recoverSpirituality ) {
+      const fraction = Math.max(Number(recoverSpiritualityFraction) || 0, 0);
+      const step = Math.floor(max * fraction);
+      recovered = Math.min(max - current, Math.max(step, max > 0 ? 1 : 0));
+    }
+
+    if ( recovered <= 0 ) return;
+    result.updateData ??= {};
+    result.updateData["system.attributes.spirituality.value"] = current + recovered;
   }
 
   /* -------------------------------------------- */
@@ -70007,6 +70069,7 @@ class GroupData extends GroupTemplate {
     // Create a rest chat message
     if ( !config.autoRest ) {
       const restConfig = CONFIG.DND5E.restTypes[config.type];
+      const spiritualityFraction = Number(config.recoverSpiritualityFraction);
       const messageData = {
         flavor: this.parent.createRestFlavor(config),
         speaker: ChatMessage.getSpeaker({ actor: this.parent, alias: this.parent.name }),
@@ -70019,6 +70082,8 @@ class GroupData extends GroupTemplate {
             newDay: config.newDay === true,
             recoverTemp: config.recoverTemp === true,
             recoverTempMax: config.recoverTempMax === true,
+            recoverSpirituality: config.recoverSpirituality === true,
+            recoverSpiritualityFraction: Number.isFinite(spiritualityFraction) ? spiritualityFraction : 0.5,
             type: config.type
           },
           handler: "rest",
