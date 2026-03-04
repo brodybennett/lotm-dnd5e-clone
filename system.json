@@ -240,8 +240,8 @@
             }
         },
         "RegionBehavior": {
-            "dnd5e.difficultTerrain": {},
-            "dnd5e.rotateArea": {}
+            "lotm.difficultTerrain": {},
+            "lotm.rotateArea": {}
         }
     },
     "packs": [
@@ -253,7 +253,7 @@
             "type": "Actor",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "character"
@@ -269,7 +269,7 @@
             "type": "Actor",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "npc"
@@ -285,7 +285,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "weapon",
@@ -307,7 +307,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "loot"
@@ -323,7 +323,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sorting": "m",
                     "sourceBook": "SRD 5.1",
                     "types": [
@@ -340,7 +340,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "background",
@@ -357,7 +357,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "class"
@@ -373,7 +373,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "subclass"
@@ -389,7 +389,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "feat",
@@ -406,7 +406,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "race",
@@ -423,7 +423,7 @@
             "type": "Item",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.1",
                     "types": [
                         "feat",
@@ -440,7 +440,7 @@
             "type": "JournalEntry",
             "private": false,
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "display": "table-of-contents"
                 }
             }
@@ -479,7 +479,7 @@
             },
             "system": "lotm",
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.2",
                     "types": [
                         "class",
@@ -500,7 +500,7 @@
             },
             "system": "lotm",
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.2",
                     "types": [
                         "race",
@@ -521,7 +521,7 @@
             },
             "system": "lotm",
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.2",
                     "types": [
                         "feat"
@@ -540,7 +540,7 @@
             },
             "system": "lotm",
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sorting": "m",
                     "sourceBook": "SRD 5.2",
                     "types": [
@@ -560,7 +560,7 @@
             },
             "system": "lotm",
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.2",
                     "types": [
                         "weapon",
@@ -596,7 +596,7 @@
             },
             "system": "lotm",
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sorting": "m",
                     "sourceBook": "SRD 5.2"
                 }
@@ -612,7 +612,7 @@
             },
             "system": "lotm",
             "flags": {
-                "dnd5e": {
+                "lotm": {
                     "sourceBook": "SRD 5.2",
                     "types": [
                         "feat",
@@ -712,12 +712,12 @@
     "background": "systems/lotm/ui/official/dnd5e-background.webp",
     "flags": {
         "compendiumArtMappings": {
-            "dnd5e": {
+            "lotm": {
                 "mapping": "systems/lotm/json/fa-token-mapping.json",
                 "credit": "<em>Token artwork by <a href=\"https://www.forgotten-adventures.net/\" target=\"_blank\" rel=\"noopener\">Forgotten Adventures</a>.</em>"
             }
         },
-        "dnd5e": {
+        "lotm": {
             "sourceBooks": {
                 "SRD 5.1": "SOURCE.BOOK.SRD51",
                 "SRD 5.2": "SOURCE.BOOK.SRD52",
