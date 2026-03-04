@@ -5028,7 +5028,9 @@ class ActivitySheet extends PseudoDocumentSheet {
         validTargets: showTextTarget ? null : target.validTargets
       };
     });
-    context.showConsumeSpellSlot = (this.activity.isSpell || this.activity.isRider) && (this.item.system.level !== 0);
+    const isCharacterSpellFlow = (this.item.type === "spell") && (this.item.actor?.type === "character");
+    context.showConsumeSpellSlot = (this.activity.isSpell || this.activity.isRider)
+      && (this.item.system.level !== 0) && !isCharacterSpellFlow;
     context.showScaling = !this.activity.isSpell || this.activity.isRider;
 
     // Uses recovery
@@ -5713,6 +5715,7 @@ class ActivityUsageDialog extends Dialog5e {
   async _prepareConsumptionContext(context, options) {
     context.fields = [];
     context.notes = [];
+    const useSpirituality = isSpiritualityConsumptionActivity(this.activity);
 
     const activationConfig = CONFIG.DND5E.activityActivationTypes[this.activity.activation.type];
     if ( activationConfig?.consume && this._shouldDisplay("consume.action") ) {
@@ -5746,7 +5749,7 @@ class ActivityUsageDialog extends Dialog5e {
       }
     }
 
-    if ( this.activity.requiresSpellSlot && this.activity.consumption.spellSlot
+    if ( !useSpirituality && this.activity.requiresSpellSlot && this.activity.consumption.spellSlot
       && this._shouldDisplay("consume.spellSlot") && !this.config.cause ) context.fields.push({
       field: new BooleanField$O({ label: game.i18n.localize("DND5E.SpellCastConsume") }),
       input: context.inputs.createCheckboxInput,
@@ -5754,11 +5757,35 @@ class ActivityUsageDialog extends Dialog5e {
       value: this.config.consume?.spellSlot
     });
 
+    if ( useSpirituality && (this.item.system.level > 0) && this._shouldDisplay("consume.spirituality") ) {
+      const spirituality = this.actor.system.attributes?.spirituality ?? {};
+      const value = (this.config.consume !== false) && (this.config.consume?.spirituality !== false);
+      const cost = spiritualityCostFromUsageConfig(this.activity, this.config);
+      const available = Math.max(Number(spirituality.value) || 0, 0);
+      context.fields.push({
+        field: new BooleanField$O({
+          label: game.i18n.format("DND5E.CONSUMPTION.Type.Action.Prompt", {
+            type: game.i18n.localize("DND5E.Spirituality")
+          }),
+          hint: game.i18n.format("DND5E.CONSUMPTION.Type.Attribute.PromptHintDecrease", {
+            attribute: game.i18n.localize("DND5E.Spirituality"),
+            cost: formatNumber(cost),
+            current: formatNumber(available)
+          })
+        }),
+        input: context.inputs.createCheckboxInput,
+        name: "consume.spirituality",
+        value,
+        warn: value && (cost > available)
+      });
+    }
+
     if ( this._shouldDisplay("consume.resources") ) {
       const addResources = (targets, keyPath) => {
         const consume = foundry.utils.getProperty(this.config, keyPath);
         const isArray = foundry.utils.getType(consume) === "Array";
         for ( const [index, target] of targets.entries() ) {
+          if ( useSpirituality && (target.type === "spellSlots") ) continue;
           const value = (isArray && consume.includes(index))
             || (!isArray && (consume !== false) && (this.config.consume !== false));
           const { label, hint, notes, warn } = target.getConsumptionLabels(this.config, value);
@@ -5843,6 +5870,7 @@ class ActivityUsageDialog extends Dialog5e {
 
     const scale = (context.linkedActivity ?? this.activity).consumption.scaling;
     const rollData = (context.linkedActivity ?? this.activity).getRollData({ deterministic: true });
+    const useSpirituality = isSpiritualityConsumptionActivity(this.activity);
 
     if ( this.activity.requiresSpellSlot && context.linkedActivity && (this.config.scaling !== false) ) {
       const max = simplifyBonus(scale.max, rollData);
@@ -5862,40 +5890,64 @@ class ActivityUsageDialog extends Dialog5e {
 
     else if ( this.activity.requiresSpellSlot && (this.config.scaling !== false) ) {
       const minimumLevel = this.item.system.level ?? 1;
-      const maximumLevel = Object.values(this.actor.system.spells)
-        .reduce((max, d) => d.max ? Math.max(max, d.level) : max, 0);
-      const spellMethod = CONFIG.DND5E.spellcasting[this.item.system.method];
+      if ( useSpirituality ) {
+        const maximumLevel = Math.max(
+          minimumLevel,
+          Object.values(this.actor.system.spells ?? {}).reduce((max, data) => data.max ? Math.max(max, data.level) : max, 0)
+        );
+        const spellSlotOptions = Object.entries(CONFIG.DND5E.spellLevels).map(([level, label]) => {
+          const numericLevel = Number(level);
+          if ( (numericLevel < minimumLevel) || (numericLevel > maximumLevel) ) return null;
+          return {
+            value: `spell${numericLevel}`,
+            label,
+            selected: this.config.spell?.slot === `spell${numericLevel}`
+          };
+        }).filter(_ => _);
+        const spellSlotValue = spellSlotOptions.find(option => option.selected)?.value ?? spellSlotOptions[0]?.value;
+        if ( spellSlotOptions.length ) context.spellSlots = {
+          field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
+          name: "spell.slot",
+          value: spellSlotValue,
+          options: spellSlotOptions
+        };
+        else context.hasScaling = false;
+      } else {
+        const maximumLevel = Object.values(this.actor.system.spells)
+          .reduce((max, d) => d.max ? Math.max(max, d.level) : max, 0);
+        const spellMethod = CONFIG.DND5E.spellcasting[this.item.system.method];
 
-      const consumeSlot = (this.config.consume === true) || this.config.consume?.spellSlot;
-      let spellSlotValue = this.actor.system.spells[this.config.spell?.slot]?.value || !consumeSlot
-        ? this.config.spell.slot : null;
-      const spellSlotOptions = Object.entries(this.actor.system.spells).map(([value, slot]) => {
-        if ( !slot.max || (slot.level < minimumLevel) || (slot.level > maximumLevel) || !slot.type ) return null;
-        if ( spellMethod?.exclusive.spells && (this.item.system.method !== slot.type) ) return null;
-        const model = CONFIG.DND5E.spellcasting[slot.type];
-        if ( model?.exclusive.slots && (this.item.system.method !== slot.type) ) return null;
-        const label = game.i18n.format(`DND5E.SpellLevel${slot.type.capitalize()}`, {
-          level: model?.isSingleLevel ? slot.level : slot.label,
-          n: slot.value
+        const consumeSlot = (this.config.consume === true) || this.config.consume?.spellSlot;
+        let spellSlotValue = this.actor.system.spells[this.config.spell?.slot]?.value || !consumeSlot
+          ? this.config.spell.slot : null;
+        const spellSlotOptions = Object.entries(this.actor.system.spells).map(([value, slot]) => {
+          if ( !slot.max || (slot.level < minimumLevel) || (slot.level > maximumLevel) || !slot.type ) return null;
+          if ( spellMethod?.exclusive.spells && (this.item.system.method !== slot.type) ) return null;
+          const model = CONFIG.DND5E.spellcasting[slot.type];
+          if ( model?.exclusive.slots && (this.item.system.method !== slot.type) ) return null;
+          const label = game.i18n.format(`DND5E.SpellLevel${slot.type.capitalize()}`, {
+            level: model?.isSingleLevel ? slot.level : slot.label,
+            n: slot.value
+          });
+          // Set current value if applicable.
+          const disabled = (slot.value === 0) && consumeSlot;
+          if ( !disabled && !spellSlotValue ) spellSlotValue = value;
+          return { value, label, disabled, selected: spellSlotValue === value };
+        }).filter(_ => _);
+
+        context.spellSlots = {
+          field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
+          name: "spell.slot",
+          value: spellSlotValue,
+          options: spellSlotOptions
+        };
+
+        if ( !spellSlotOptions.some(o => !o.disabled) ) context.notes.push({
+          type: "warn", message: game.i18n.format("DND5E.SpellCastNoSlotsLeft", {
+            name: this.item.name
+          })
         });
-        // Set current value if applicable.
-        const disabled = (slot.value === 0) && consumeSlot;
-        if ( !disabled && !spellSlotValue ) spellSlotValue = value;
-        return { value, label, disabled, selected: spellSlotValue === value };
-      }).filter(_ => _);
-
-      context.spellSlots = {
-        field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
-        name: "spell.slot",
-        value: spellSlotValue,
-        options: spellSlotOptions
-      };
-
-      if ( !spellSlotOptions.some(o => !o.disabled) ) context.notes.push({
-        type: "warn", message: game.i18n.format("DND5E.SpellCastNoSlotsLeft", {
-          name: this.item.name
-        })
-      });
+      }
     }
 
     else if ( scale.allowed && (this.config.scaling !== false) ) {
@@ -7552,21 +7604,30 @@ function ActivityMixin(Base) {
       }
 
       const ignoreLinkedConsumption = this.isSpell && !this.consumption.spellSlot;
+      const useSpirituality = isSpiritualityConsumptionActivity(this);
       if ( config.consume !== false ) {
         const activationConfig = CONFIG.DND5E.activityActivationTypes[this.activation.type] ?? {};
         const hasActionConsumption = activationConfig.consume
           && (activationConfig.consume.canConsume?.(this) !== false);
-        const hasResourceConsumption = this.consumption.targets.length > 0;
+        const hasResourceConsumption = this.consumption.targets.some(target => {
+          return !useSpirituality || (target.type !== "spellSlots");
+        });
         const hasLinkedConsumption = (linked?.consumption.targets.length > 0) && !ignoreLinkedConsumption;
-        const hasSpellSlotConsumption = this.requiresSpellSlot && this.consumption.spellSlot;
+        const hasSpellSlotConsumption = !useSpirituality && this.requiresSpellSlot && this.consumption.spellSlot;
+        const hasSpiritualityConsumption = useSpirituality && (this.item.system.level > 0);
         config.consume ??= {};
         config.consume.action ??= hasActionConsumption;
         config.consume.resources ??= Array.from(this.consumption.targets.entries())
-          .filter(([, target]) => !target.combatOnly || this.actor.inCombat)
+          .filter(([, target]) => (!useSpirituality || (target.type !== "spellSlots"))
+            && (!target.combatOnly || this.actor.inCombat))
           .map(([index]) => index);
         config.consume.spellSlot ??= !linked && hasSpellSlotConsumption;
+        if ( useSpirituality ) {
+          config.consume.spellSlot = false;
+          config.consume.spirituality ??= hasSpiritualityConsumption;
+        }
         config.hasConsumption = hasActionConsumption || hasResourceConsumption || hasLinkedConsumption
-          || (!linked && hasSpellSlotConsumption);
+          || (!linked && hasSpellSlotConsumption) || hasSpiritualityConsumption;
       }
 
       const levelingFlag = this.item.getFlag("lotm", "spellLevel");
@@ -7663,6 +7724,7 @@ function ActivityMixin(Base) {
       const updates = { activity: {}, actor: {}, create: [], delete: [], item: [], rolls: [] };
       if ( config.consume === false ) return updates;
       const errors = [];
+      const useSpirituality = isSpiritualityConsumptionActivity(this);
 
       // Handle auto consumption.
       const activationConfig = CONFIG.DND5E.activityActivationTypes[this.activation.type];
@@ -7697,6 +7759,7 @@ function ActivityMixin(Base) {
           ? this.consumption.targets.keys() : config.consume.resources;
         for ( const index of indexes ) {
           const target = this.consumption.targets[index];
+          if ( useSpirituality && (target?.type === "spellSlots") ) continue;
           try {
             await target.consume(config, updates);
           } catch(err) {
@@ -7736,9 +7799,30 @@ function ActivityMixin(Base) {
         }
       }
 
+      // Handle spirituality consumption for character ability usage
+      else if ( useSpirituality ) {
+        const shouldConsumeSpirituality = (config.consume === true) || (config.consume?.spirituality !== false);
+        if ( shouldConsumeSpirituality ) {
+          const cost = spiritualityCostFromUsageConfig(this, config);
+          const current = Math.max(Number(this.actor.system.attributes?.spirituality?.value) || 0, 0);
+          let warningMessage;
+          if ( (cost > 0) && !current ) warningMessage = "DND5E.CONSUMPTION.Warning.None";
+          else if ( current < cost ) warningMessage = "DND5E.CONSUMPTION.Warning.NotEnough";
+          if ( warningMessage ) {
+            errors.push(new ConsumptionError(game.i18n.format(warningMessage, {
+              type: game.i18n.localize("DND5E.Spirituality"),
+              cost: formatNumber(cost),
+              available: formatNumber(current)
+            })));
+          } else if ( cost > 0 ) {
+            updates.actor["system.attributes.spirituality.value"] = current - cost;
+          }
+        }
+      }
+
       // Handle spell slot consumption
       else if ( ((config.consume === true) || config.consume.spellSlot)
-        && this.requiresSpellSlot && this.consumption.spellSlot ) {
+        && !useSpirituality && this.requiresSpellSlot && this.consumption.spellSlot ) {
         const spellcasting = CONFIG.DND5E.spellcasting[this.item.system.method];
         const effectiveLevel = this.item.system.level + (config.scaling ?? 0);
         const slot = config.spell?.slot ?? spellcasting?.getSpellSlotKey(effectiveLevel) ?? this.item.system.method;
@@ -44775,6 +44859,59 @@ function sequenceLabelFromSpellLevel(level) {
   const sequence = spellLevelToSequence(level);
   if ( sequence === null ) return null;
   return game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Should this activity consume spirituality instead of spell slots?
+ * @param {Activity|null} activity  Activity being used.
+ * @returns {boolean}
+ */
+function isSpiritualityConsumptionActivity(activity) {
+  return (activity?.isSpell === true) && (activity.actor?.type === "character");
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Get the effective spell level used for an activity usage.
+ * @param {Activity} activity                 Activity being used.
+ * @param {ActivityUseConfiguration} [config] Usage configuration.
+ * @returns {number}
+ */
+function spellLevelFromUsageConfig(activity, config={}) {
+  const baseLevel = Math.max(Number(activity?.item?.system?.level) || 0, 0);
+  const slotLevel = Number(activity?.actor?.system?.spells?.[config.spell?.slot]?.level);
+  if ( Number.isInteger(slotLevel) && (slotLevel >= 0) ) return slotLevel;
+  const scaling = Number(config.scaling);
+  if ( Number.isInteger(scaling) ) return Math.max(baseLevel + scaling, 0);
+  return baseLevel;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Convert a spell level to default spirituality cost.
+ * @param {number} spellLevel  Internal spell level.
+ * @returns {number}
+ */
+function spiritualityCostFromSpellLevel(spellLevel) {
+  const sequence = spellLevelToSequence(spellLevel);
+  if ( sequence === null ) return 0;
+  return Math.max(sequenceToSpellLevel(sequence) ?? 0, 0);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Get default spirituality cost for an activity usage.
+ * @param {Activity} activity                 Activity being used.
+ * @param {ActivityUseConfiguration} [config] Usage configuration.
+ * @returns {number}
+ */
+function spiritualityCostFromUsageConfig(activity, config={}) {
+  return spiritualityCostFromSpellLevel(spellLevelFromUsageConfig(activity, config));
 }
 
 /* -------------------------------------------- */
