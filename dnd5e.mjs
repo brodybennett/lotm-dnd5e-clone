@@ -44720,6 +44720,50 @@ preLocalize("spellLevels");
 
 /* -------------------------------------------- */
 
+const LOTM_MAX_SPELL_LEVEL = 10;
+const LOTM_MAX_SEQUENCE = 9;
+
+/**
+ * Convert an internal spell level to a LoTM sequence.
+ * @param {number} level  Internal spell level.
+ * @returns {number|null}
+ */
+function spellLevelToSequence(level) {
+  const numericLevel = Number(level);
+  if ( !Number.isInteger(numericLevel) || (numericLevel < 1) || (numericLevel > LOTM_MAX_SPELL_LEVEL) ) return null;
+  return LOTM_MAX_SPELL_LEVEL - numericLevel;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Convert a LoTM sequence to an internal spell level.
+ * @param {number} sequence  LoTM sequence.
+ * @returns {number|null}
+ */
+function sequenceToSpellLevel(sequence) {
+  const numericSequence = Number(sequence);
+  if ( !Number.isInteger(numericSequence) || (numericSequence < 0) || (numericSequence > LOTM_MAX_SEQUENCE) ) {
+    return null;
+  }
+  return LOTM_MAX_SPELL_LEVEL - numericSequence;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Get a localized sequence label from an internal spell level.
+ * @param {number} level  Internal spell level.
+ * @returns {string|null}
+ */
+function sequenceLabelFromSpellLevel(level) {
+  const sequence = spellLevelToSequence(level);
+  if ( sequence === null ) return null;
+  return game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+}
+
+/* -------------------------------------------- */
+
 /**
  * The available choices for how spell damage scaling may be computed.
  * @enum {string}
@@ -53987,18 +54031,23 @@ class BaseActorSheet extends PrimarySheetMixin(
     const registerSection = (key, level, config) => {
       level = config?.slots ? level : 1;
       if ( key in spellbook ) return;
-      const label = config?.getLabel({ level }) ?? game.i18n.localize("DND5E.CAST.SECTIONS.Spellbook");
+      const sequenceLabel = config?.slots ? sequenceLabelFromSpellLevel(level) : null;
+      const label = sequenceLabel ?? config?.getLabel({ level }) ?? game.i18n.localize("DND5E.CAST.SECTIONS.Spellbook");
       const method = config?.key ?? key;
-      const order = level === 0 ? 0 : (config?.order ?? 1000);
+      const baseOrder = config?.order ?? 1000;
+      const sequence = config?.slots ? spellLevelToSequence(level) : null;
+      const order = config?.slots
+        ? baseOrder + (sequence === null ? LOTM_MAX_SEQUENCE + 1 : sequenceToSpellLevel(sequence) - 1)
+        : baseOrder;
       const usesSlots = config?.slots && level;
       const section = spellbook[key] = {
-        label, columns, order, usesSlots,
+        label, sequenceLabel, columns, order, usesSlots,
         id: method,
         slot: key,
         items: [],
         minWidth: 220,
         draggable: true,
-        dataset: { level, method, type: "spell" }
+        dataset: { level, sequence: sequence ?? "", method, type: "spell" }
       };
       if ( !usesSlots ) return;
       const spells = foundry.utils.getProperty(this.actor.system.spells, key);
@@ -56265,11 +56314,14 @@ class CharacterActorSheet extends BaseActorSheet {
       const { value, max, level, type: method } = this.actor.system.spells?.[id] ?? {};
       const model = CONFIG.DND5E.spellcasting[method];
       const uses = { value, max, name: `system.spells.${id}.value` };
+      const numericLevel = Number(level);
+      const levelLabel = sequenceLabelFromSpellLevel(numericLevel)
+        ?? (Number.isInteger(numericLevel) ? game.i18n.localize(`DND5E.SpellLevel${numericLevel}`) : null);
       if ( !model || model.isSingleLevel ) return {
         uses, level, method,
         title: game.i18n.localize(`DND5E.SpellSlots${id.capitalize()}`),
         subtitle: [
-          game.i18n.localize(`DND5E.SpellLevel${level}`),
+          levelLabel,
           game.i18n.localize(`DND5E.Abbreviation${model?.isSR ? "SR" : "LR"}`)
         ],
         img: model?.img || CONFIG.DND5E.spellcasting.pact.img
@@ -56278,7 +56330,7 @@ class CharacterActorSheet extends BaseActorSheet {
       const plurals = new Intl.PluralRules(game.i18n.lang, { type: "ordinal" });
       return {
         uses, level, method,
-        title: game.i18n.format(`DND5E.SpellSlotsN.${plurals.select(level)}`, { n: level }),
+        title: levelLabel ?? game.i18n.format(`DND5E.SpellSlotsN.${plurals.select(level)}`, { n: level }),
         subtitle: game.i18n.localize(`DND5E.Abbreviation${model.isSR ? "SR" : "LR"}`),
         img: model.img.replace("{id}", id)
       };
