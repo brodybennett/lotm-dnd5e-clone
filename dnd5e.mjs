@@ -7819,7 +7819,8 @@ function ActivityMixin(Base) {
       if ( this.item.type === "spell" ) {
         const spellLevel = foundry.utils.getProperty(message, "data.flags.lotm.use.spellLevel");
         const { spellLevels, spellSchools } = CONFIG.DND5E;
-        data.subtitle = [spellLevels[spellLevel], spellSchools[this.item.system.school]?.label].filterJoin(" &bull; ");
+        const sequenceLevel = sequenceLabelFromSpellLevel(spellLevel) ?? spellLevels[spellLevel];
+        data.subtitle = [sequenceLevel, spellSchools[this.item.system.school]?.label].filterJoin(" &bull; ");
       }
 
       return {
@@ -20588,7 +20589,7 @@ class SpellData extends ItemDataModel$1.mixin(ActivitiesTemplate, ItemDescriptio
     this.duration.concentration = this.properties.has("concentration");
 
     const labels = this.parent.labels ??= {};
-    labels.level = CONFIG.DND5E.spellLevels[this.level];
+    labels.level = sequenceLabelFromSpellLevel(this.level) ?? CONFIG.DND5E.spellLevels[this.level];
     labels.school = CONFIG.DND5E.spellSchools[this.school]?.label;
     if ( this.properties.has("material") ) labels.materials = this.materials.value;
 
