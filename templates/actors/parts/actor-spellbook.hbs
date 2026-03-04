@@ -52,6 +52,7 @@
         </div>
         <div class="spell-school">{{localize "DND5E.SpellSchool"}}</div>
         <div class="spell-action">{{localize "DND5E.SpellUsage"}}</div>
+        <div class="spell-spi" data-tooltip="{{localize 'DND5E.Spirituality'}}">{{localize "DND5E.SpiritualityAbbr"}}</div>
         <div class="spell-target">{{localize "DND5E.SpellTarget"}}</div>
 
         <div class="item-controls flexrow">
@@ -84,6 +85,7 @@
             </div>
             <div class="spell-school">{{item.labels.school}}</div>
             <div class="spell-action">{{item.labels.activation}}</div>
+            <div class="spell-spi">{{ctx.spiritualityCost}}</div>
             <div class="spell-target" data-tooltip="{{localize 'DND5E.Range'}}: {{item.labels.range}}">
                 {{#if item.labels.target}}
                 {{item.labels.target}}

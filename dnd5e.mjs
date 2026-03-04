@@ -20769,6 +20769,11 @@ class SpellData extends ItemDataModel$1.mixin(ActivitiesTemplate, ItemDescriptio
     ];
 
     context.parts = ["dnd5e.details-spell", "dnd5e.field-uses"];
+    context.sequenceOptions = Object.keys(CONFIG.DND5E.spellLevels).reduce((obj, level) => {
+      const numericLevel = Number(level);
+      obj[level] = sequenceLabelFromSpellLevel(numericLevel) ?? CONFIG.DND5E.spellLevels[level];
+      return obj;
+    }, {});
 
     // Default Ability & Spellcasting Classes
     if ( this.parent.actor ) {
@@ -54657,6 +54662,11 @@ class BaseActorSheet extends PrimarySheetMixin(
       };
     }
     else ctx.preparation = { applicable: false };
+
+    // Spirituality Cost (override or derived)
+    const override = item.system.spiritualityCost;
+    const derived = spiritualityCostFromSpellLevel(item.system.level);
+    ctx.spiritualityCost = Number.isFinite(Number(override)) ? Math.max(Number(override), 0) : derived;
 
     // Subtitle
     ctx.subtitle = [
