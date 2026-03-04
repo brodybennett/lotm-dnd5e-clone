@@ -20347,6 +20347,10 @@ class SpellData extends ItemDataModel$1.mixin(ActivitiesTemplate, ItemDescriptio
       activation: new ActivationField(),
       duration: new DurationField(),
       level: new NumberField$x({ required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel" }),
+      spiritualityCost: new NumberField$x({
+        nullable: true, integer: true, initial: null, min: 0, label: "DND5E.SpiritualityCost",
+        hint: "DND5E.SpiritualityCostHint"
+      }),
       materials: new SchemaField$E({
         value: new StringField$U({ required: true, label: "DND5E.SpellMaterialsDescription" }),
         consumed: new BooleanField$A({ required: true, label: "DND5E.SpellMaterialsConsumed" }),
@@ -44973,6 +44977,11 @@ function spiritualityCostFromSpellLevel(spellLevel) {
  * @returns {number}
  */
 function spiritualityCostFromUsageConfig(activity, config={}) {
+  const override = activity?.item?.system?.spiritualityCost;
+  if ( (override !== null) && (override !== undefined) && (override !== "") ) {
+    const numericOverride = Number(override);
+    if ( Number.isFinite(numericOverride) ) return Math.max(Math.floor(numericOverride), 0);
+  }
   return spiritualityCostFromSpellLevel(spellLevelFromUsageConfig(activity, config));
 }
 
@@ -54724,12 +54733,15 @@ class BaseActorSheet extends PrimarySheetMixin(
       const header = this.element.querySelector(query);
       if ( !header ) continue;
       if ( context.editable ) {
+        const configLabel = this.actor.type === "character"
+          ? "DND5E.SpellSlotsConfigCharacter"
+          : "DND5E.SpellSlotsConfig";
         const config = document.createElement("button");
         Object.assign(config, {
-          type: "button", className: "unbutton config-button", ariaLabel: game.i18n.localize("DND5E.SpellSlotsConfig")
+          type: "button", className: "unbutton config-button", ariaLabel: game.i18n.localize(configLabel)
         });
         Object.assign(config.dataset, {
-          action: "showConfiguration", config: "spellSlots", tooltip: "DND5E.SpellSlotsConfig"
+          action: "showConfiguration", config: "spellSlots", tooltip: configLabel
         });
         config.insertAdjacentHTML("afterbegin", '<i class="fa-solid fa-cog" inert></i>');
         header.append(config);
@@ -56530,11 +56542,14 @@ class CharacterActorSheet extends BaseActorSheet {
       const model = CONFIG.DND5E.spellcasting[method];
       const uses = { value, max, name: `system.spells.${id}.value` };
       const numericLevel = Number(level);
+      const isCharacter = this.actor.type === "character";
       const levelLabel = sequenceLabelFromSpellLevel(numericLevel)
         ?? (Number.isInteger(numericLevel) ? game.i18n.localize(`DND5E.SpellLevel${numericLevel}`) : null);
       if ( !model || model.isSingleLevel ) return {
         uses, level, method,
-        title: game.i18n.localize(`DND5E.SpellSlots${id.capitalize()}`),
+        title: isCharacter
+          ? game.i18n.format("DND5E.SequenceUsesLabel", { sequence: levelLabel ?? formatNumber(level ?? 0) })
+          : game.i18n.localize(`DND5E.SpellSlots${id.capitalize()}`),
         subtitle: [
           levelLabel,
           game.i18n.localize(`DND5E.Abbreviation${model?.isSR ? "SR" : "LR"}`)
@@ -56545,7 +56560,9 @@ class CharacterActorSheet extends BaseActorSheet {
       const plurals = new Intl.PluralRules(game.i18n.lang, { type: "ordinal" });
       return {
         uses, level, method,
-        title: levelLabel ?? game.i18n.format(`DND5E.SpellSlotsN.${plurals.select(level)}`, { n: level }),
+        title: isCharacter
+          ? game.i18n.format("DND5E.SequenceUsesLabel", { sequence: levelLabel ?? formatNumber(level ?? 0) })
+          : levelLabel ?? game.i18n.format(`DND5E.SpellSlotsN.${plurals.select(level)}`, { n: level }),
         subtitle: game.i18n.localize(`DND5E.Abbreviation${model.isSR ? "SR" : "LR"}`),
         img: model.img.replace("{id}", id)
       };

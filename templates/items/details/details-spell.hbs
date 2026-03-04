@@ -4,6 +4,9 @@
     {{!-- Spell Level --}}
     {{ formField fields.level value=source.level choices=CONFIG.spellLevels localize=true rootId=partId }}
 
+    {{!-- Spirituality Cost Override --}}
+    {{ formField fields.spiritualityCost value=source.spiritualityCost placeholder="â€”" rootId=partId }}
+
     {{!-- Spell School --}}
     {{ formField fields.school value=source.school choices=CONFIG.spellSchools labelAttr="label" blank=""
                  localize=true rootId=partId }}

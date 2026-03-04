@@ -1355,8 +1355,8 @@
         "hint": "Spell components & tags to ignore while casting."
       },
       "spellbook": {
-        "label": "Display in Spellbook",
-        "hint": "Display spell in the Spells tab of the character sheet."
+        "label": "Display in Ability List",
+        "hint": "Display ability in the Abilities tab of the character sheet."
       },
       "uuid": {
         "label": "Spell to Cast"
@@ -1366,7 +1366,7 @@
   "Hint": "Cast a spell through an item.",
   "SECTIONS": {
     "Spell": "Spell",
-    "Spellbook": "Additional Spells"
+    "Spellbook": "Additional Abilities"
   },
   "Title": "Cast"
 },
@@ -3049,6 +3049,8 @@
 "DND5E.HPFormulaError": "The provided hit point formula could not be evaluated.",
 "DND5E.HPFormulaRollMessage": "Roll Hit Point Formula",
 "DND5E.Spirituality": "Spirituality",
+"DND5E.SpiritualityCost": "Spirituality Cost Override",
+"DND5E.SpiritualityCostHint": "Leave blank to derive cost from internal ability level.",
 "DND5E.SpiritualityCurrent": "Current Spirituality",
 "DND5E.SpiritualityMax": "Maximum Spirituality",
 "DND5E.SpiritualityFormula": "Spirituality Formula",
@@ -4162,7 +4164,9 @@
 "DND5E.SpellSlotsN.few": "{n}rd Level Slots",
 "DND5E.SpellSlotsN.other": "{n}th Level Slots",
 "DND5E.SpellSlotsPact": "Pact Slots",
+"DND5E.SpellSlotsConfigCharacter": "Configure Sequence Uses",
 "DND5E.SpellSlotsConfig": "Configure Spell Slots",
+"DND5E.SequenceUsesLabel": "{sequence} Uses",
 "DND5E.SpellTag": "Ability Tag",
 "DND5E.SpellTarget": "Ability Target",
 "DND5E.SpellUnprepared": "Unprepared",
