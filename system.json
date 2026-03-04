@@ -9,7 +9,7 @@
     },
     "url": "https://github.com/brodybennett/lotm-dnd5e-clone",
     "manifest": "https://raw.githubusercontent.com/brodybennett/lotm-dnd5e-clone/main/system.json",
-    "download": "https://github.com/brodybennett/lotm-dnd5e-clone/releases/download/release-5.2.5-clone/lotm-dnd5e-clone-release-5.2.5-clone.zip",
+    "download": "https://github.com/brodybennett/lotm-dnd5e-clone/archive/refs/heads/main.zip",
     "authors": [
         {
             "name": "Atropos",
