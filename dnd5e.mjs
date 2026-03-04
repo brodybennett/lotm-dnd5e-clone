@@ -77635,6 +77635,7 @@ function migrateActorData(actor, actorData, migrationData, flags={}, { actorUuid
   _migrateActorAC(actorData, updateData);
   _migrateActorFlags(actorData, updateData);
   _migrateActorMovementSenses(actorData, updateData);
+  _migrateActorSpirituality(actorData, updateData);
 
   // Migrate embedded effects
   if ( actorData.effects ) {
@@ -78013,6 +78014,38 @@ function _migrateActorMovementSenses(actorData, updateData) {
       if ( foundry.utils.getProperty(actorData, keyPath) === 0 ) updateData[keyPath] = null;
     }
   }
+  return updateData;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Migrate character spirituality data to the expected object shape.
+ * @param {object} actorData   Actor data being migrated.
+ * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
+ * @returns {object}           Modified version of update data.
+ * @private
+ */
+function _migrateActorSpirituality(actorData, updateData) {
+  if ( actorData.type !== "character" ) return updateData;
+  const spirituality = foundry.utils.getProperty(actorData, "system.attributes.spirituality");
+  const needsVersionMigration = foundry.utils.isNewerVersion("5.2.6", actorData._stats?.systemVersion ?? "0");
+
+  const rawMax = Number(spirituality?.max);
+  const rawValue = Number(spirituality?.value);
+  const max = Math.max(Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0), 0);
+  const value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, max);
+  const formula = typeof spirituality?.formula === "string" ? spirituality.formula : "";
+
+  if ( (foundry.utils.getType(spirituality) !== "Object") || needsVersionMigration ) {
+    updateData["system.attributes.spirituality"] = { value, max, formula };
+    return updateData;
+  }
+
+  if ( spirituality.max !== max ) updateData["system.attributes.spirituality.max"] = max;
+  if ( spirituality.value !== value ) updateData["system.attributes.spirituality.value"] = value;
+  if ( typeof spirituality.formula !== "string" ) updateData["system.attributes.spirituality.formula"] = formula;
+
   return updateData;
 }
 
