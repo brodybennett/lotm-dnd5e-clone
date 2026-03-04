@@ -54620,7 +54620,10 @@ class BaseActorSheet extends PrimarySheetMixin(
    */
   _addDocumentItemTypes(tab) {
     switch ( tab ) {
-      case "features": return ["feat", "race", "background", "class", "subclass"];
+      case "features":
+        return this.actor.itemTypes.class.length
+          ? ["feat", "race", "background"]
+          : ["feat", "race", "background", "class"];
       case "inventory": return Object.entries(CONFIG.Item.dataModels)
         .filter(([type, model]) => ("inventorySection" in model) && (type !== "backpack"))
         .map(([type]) => type);
@@ -55986,7 +55989,7 @@ class CharacterActorSheet extends BaseActorSheet {
     //   name: subclass.name, class: subclass.system.classIdentifier
     // });
     // context.warnings.push({ message, type: "warning" });
-    context.showClassDrop = !context.classes.length || (this._mode === this.constructor.MODES.EDIT);
+    context.showClassDrop = !context.classes.length;
     return context;
   }
 
@@ -56006,9 +56009,10 @@ class CharacterActorSheet extends BaseActorSheet {
     }
 
     // Classes Label
-    context.labels.class = Object.values(this.actor.classes).sort((a, b) => {
+    const pathways = Object.values(this.actor.classes).sort((a, b) => {
       return b.system.levels - a.system.levels;
-    }).map(c => `${c.name} ${c.system.levels}`).join(" / ");
+    }).map(c => `${c.name} ${c.system.levels}`);
+    context.labels.class = pathways.join(" / ") || game.i18n.localize("DND5E.PathwayNone");
 
     // Experience & Epic Boons
     if ( context.system.details.xp.boonsEarned !== undefined ) {
@@ -56782,6 +56786,12 @@ class CharacterActorSheet extends BaseActorSheet {
   async _onDropSingleItem(event, itemData) {
     // Increment the number of class levels a character instead of creating a new item
     if ( itemData.type === "class" ) {
+      const cls = this.actor.itemTypes.class.find(c => c.identifier === itemData.system.identifier);
+      if ( !cls && this.actor.itemTypes.class.length ) {
+        ui.notifications.warn("DND5E.PathwaySingleFlowWarn", { localize: true });
+        return;
+      }
+
       const charLevel = this.actor.system.details.level;
       itemData.system.levels = Math.min(itemData.system.levels, CONFIG.DND5E.maxLevel - charLevel);
       if ( itemData.system.levels <= 0 ) {
@@ -56790,7 +56800,6 @@ class CharacterActorSheet extends BaseActorSheet {
         return;
       }
 
-      const cls = this.actor.itemTypes.class.find(c => c.identifier === itemData.system.identifier);
       if ( cls ) {
         const priorLevel = cls.system.levels;
         if ( !game.settings.get("lotm", "disableAdvancements") ) {
@@ -56805,20 +56814,10 @@ class CharacterActorSheet extends BaseActorSheet {
       }
     }
 
-    // If a subclass is dropped, ensure it doesn't match another subclass with the same identifier
+    // Subclass selection is deferred in the pathway-first UX
     else if ( itemData.type === "subclass" ) {
-      const other = this.actor.itemTypes.subclass.find(i => i.identifier === itemData.system.identifier);
-      if ( other ) {
-        const err = game.i18n.format("DND5E.SubclassDuplicateError", { identifier: other.identifier });
-        ui.notifications.error(err);
-        return;
-      }
-      const cls = this.actor.itemTypes.class.find(i => i.identifier === itemData.system.classIdentifier);
-      if ( cls && cls.subclass ) {
-        const err = game.i18n.format("DND5E.SubclassAssignmentError", { class: cls.name, subclass: cls.subclass.name });
-        ui.notifications.error(err);
-        return;
-      }
+      ui.notifications.warn("DND5E.SubclassDeferredWarn", { localize: true });
+      return;
     }
 
     return super._onDropSingleItem(event, itemData);
