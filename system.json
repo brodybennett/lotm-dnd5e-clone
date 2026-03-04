@@ -620,6 +620,111 @@
                     ]
                 }
             }
+        },
+        {
+            "name": "lotm_pathways",
+            "label": "LoTM Pathways (Core)",
+            "path": "packs/lotm_pathways",
+            "type": "Item",
+            "private": false,
+            "system": "lotm",
+            "flags": {
+                "lotm": {
+                    "sourceBook": "LoTM Core",
+                    "types": [
+                        "class"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "lotm_pathway_features",
+            "label": "LoTM Pathway Features (Core)",
+            "path": "packs/lotm_pathway_features",
+            "type": "Item",
+            "private": false,
+            "system": "lotm",
+            "flags": {
+                "lotm": {
+                    "sourceBook": "LoTM Core",
+                    "types": [
+                        "feat",
+                        "weapon"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "lotm_abilities",
+            "label": "LoTM Abilities (Core)",
+            "path": "packs/lotm_abilities",
+            "type": "Item",
+            "private": false,
+            "system": "lotm",
+            "flags": {
+                "lotm": {
+                    "sorting": "m",
+                    "sourceBook": "LoTM Core",
+                    "types": [
+                        "spell"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "lotm_pilot_pathways",
+            "label": "LoTM Pilot Pathways",
+            "path": "packs/lotm_pilot_pathways",
+            "type": "Item",
+            "private": false,
+            "system": "lotm",
+            "flags": {
+                "lotm": {
+                    "sourceBook": "LoTM Pilot",
+                    "types": [
+                        "class"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "lotm_pilot_abilities",
+            "label": "LoTM Pilot Abilities",
+            "path": "packs/lotm_pilot_abilities",
+            "type": "Item",
+            "private": false,
+            "system": "lotm",
+            "flags": {
+                "lotm": {
+                    "sorting": "m",
+                    "sourceBook": "LoTM Pilot",
+                    "types": [
+                        "spell"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "lotm_rules",
+            "label": "LoTM Rules",
+            "path": "packs/lotm_rules",
+            "type": "JournalEntry",
+            "private": false,
+            "system": "lotm",
+            "flags": {
+                "lotm": {
+                    "display": "table-of-contents",
+                    "sourceBook": "LoTM Core"
+                }
+            }
+        },
+        {
+            "name": "lotm_tables",
+            "label": "LoTM Tables",
+            "path": "packs/lotm_tables",
+            "type": "RollTable",
+            "private": false,
+            "system": "lotm"
         }
     ],
     "packFolders": [
@@ -681,6 +786,36 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "LoTM Content (WIP)",
+            "sorting": "m",
+            "color": "#5a2ca0",
+            "packs": [
+                "lotm_rules",
+                "lotm_tables"
+            ],
+            "folders": [
+                {
+                    "name": "Core Character Content",
+                    "sorting": "m",
+                    "color": "#7040bb",
+                    "packs": [
+                        "lotm_pathways",
+                        "lotm_pathway_features",
+                        "lotm_abilities"
+                    ]
+                },
+                {
+                    "name": "Pilot Content",
+                    "sorting": "m",
+                    "color": "#8f6bdb",
+                    "packs": [
+                        "lotm_pilot_pathways",
+                        "lotm_pilot_abilities"
+                    ]
+                }
+            ]
         }
     ],
     "languages": [
@@ -721,7 +856,9 @@
             "sourceBooks": {
                 "SRD 5.1": "SOURCE.BOOK.SRD51",
                 "SRD 5.2": "SOURCE.BOOK.SRD52",
-                "Free Rules": "SOURCE.BOOK.FreeRules"
+                "Free Rules": "SOURCE.BOOK.FreeRules",
+                "LoTM Core": "LoTM Core",
+                "LoTM Pilot": "LoTM Pilot"
             }
         },
         "needsMigrationVersion": "5.2.6",

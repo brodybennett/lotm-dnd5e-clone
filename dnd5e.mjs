@@ -5882,16 +5882,38 @@ class ActivityUsageDialog extends Dialog5e {
       const max = simplifyBonus(scale.max, rollData);
       const minimumLevel = context.linkedActivity.spell?.level ?? this.item.system.level ?? 1;
       const maximumLevel = scale.allowed ? scale.max ? minimumLevel + max - 1 : Infinity : minimumLevel;
-      const spellSlotOptions = Object.entries(CONFIG.DND5E.spellLevels).map(([level, label]) => {
-        if ( (Number(level) < minimumLevel) || (Number(level) > maximumLevel) ) return null;
-        return { value: `spell${level}`, label };
-      }).filter(_ => _);
-      context.spellSlots = {
-        field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
-        name: "spell.slot",
-        value: this.config.spell?.slot,
-        options: spellSlotOptions
-      };
+      const upperLevel = Number.isFinite(maximumLevel) ? maximumLevel : LOTM_MAX_SPELL_LEVEL;
+      if ( useSpirituality ) {
+        const sequenceOptions = [];
+        for ( let level = minimumLevel; level <= upperLevel; level++ ) {
+          const sequence = spellLevelToSequence(level);
+          if ( sequence === null ) continue;
+          sequenceOptions.push({
+            value: sequence,
+            label: sequenceLabelFromSpellLevel(level) ?? game.i18n.localize(`DND5E.SpellLevel${sequence}`)
+          });
+        }
+        const defaultSequence = sequencePowerFromUsageConfig(this.activity, this.config)
+          ?? spellLevelToSequence(minimumLevel);
+        if ( sequenceOptions.length ) context.spellSlots = {
+          field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
+          name: "spell.sequence",
+          value: defaultSequence,
+          options: sequenceOptions
+        };
+        else context.hasScaling = false;
+      } else {
+        const spellSlotOptions = Object.entries(CONFIG.DND5E.spellLevels).map(([level, label]) => {
+          if ( (Number(level) < minimumLevel) || (Number(level) > upperLevel) ) return null;
+          return { value: `spell${level}`, label };
+        }).filter(_ => _);
+        context.spellSlots = {
+          field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
+          name: "spell.slot",
+          value: this.config.spell?.slot,
+          options: spellSlotOptions
+        };
+      }
     }
 
     else if ( this.activity.requiresSpellSlot && (this.config.scaling !== false) ) {
@@ -5901,21 +5923,22 @@ class ActivityUsageDialog extends Dialog5e {
           minimumLevel,
           Object.values(this.actor.system.spells ?? {}).reduce((max, data) => data.max ? Math.max(max, data.level) : max, 0)
         );
-        const spellSlotOptions = Object.entries(CONFIG.DND5E.spellLevels).map(([level, label]) => {
-          const numericLevel = Number(level);
-          if ( (numericLevel < minimumLevel) || (numericLevel > maximumLevel) ) return null;
-          return {
-            value: `spell${numericLevel}`,
-            label,
-            selected: this.config.spell?.slot === `spell${numericLevel}`
-          };
-        }).filter(_ => _);
-        const spellSlotValue = spellSlotOptions.find(option => option.selected)?.value ?? spellSlotOptions[0]?.value;
-        if ( spellSlotOptions.length ) context.spellSlots = {
+        const sequenceOptions = [];
+        for ( let level = minimumLevel; level <= maximumLevel; level++ ) {
+          const sequence = spellLevelToSequence(level);
+          if ( sequence === null ) continue;
+          sequenceOptions.push({
+            value: sequence,
+            label: sequenceLabelFromSpellLevel(level) ?? game.i18n.localize(`DND5E.SpellLevel${sequence}`)
+          });
+        }
+        const defaultSequence = sequencePowerFromUsageConfig(this.activity, this.config)
+          ?? spellLevelToSequence(minimumLevel);
+        if ( sequenceOptions.length ) context.spellSlots = {
           field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
-          name: "spell.slot",
-          value: spellSlotValue,
-          options: spellSlotOptions
+          name: "spell.sequence",
+          value: defaultSequence,
+          options: sequenceOptions
         };
         else context.hasScaling = false;
       } else {
@@ -6033,7 +6056,15 @@ class ActivityUsageDialog extends Dialog5e {
    */
   async _prepareSubmitData(event, formData) {
     const submitData = foundry.utils.expandObject(formData.object);
-    if ( foundry.utils.hasProperty(submitData, "spell.slot") ) {
+    if ( foundry.utils.hasProperty(submitData, "spell.sequence") ) {
+      submitData.spell.sequence ??= this.#config.spell?.sequence ?? sequencePowerFromUsageConfig(this.activity, this.#config);
+      const sequence = Number(submitData.spell.sequence);
+      const level = sequenceToSpellLevel(sequence);
+      if ( level !== null ) {
+        submitData.spell.slot ??= `spell${level}`;
+        submitData.scaling = Math.max(0, level - this.item.system.level);
+      }
+    } else if ( foundry.utils.hasProperty(submitData, "spell.slot") ) {
       submitData.spell.slot ||= this.#config.spell?.slot;
       const level = this.actor.system.spells?.[submitData.spell.slot]?.level ?? 0;
       submitData.scaling = Math.max(0, level - this.item.system.level);
@@ -7657,7 +7688,11 @@ function ActivityMixin(Base) {
           config.spell.slot ??= linked?.spell?.level
             ? `spell${linked.spell.level}`
             : (model?.getSpellSlotKey(level) ?? `spell${level}`);
-          const scaling = (this.actor.system.spells?.[config.spell.slot]?.level ?? 0) - this.item.system.level;
+          if ( useSpirituality ) {
+            const defaultLevel = this.actor.system.spells?.[config.spell.slot]?.level ?? this.item.system.level;
+            config.spell.sequence ??= spellLevelToSequence(defaultLevel);
+          }
+          const scaling = spellLevelFromUsageConfig(this, config) - this.item.system.level;
           if ( scaling > 0 ) config.scaling ??= scaling;
         }
         config.scaling ??= 0;
@@ -7697,9 +7732,9 @@ function ActivityMixin(Base) {
       if ( levelingFlag ) {
         usageConfig.scaling = Math.max(0, levelingFlag.value - levelingFlag.base);
       } else if ( this.isSpell ) {
-        const level = this.actor.system.spells?.[usageConfig.spell?.slot]?.level;
-        if ( level ) {
-          usageConfig.scaling = level - item.system.level;
+        const level = spellLevelFromUsageConfig(this, usageConfig);
+        if ( Number.isInteger(level) && (level >= 0) ) {
+          usageConfig.scaling = Math.max(0, level - item.system.level);
           foundry.utils.setProperty(messageConfig, "data.flags.lotm.use.spellLevel", level);
         }
       }
@@ -44989,11 +45024,30 @@ function isSpiritualityConsumptionActivity(activity) {
  */
 function spellLevelFromUsageConfig(activity, config={}) {
   const baseLevel = Math.max(Number(activity?.item?.system?.level) || 0, 0);
+  const sequencePower = Number(config?.spell?.sequencePower ?? config?.spell?.sequence);
+  if ( Number.isInteger(sequencePower) ) {
+    const levelFromSequence = sequenceToSpellLevel(sequencePower);
+    if ( levelFromSequence !== null ) return levelFromSequence;
+  }
   const slotLevel = Number(activity?.actor?.system?.spells?.[config.spell?.slot]?.level);
   if ( Number.isInteger(slotLevel) && (slotLevel >= 0) ) return slotLevel;
   const scaling = Number(config.scaling);
   if ( Number.isInteger(scaling) ) return Math.max(baseLevel + scaling, 0);
   return baseLevel;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Get the effective sequence power used for an activity usage.
+ * @param {Activity} activity                 Activity being used.
+ * @param {ActivityUseConfiguration} [config] Usage configuration.
+ * @returns {number|null}
+ */
+function sequencePowerFromUsageConfig(activity, config={}) {
+  const explicit = Number(config?.spell?.sequencePower ?? config?.spell?.sequence);
+  if ( Number.isInteger(explicit) && (explicit >= 0) && (explicit <= LOTM_MAX_SEQUENCE) ) return explicit;
+  return spellLevelToSequence(spellLevelFromUsageConfig(activity, config));
 }
 
 /* -------------------------------------------- */
@@ -45023,7 +45077,9 @@ function spiritualityCostFromUsageConfig(activity, config={}) {
     const numericOverride = Number(override);
     if ( Number.isFinite(numericOverride) ) return Math.max(Math.floor(numericOverride), 0);
   }
-  return spiritualityCostFromSpellLevel(spellLevelFromUsageConfig(activity, config));
+  const sequencePower = sequencePowerFromUsageConfig(activity, config);
+  if ( sequencePower === null ) return 0;
+  return spiritualityCostFromSpellLevel(sequenceToSpellLevel(sequencePower));
 }
 
 /* -------------------------------------------- */
