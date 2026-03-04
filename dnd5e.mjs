@@ -55046,6 +55046,7 @@ class BaseActorSheet extends PrimarySheetMixin(
     const classItem = this.actor.items.get(classId);
     if ( !game.settings.get("lotm", "disableAdvancements") ) {
       const manager = AdvancementManager.forLevelChange(this.actor, classId, delta);
+      this._applyPathwayAdvancementGuardrails?.(manager);
       if ( manager.steps.length ) {
         if ( delta > 0 ) return manager.render({ force: true });
         try {
@@ -55707,6 +55708,7 @@ class BaseActorSheet extends PrimarySheetMixin(
       }
 
       const manager = AdvancementManager.forNewItem(actor, itemData);
+      this._applyPathwayAdvancementGuardrails?.(manager);
       if ( manager.steps.length ) {
         manager.render(true);
         return false;
@@ -56093,6 +56095,46 @@ class CharacterActorSheet extends BaseActorSheet {
   };
 
   /* -------------------------------------------- */
+  /*  Pathway Flow Guardrails                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Adjust advancement steps for the standard single-pathway LoTM flow.
+   * @param {AdvancementManager} manager  Advancement manager to adjust.
+   * @protected
+   */
+  _applyPathwayAdvancementGuardrails(manager) {
+    if ( !this.#isStandardPathwayFlow() || !manager?.steps?.length ) return;
+    const initialStepCount = manager.steps.length;
+    manager.steps = manager.steps.filter(step => !this.#isSubclassAdvancementStep(step));
+    if ( initialStepCount !== manager.steps.length ) {
+      ui.notifications.warn("DND5E.SubclassDeferredWarn", { localize: true });
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Is this actor currently in the normal single-pathway flow.
+   * @returns {boolean}
+   */
+  #isStandardPathwayFlow() {
+    return (this.actor.itemTypes.class.length <= 1) && !this.actor.itemTypes.subclass.length;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Is this advancement step for subclass selection.
+   * @param {AdvancementStep} step  Advancement step being checked.
+   * @returns {boolean}
+   */
+  #isSubclassAdvancementStep(step) {
+    const advancement = step?.flow?.advancement;
+    return (advancement?.type === "Subclass") || (advancement?.constructor?.name === "SubclassAdvancement");
+  }
+
+  /* -------------------------------------------- */
   /*  Rendering                                   */
   /* -------------------------------------------- */
 
@@ -56324,6 +56366,7 @@ class CharacterActorSheet extends BaseActorSheet {
     context.subclasses = context.itemCategories.subclasses ?? [];
     context.classes = (context.itemCategories.classes ?? [])
       .sort((lhs, rhs) => rhs.system.levels - lhs.system.levels);
+    context.pathwayCompatibilityMode = context.classes.length > 1;
     for ( const cls of context.classes ) {
       const ctx = context.itemContext[cls.id] ??= {};
       const subclass = context.subclasses.findSplice(s => s.system.classIdentifier === cls.identifier);
@@ -56948,6 +56991,10 @@ class CharacterActorSheet extends BaseActorSheet {
   static async #findItem(event, target) {
     if ( !this.isEditable ) return;
     const { classIdentifier, facilityType, itemType: type } = target.dataset;
+    if ( (type === "class") && this.actor.itemTypes.class.length ) {
+      ui.notifications.warn("DND5E.PathwaySingleFlowWarn", { localize: true });
+      return;
+    }
     const filters = { locked: { types: new Set([type]) } };
 
     if ( classIdentifier ) filters.locked.additional = { class: { [classIdentifier]: 1 } };
@@ -57193,7 +57240,12 @@ class CharacterActorSheet extends BaseActorSheet {
   async _onDropSingleItem(event, itemData) {
     // Increment the number of class levels a character instead of creating a new item
     if ( itemData.type === "class" ) {
-      const cls = this.actor.itemTypes.class.find(c => c.identifier === itemData.system.identifier);
+      const droppedIdentifier = String(itemData.system.identifier ?? "").trim();
+      const droppedName = String(itemData.name ?? "").trim().toLowerCase();
+      const cls = this.actor.itemTypes.class.find(c => {
+        if ( droppedIdentifier && (c.identifier === droppedIdentifier) ) return true;
+        return droppedName && (c.name?.trim().toLowerCase() === droppedName);
+      });
       if ( !cls && this.actor.itemTypes.class.length ) {
         ui.notifications.warn("DND5E.PathwaySingleFlowWarn", { localize: true });
         return;
@@ -57211,6 +57263,7 @@ class CharacterActorSheet extends BaseActorSheet {
         const priorLevel = cls.system.levels;
         if ( !game.settings.get("lotm", "disableAdvancements") ) {
           const manager = AdvancementManager.forLevelChange(this.actor, cls.id, itemData.system.levels);
+          this._applyPathwayAdvancementGuardrails(manager);
           if ( manager.steps.length ) {
             manager.render({ force: true });
             return;

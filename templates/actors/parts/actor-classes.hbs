@@ -37,4 +37,7 @@
         {{ localize "DND5E.ClassAdd" }}
     </div>
     {{/if}}
+    {{#if @root.pathwayCompatibilityMode}}
+    <p class="hint">{{ localize "DND5E.PathwayCompatibilityModeHint" }}</p>
+    {{/if}}
 </section>

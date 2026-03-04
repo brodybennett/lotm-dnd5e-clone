@@ -1526,6 +1526,7 @@
 "DND5E.ClassSaves": "Saving Throws",
 "DND5E.PathwayNone": "No Pathway",
 "DND5E.PathwaySingleFlowWarn": "Only one pathway can be added through the character sheet flow.",
+"DND5E.PathwayCompatibilityModeHint": "Compatibility mode: imported multi-pathway data is readable and playable, but normal add flow stays single-pathway.",
 "DND5E.Confirm": "Confirm",
 
 "DND5E.COMBAT": {
