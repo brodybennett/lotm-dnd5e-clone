@@ -623,7 +623,7 @@
         },
         {
             "name": "lotm_pathways",
-            "label": "LoTM Pathways (Core)",
+            "label": "Pathways",
             "path": "packs/lotm_pathways",
             "type": "Item",
             "private": false,
@@ -639,7 +639,7 @@
         },
         {
             "name": "lotm_pathway_features",
-            "label": "LoTM Pathway Features (Core)",
+            "label": "Pathway Features",
             "path": "packs/lotm_pathway_features",
             "type": "Item",
             "private": false,
@@ -656,7 +656,7 @@
         },
         {
             "name": "lotm_abilities",
-            "label": "LoTM Abilities (Core)",
+            "label": "Abilities",
             "path": "packs/lotm_abilities",
             "type": "Item",
             "private": false,
@@ -672,41 +672,8 @@
             }
         },
         {
-            "name": "lotm_pilot_pathways",
-            "label": "LoTM Pilot Pathways",
-            "path": "packs/lotm_pilot_pathways",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Pilot",
-                    "types": [
-                        "class"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_pilot_abilities",
-            "label": "LoTM Pilot Abilities",
-            "path": "packs/lotm_pilot_abilities",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sorting": "m",
-                    "sourceBook": "LoTM Pilot",
-                    "types": [
-                        "spell"
-                    ]
-                }
-            }
-        },
-        {
             "name": "lotm_rules",
-            "label": "LoTM Rules",
+            "label": "Rules",
             "path": "packs/lotm_rules",
             "type": "JournalEntry",
             "private": false,
@@ -720,7 +687,7 @@
         },
         {
             "name": "lotm_tables",
-            "label": "LoTM Tables",
+            "label": "Tables",
             "path": "packs/lotm_tables",
             "type": "RollTable",
             "private": false,
@@ -788,7 +755,7 @@
             ]
         },
         {
-            "name": "LoTM Content (WIP)",
+            "name": "LoTM (WIP)",
             "sorting": "m",
             "color": "#5a2ca0",
             "packs": [
@@ -797,22 +764,13 @@
             ],
             "folders": [
                 {
-                    "name": "Core Character Content",
+                    "name": "Character Content",
                     "sorting": "m",
                     "color": "#7040bb",
                     "packs": [
                         "lotm_pathways",
                         "lotm_pathway_features",
                         "lotm_abilities"
-                    ]
-                },
-                {
-                    "name": "Pilot Content",
-                    "sorting": "m",
-                    "color": "#8f6bdb",
-                    "packs": [
-                        "lotm_pilot_pathways",
-                        "lotm_pilot_abilities"
                     ]
                 }
             ]
