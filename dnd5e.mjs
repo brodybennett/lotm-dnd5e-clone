@@ -78032,15 +78032,65 @@ function reparentCompendiums(from, to) {
  * @param {string} packCollection        Fully qualified pack collection (for example: "lotm.lotm_actors").
  * @param {string} folderType            Folder document type matching the pack documentName.
  * @param {string[]} folderNames         Folder names to ensure exist.
- * @returns {Promise<void>}
+ * @returns {Promise<Map<string, Folder>>}
  */
+function getCompendiumFolders(pack) {
+  return pack.folders?.contents ?? Array.from(pack.folders?.values?.() ?? []);
+}
+
+/**
+ * Get top-level folder documents in a compendium keyed by name.
+ * @param {CompendiumCollection} pack
+ * @param {string} folderType
+ * @returns {Map<string, Folder>}
+ */
+function getCompendiumFolderMap(pack, folderType) {
+  const folders = getCompendiumFolders(pack).filter(folder => folder.type === folderType);
+  return new Map(folders.map(folder => [folder.name, folder]));
+}
+
+/**
+ * Run a callback while a compendium pack is unlocked.
+ * @param {CompendiumCollection} pack
+ * @param {Function} callback
+ * @returns {Promise<*>}
+ */
+async function withUnlockedPack(pack, callback) {
+  const wasLocked = pack.locked;
+  if ( wasLocked ) await pack.configure({ locked: false });
+  try {
+    return await callback();
+  } finally {
+    if ( wasLocked ) await pack.configure({ locked: true });
+  }
+}
+
+/**
+ * Normalize a value for case-insensitive comparisons.
+ * @param {string} value
+ * @returns {string}
+ */
+function normalizeCompendiumValue(value) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+/**
+ * Resolve the ID value for an index entry.
+ * @param {object} entry
+ * @returns {string|undefined}
+ */
+function getCompendiumIndexId(entry) {
+  return entry._id ?? entry.id;
+}
+
 async function ensureCompendiumFolders(packCollection, folderType, folderNames) {
   const pack = game.packs.get(packCollection);
-  if ( !pack || (pack.documentName !== folderType) ) return;
+  if ( !pack || (pack.documentName !== folderType) ) return new Map();
 
-  const existingFolders = pack.folders?.contents ?? Array.from(pack.folders?.values?.() ?? []);
+  const names = [...new Set(folderNames.map(name => String(name ?? "").trim()).filter(Boolean))];
+  const existingFolders = getCompendiumFolders(pack).filter(folder => folder.type === folderType);
   const existingNames = new Set(existingFolders.map(folder => folder.name));
-  const toCreate = folderNames
+  const toCreate = names
     .filter(name => !existingNames.has(name))
     .map((name, index) => ({
       name,
@@ -78049,16 +78099,97 @@ async function ensureCompendiumFolders(packCollection, folderType, folderNames) 
       sorting: "a",
       sort: (index + 1) * 100000
     }));
-  if ( !toCreate.length ) return;
+  if ( !toCreate.length ) return getCompendiumFolderMap(pack, folderType);
 
-  const wasLocked = pack.locked;
-  if ( wasLocked ) await pack.configure({ locked: false });
-
-  try {
+  await withUnlockedPack(pack, async () => {
     await Folder.implementation.createDocuments(toCreate, { pack: pack.collection });
-  } finally {
-    if ( wasLocked ) await pack.configure({ locked: true });
+  });
+  return getCompendiumFolderMap(pack, folderType);
+}
+
+/**
+ * Rename an existing compendium folder (or merge it into an existing destination).
+ * @param {string} packCollection
+ * @param {string} folderType
+ * @param {string} fromName
+ * @param {string} toName
+ * @returns {Promise<void>}
+ */
+async function migrateCompendiumFolderName(packCollection, folderType, fromName, toName) {
+  if ( fromName === toName ) return;
+  const pack = game.packs.get(packCollection);
+  if ( !pack || (pack.documentName !== folderType) ) return;
+
+  const foldersByName = getCompendiumFolderMap(pack, folderType);
+  const fromFolder = foldersByName.get(fromName);
+  if ( !fromFolder ) return;
+
+  await withUnlockedPack(pack, async () => {
+    const refreshedFoldersByName = getCompendiumFolderMap(pack, folderType);
+    const source = refreshedFoldersByName.get(fromName);
+    if ( !source ) return;
+    const target = refreshedFoldersByName.get(toName);
+
+    if ( target ) {
+      const index = await pack.getIndex({ fields: ["folder"] });
+      const updates = index.contents
+        .filter(entry => (entry.folder ?? null) === source.id)
+        .map(entry => {
+          const id = getCompendiumIndexId(entry);
+          if ( !id ) return null;
+          return { _id: id, folder: target.id };
+        })
+        .filter(Boolean);
+      if ( updates.length ) {
+        const DocumentClass = CONFIG[folderType].documentClass;
+        await DocumentClass.updateDocuments(updates, { pack: pack.collection });
+      }
+      await source.delete();
+    } else {
+      await source.update({ name: toName });
+    }
+  });
+}
+
+/**
+ * Assign compendium entries into folders based on a classifier callback.
+ * @param {string} packCollection
+ * @param {string} folderType
+ * @param {string[]} indexFields
+ * @param {(entry: object) => (string|null)} classifyFolderName
+ * @returns {Promise<number>} Number of updated entries.
+ */
+async function assignCompendiumEntriesToFolders(packCollection, folderType, indexFields, classifyFolderName) {
+  const pack = game.packs.get(packCollection);
+  if ( !pack || (pack.documentName !== folderType) ) return 0;
+
+  const foldersByName = getCompendiumFolderMap(pack, folderType);
+  if ( !foldersByName.size ) return 0;
+
+  const fields = [...new Set(["name", "folder", ...indexFields])];
+  const index = await pack.getIndex({ fields });
+  const updates = [];
+
+  for ( const entry of index.contents ) {
+    const targetFolderName = classifyFolderName(entry);
+    if ( !targetFolderName ) continue;
+    const targetFolder = foldersByName.get(targetFolderName);
+    if ( !targetFolder ) continue;
+
+    const currentFolderId = entry.folder ?? null;
+    if ( currentFolderId === targetFolder.id ) continue;
+
+    const id = getCompendiumIndexId(entry);
+    if ( !id ) continue;
+    updates.push({ _id: id, folder: targetFolder.id });
   }
+
+  if ( !updates.length ) return 0;
+  const DocumentClass = CONFIG[folderType].documentClass;
+  await withUnlockedPack(pack, async () => {
+    await DocumentClass.updateDocuments(updates, { pack: pack.collection });
+  });
+  return updates.length;
 }
 
 /**
@@ -78066,7 +78197,7 @@ async function ensureCompendiumFolders(packCollection, folderType, folderNames) 
  * @returns {Promise<void>}
  */
 async function ensureLotmCompendiumSkeleton() {
-  const actorFolderNames = [
+  const factionFolderNames = [
     "Church of Evernight",
     "Church of Storms",
     "Church of Knowledge and Wisdom",
@@ -78077,14 +78208,13 @@ async function ensureLotmCompendiumSkeleton() {
     "Moses Ascetic Order",
     "Rose School of Thought",
     "Secret Order",
-    "Temperance Faction",
-    "Monsters",
-    "Civilian"
+    "Temperance Faction"
   ];
+  const actorFolderNames = [...factionFolderNames, "Monsters", "Civilians"];
   const tableFolderNames = [
-    "Magic Items",
+    "Beyonder Items",
     "Monster Details",
-    "Spells"
+    "Abilities"
   ];
   const itemFolderNames = [
     "Armor",
@@ -78095,19 +78225,116 @@ async function ensureLotmCompendiumSkeleton() {
     "Weapons",
     "Sealed Artifacts"
   ];
+  const armorTypes = new Set(Object.keys(CONFIG.DND5E.armorTypes ?? {}).map(normalizeCompendiumValue));
+
+  await migrateCompendiumFolderName("lotm.lotm_actors", "Actor", "Civilian", "Civilians");
+  await migrateCompendiumFolderName("lotm.lotm_tables", "RollTable", "Magic Items", "Beyonder Items");
+  await migrateCompendiumFolderName("lotm.lotm_tables", "RollTable", "Spells", "Abilities");
 
   await ensureCompendiumFolders("lotm.lotm_items", "Item", itemFolderNames);
   await ensureCompendiumFolders("lotm.lotm_actors", "Actor", actorFolderNames);
   await ensureCompendiumFolders("lotm.lotm_tables", "RollTable", tableFolderNames);
 
+  await assignCompendiumEntriesToFolders(
+    "lotm.lotm_items",
+    "Item",
+    ["type", "system.type.value", "system.rarity"],
+    entry => {
+      const name = normalizeCompendiumValue(entry.name);
+      const type = normalizeCompendiumValue(entry.type);
+      const subtype = normalizeCompendiumValue(foundry.utils.getProperty(entry, "system.type.value"));
+      const rarity = normalizeCompendiumValue(foundry.utils.getProperty(entry, "system.rarity"));
+
+      if ( (rarity === "artifact") || name.includes("sealed artifact") ) return "Sealed Artifacts";
+      if ( subtype === "trap" || name.includes("trap") ) return "Traps";
+      if ( type === "weapon" ) return "Weapons";
+      if ( type === "consumable" ) return "Consumables";
+      if ( type === "tool" ) return "Tools";
+      if ( (type === "equipment") && armorTypes.has(subtype) ) return "Armor";
+      return "Equipment";
+    }
+  );
+
+  await assignCompendiumEntriesToFolders(
+    "lotm.lotm_actors",
+    "Actor",
+    [
+      "type",
+      "flags.lotm.faction",
+      "flags.lotm.organization",
+      "system.details.faction",
+      "system.details.organization",
+      "system.details.type.value",
+      "system.details.type.custom"
+    ],
+    entry => {
+      const candidates = [
+        entry.name,
+        foundry.utils.getProperty(entry, "flags.lotm.faction"),
+        foundry.utils.getProperty(entry, "flags.lotm.organization"),
+        foundry.utils.getProperty(entry, "system.details.faction"),
+        foundry.utils.getProperty(entry, "system.details.organization"),
+        foundry.utils.getProperty(entry, "system.details.type.value"),
+        foundry.utils.getProperty(entry, "system.details.type.custom")
+      ]
+        .map(normalizeCompendiumValue)
+        .filter(Boolean);
+
+      for ( const factionName of factionFolderNames ) {
+        const normalizedFaction = normalizeCompendiumValue(factionName);
+        if ( candidates.some(value => value.includes(normalizedFaction)) ) return factionName;
+      }
+
+      const actorType = normalizeCompendiumValue(entry.type);
+      const name = normalizeCompendiumValue(entry.name);
+      if ( (actorType === "character") || name.includes("civilian") || name.includes("commoner") ) {
+        return "Civilians";
+      }
+      return "Monsters";
+    }
+  );
+
+  await assignCompendiumEntriesToFolders(
+    "lotm.lotm_tables",
+    "RollTable",
+    [],
+    entry => {
+      const name = normalizeCompendiumValue(entry.name);
+      if ( name.includes("monster") ) return "Monster Details";
+      if ( name.includes("ability") || name.includes("spell") ) return "Abilities";
+      return "Beyonder Items";
+    }
+  );
+
   const pathwaysPack = game.packs.get("lotm.lotm_pathways");
   if ( pathwaysPack?.documentName === "Item" ) {
-    const index = await pathwaysPack.getIndex({ fields: ["name"] });
-    const pathwayFolderNames = index.contents
-      .map(entry => entry.name)
-      .filter(Boolean);
+    const pathwayIndex = await pathwaysPack.getIndex({ fields: ["name", "system.identifier"] });
+    const pathwayByIdentifier = new Map();
+    const pathwayByName = new Map();
+    const pathwayFolderNames = [];
+
+    for ( const entry of pathwayIndex.contents ) {
+      const pathwayName = String(entry.name ?? "").trim();
+      if ( !pathwayName ) continue;
+      pathwayFolderNames.push(pathwayName);
+      pathwayByName.set(normalizeCompendiumValue(pathwayName), pathwayName);
+
+      const identifier = normalizeCompendiumValue(foundry.utils.getProperty(entry, "system.identifier"));
+      if ( identifier ) pathwayByIdentifier.set(identifier, pathwayName);
+    }
+
     if ( pathwayFolderNames.length ) {
       await ensureCompendiumFolders("lotm.lotm_abilities", "Item", pathwayFolderNames);
+      await assignCompendiumEntriesToFolders(
+        "lotm.lotm_abilities",
+        "Item",
+        ["system.sourceClass"],
+        entry => {
+          const sourceClass = normalizeCompendiumValue(foundry.utils.getProperty(entry, "system.sourceClass"));
+          if ( !sourceClass ) return null;
+          return pathwayByIdentifier.get(sourceClass) ?? pathwayByName.get(sourceClass) ?? null;
+        }
+      );
     }
   }
 }
