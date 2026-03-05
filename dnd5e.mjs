@@ -78075,6 +78075,19 @@ function normalizeCompendiumValue(value) {
 }
 
 /**
+ * Normalize a pathway key (identifier/name) for tolerant matching.
+ * @param {string} value
+ * @returns {string}
+ */
+function normalizePathwayKey(value) {
+  return normalizeCompendiumValue(value)
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\bpathway\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
  * Resolve the ID value for an index entry.
  * @param {object} entry
  * @returns {string|undefined}
@@ -78308,19 +78321,25 @@ async function ensureLotmCompendiumSkeleton() {
 
   const pathwaysPack = game.packs.get("lotm.lotm_pathways");
   if ( pathwaysPack?.documentName === "Item" ) {
-    const pathwayIndex = await pathwaysPack.getIndex({ fields: ["name", "system.identifier"] });
+    const pathwayDocuments = await pathwaysPack.getDocuments();
     const pathwayByIdentifier = new Map();
     const pathwayByName = new Map();
+    const pathwayByKey = new Map();
     const pathwayFolderNames = [];
 
-    for ( const entry of pathwayIndex.contents ) {
+    for ( const entry of pathwayDocuments ) {
       const pathwayName = String(entry.name ?? "").trim();
       if ( !pathwayName ) continue;
       pathwayFolderNames.push(pathwayName);
-      pathwayByName.set(normalizeCompendiumValue(pathwayName), pathwayName);
+      const normalizedName = normalizeCompendiumValue(pathwayName);
+      const normalizedKey = normalizePathwayKey(pathwayName);
+      pathwayByName.set(normalizedName, pathwayName);
+      if ( normalizedKey ) pathwayByKey.set(normalizedKey, pathwayName);
 
       const identifier = normalizeCompendiumValue(foundry.utils.getProperty(entry, "system.identifier"));
       if ( identifier ) pathwayByIdentifier.set(identifier, pathwayName);
+      const identifierKey = normalizePathwayKey(identifier);
+      if ( identifierKey ) pathwayByKey.set(identifierKey, pathwayName);
     }
 
     if ( pathwayFolderNames.length ) {
@@ -78332,7 +78351,11 @@ async function ensureLotmCompendiumSkeleton() {
         entry => {
           const sourceClass = normalizeCompendiumValue(foundry.utils.getProperty(entry, "system.sourceClass"));
           if ( !sourceClass ) return null;
-          return pathwayByIdentifier.get(sourceClass) ?? pathwayByName.get(sourceClass) ?? null;
+          const sourceKey = normalizePathwayKey(sourceClass);
+          return pathwayByIdentifier.get(sourceClass)
+            ?? pathwayByName.get(sourceClass)
+            ?? pathwayByKey.get(sourceKey)
+            ?? null;
         }
       );
     }
