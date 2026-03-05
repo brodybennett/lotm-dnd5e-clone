@@ -65838,11 +65838,31 @@ function _generateLinks() {
 
 /**
  * Render a custom entry for game details in the settings sidebar.
- * @param {HTMLElement} html  The settings sidebar HTML.
+ * @param {HTMLElement|jQuery} html  The settings sidebar HTML.
+ */
+function _resolveSettingsHtml(html) {
+  if ( html instanceof HTMLElement ) return html;
+  if ( html?.[0] instanceof HTMLElement ) return html[0];
+  return null;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Render a custom entry for game details in the settings sidebar.
+ * @param {HTMLElement|jQuery} html  The settings sidebar HTML.
  */
 function renderSettings(html) {
-  const pip = html.querySelector(".info .system .notification-pip");
-  html.querySelector(".info .system").remove();
+  html = _resolveSettingsHtml(html);
+  if ( !html ) return;
+
+  const info = html.querySelector(".info");
+  if ( !info ) return;
+
+  html.querySelector("section.dnd5e2.sidebar-info")?.remove();
+  const system = info.querySelector(".system");
+  const pip = system?.querySelector(".notification-pip");
+  system?.remove();
 
   const section = document.createElement("section");
   section.classList.add("dnd5e2", "sidebar-info");
@@ -65855,7 +65875,26 @@ function renderSettings(html) {
   `;
   section.append(_generateLinks());
   if ( pip ) section.querySelector(".system-info").insertAdjacentElement("beforeend", pip);
-  html.querySelector(".info").insertAdjacentElement("afterend", section);
+  info.insertAdjacentElement("afterend", section);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Ensure the Return to Setup action still works if the core action binding is disrupted.
+ * @param {HTMLElement|jQuery} html  The settings sidebar HTML.
+ */
+function bindReturnToSetup(html) {
+  html = _resolveSettingsHtml(html);
+  if ( !html ) return;
+  const button = html.querySelector('button[data-action="openApp"][data-app="setup"]');
+  if ( !button || button.dataset.lotmSetupBound ) return;
+  button.dataset.lotmSetupBound = "true";
+  button.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    game.shutDown().catch(error => console.error("Failed to return to setup.", error));
+  }, { capture: true });
 }
 
 var sidebar = /*#__PURE__*/Object.freeze({
@@ -80923,7 +80962,10 @@ Hooks.on("renderGamePause", (app, html) => {
   img.className = "";
 });
 
-Hooks.on("renderSettings", (app, html) => renderSettings(html));
+Hooks.on("renderSettings", (app, html) => {
+  renderSettings(html);
+  bindReturnToSetup(html);
+});
 
 /* -------------------------------------------- */
 /*  Other Hooks                                 */
