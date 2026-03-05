@@ -78028,6 +78028,83 @@ function reparentCompendiums(from, to) {
 /* -------------------------------------------- */
 
 /**
+ * Ensure a compendium pack contains a set of top-level folders.
+ * @param {string} packCollection        Fully qualified pack collection (for example: "lotm.lotm_actors").
+ * @param {string} folderType            Folder document type matching the pack documentName.
+ * @param {string[]} folderNames         Folder names to ensure exist.
+ * @returns {Promise<void>}
+ */
+async function ensureCompendiumFolders(packCollection, folderType, folderNames) {
+  const pack = game.packs.get(packCollection);
+  if ( !pack || (pack.documentName !== folderType) ) return;
+
+  const existingFolders = pack.folders?.contents ?? Array.from(pack.folders?.values?.() ?? []);
+  const existingNames = new Set(existingFolders.map(folder => folder.name));
+  const toCreate = folderNames
+    .filter(name => !existingNames.has(name))
+    .map((name, index) => ({
+      name,
+      type: folderType,
+      folder: null,
+      sorting: "a",
+      sort: (index + 1) * 100000
+    }));
+  if ( !toCreate.length ) return;
+
+  const wasLocked = pack.locked;
+  if ( wasLocked ) await pack.configure({ locked: false });
+
+  try {
+    await Folder.implementation.createDocuments(toCreate, { pack: pack.collection });
+  } finally {
+    if ( wasLocked ) await pack.configure({ locked: true });
+  }
+}
+
+/**
+ * Ensure LoTM compendium entry packs expose the expected folder skeleton.
+ * @returns {Promise<void>}
+ */
+async function ensureLotmCompendiumSkeleton() {
+  const actorFolderNames = [
+    "Church of Evernight",
+    "Church of Storms",
+    "Church of Knowledge and Wisdom",
+    "Church of Steam and Machinery",
+    "Church of Earth Mother",
+    "Church of Combat",
+    "Aurora Order",
+    "Moses Ascetic Order",
+    "Rose School of Thought",
+    "Secret Order",
+    "Temperance Faction",
+    "Monsters",
+    "Civilian"
+  ];
+  const tableFolderNames = [
+    "Magic Items",
+    "Monster Details",
+    "Spells"
+  ];
+
+  await ensureCompendiumFolders("lotm.lotm_actors", "Actor", actorFolderNames);
+  await ensureCompendiumFolders("lotm.lotm_tables", "RollTable", tableFolderNames);
+
+  const pathwaysPack = game.packs.get("lotm.lotm_pathways");
+  if ( pathwaysPack?.documentName === "Item" ) {
+    const index = await pathwaysPack.getIndex({ fields: ["name"] });
+    const pathwayFolderNames = index.contents
+      .map(entry => entry.name)
+      .filter(Boolean);
+    if ( pathwayFolderNames.length ) {
+      await ensureCompendiumFolders("lotm.lotm_abilities", "Item", pathwayFolderNames);
+    }
+  }
+}
+
+/* -------------------------------------------- */
+
+/**
  * Update all compendium packs using the new system data model.
  * @param {object} [options={}]
  * @param {boolean} [options.bypassVersionCheck=false]  Bypass certain migration restrictions gated behind system
@@ -80559,6 +80636,15 @@ Hooks.once("ready", function() {
     ui.notifications.error("MIGRATION.5eVersionTooOldWarning", {localize: true, permanent: true});
   }
   migrateWorld();
+});
+
+Hooks.once("ready", async function() {
+  if ( !game.user.isGM ) return;
+  try {
+    await ensureLotmCompendiumSkeleton();
+  } catch (error) {
+    console.error("Failed to ensure LoTM compendium skeleton.", error);
+  }
 });
 
 /* -------------------------------------------- */

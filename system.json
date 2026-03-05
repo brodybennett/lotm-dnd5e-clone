@@ -638,23 +638,6 @@
             }
         },
         {
-            "name": "lotm_pathway_features",
-            "label": "Pathway Features",
-            "path": "packs/lotm_pathway_features",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "feat",
-                        "weapon"
-                    ]
-                }
-            }
-        },
-        {
             "name": "lotm_abilities",
             "label": "Abilities",
             "path": "packs/lotm_abilities",
@@ -804,201 +787,9 @@
             }
         },
         {
-            "name": "lotm_actors_evernight_church",
-            "label": "Church of Evernight",
-            "path": "packs/lotm_actors_evernight_church",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_storm_church",
-            "label": "Church of Storms",
-            "path": "packs/lotm_actors_storm_church",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_knowledge_church",
-            "label": "Church of Knowledge and Wisdom",
-            "path": "packs/lotm_actors_knowledge_church",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_steam_church",
-            "label": "Church of Steam and Machinery",
-            "path": "packs/lotm_actors_steam_church",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_earth_church",
-            "label": "Church of Earth Mother",
-            "path": "packs/lotm_actors_earth_church",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_combat_church",
-            "label": "Church of Combat",
-            "path": "packs/lotm_actors_combat_church",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_aurora_order",
-            "label": "Aurora Order",
-            "path": "packs/lotm_actors_aurora_order",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_moses_ascetic_order",
-            "label": "Moses Ascetic Order",
-            "path": "packs/lotm_actors_moses_ascetic_order",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_rose_school",
-            "label": "Rose School of Thought",
-            "path": "packs/lotm_actors_rose_school",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_secret_order",
-            "label": "Secret Order",
-            "path": "packs/lotm_actors_secret_order",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_temperance_faction",
-            "label": "Temperance Faction",
-            "path": "packs/lotm_actors_temperance_faction",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_monsters",
-            "label": "Monsters",
-            "path": "packs/lotm_actors_monsters",
-            "type": "Actor",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "npc"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_actors_civilian",
-            "label": "Civilian",
-            "path": "packs/lotm_actors_civilian",
+            "name": "lotm_actors",
+            "label": "Actors",
+            "path": "packs/lotm_actors",
             "type": "Actor",
             "private": false,
             "system": "lotm",
@@ -1013,24 +804,8 @@
             }
         },
         {
-            "name": "lotm_tables_magic_items",
-            "label": "Magic Items",
-            "path": "packs/lotm_tables_magic_items",
-            "type": "RollTable",
-            "private": false,
-            "system": "lotm"
-        },
-        {
-            "name": "lotm_tables_monster_details",
-            "label": "Monster Details",
-            "path": "packs/lotm_tables_monster_details",
-            "type": "RollTable",
-            "private": false,
-            "system": "lotm"
-        },
-        {
             "name": "lotm_tables",
-            "label": "Spells",
+            "label": "Roll Tables",
             "path": "packs/lotm_tables",
             "type": "RollTable",
             "private": false,
@@ -1098,60 +873,17 @@
             ]
         },
         {
-            "name": "LoTM (WIP)",
+            "name": "LoTM",
             "sorting": "m",
             "color": "#5a2ca0",
-            "packs": [],
+            "packs": [
+                "lotm_rules",
+                "lotm_pathways",
+                "lotm_abilities",
+                "lotm_actors",
+                "lotm_tables"
+            ],
             "folders": [
-                {
-                    "name": "Rules",
-                    "sorting": "m",
-                    "color": "#7040bb",
-                    "packs": [],
-                    "folders": [
-                        {
-                            "name": "Core",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_rules"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "Pathways",
-                    "sorting": "m",
-                    "color": "#7040bb",
-                    "packs": [],
-                    "folders": [
-                        {
-                            "name": "Catalog",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_pathways",
-                                "lotm_pathway_features"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "Abilities",
-                    "sorting": "m",
-                    "color": "#7040bb",
-                    "packs": [],
-                    "folders": [
-                        {
-                            "name": "Seer",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_abilities"
-                            ]
-                        }
-                    ]
-                },
                 {
                     "name": "Items",
                     "sorting": "m",
@@ -1212,150 +944,6 @@
                             "color": "#7a4cc7",
                             "packs": [
                                 "lotm_items_sealed_artifacts"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "Actors",
-                    "sorting": "m",
-                    "color": "#7040bb",
-                    "packs": [],
-                    "folders": [
-                        {
-                            "name": "Church of Evernight",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_evernight_church"
-                            ]
-                        },
-                        {
-                            "name": "Church of Storms",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_storm_church"
-                            ]
-                        },
-                        {
-                            "name": "Church of Knowledge and Wisdom",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_knowledge_church"
-                            ]
-                        },
-                        {
-                            "name": "Church of Steam and Machinery",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_steam_church"
-                            ]
-                        },
-                        {
-                            "name": "Church of Earth Mother",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_earth_church"
-                            ]
-                        },
-                        {
-                            "name": "Church of Combat",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_combat_church"
-                            ]
-                        },
-                        {
-                            "name": "Aurora Order",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_aurora_order"
-                            ]
-                        },
-                        {
-                            "name": "Moses Ascetic Order",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_moses_ascetic_order"
-                            ]
-                        },
-                        {
-                            "name": "Rose School of Thought",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_rose_school"
-                            ]
-                        },
-                        {
-                            "name": "Secret Order",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_secret_order"
-                            ]
-                        },
-                        {
-                            "name": "Temperance Faction",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_temperance_faction"
-                            ]
-                        },
-                        {
-                            "name": "Monsters",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_monsters"
-                            ]
-                        },
-                        {
-                            "name": "Civilian",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_actors_civilian"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "Roll Tables",
-                    "sorting": "m",
-                    "color": "#7040bb",
-                    "packs": [],
-                    "folders": [
-                        {
-                            "name": "Magic Items",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_tables_magic_items"
-                            ]
-                        },
-                        {
-                            "name": "Monster Details",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_tables_monster_details"
-                            ]
-                        },
-                        {
-                            "name": "Spells",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_tables"
                             ]
                         }
                     ]
