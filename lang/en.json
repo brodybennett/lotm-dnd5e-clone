@@ -100,8 +100,8 @@
 "DND5E.AbilityDexAbbr": "dex",
 "DND5E.AbilityInt": "Intelligence",
 "DND5E.AbilityIntAbbr": "int",
-"DND5E.AbilityWis": "Wisdom",
-"DND5E.AbilityWisAbbr": "wis",
+"DND5E.AbilityWis": "Spirituality",
+"DND5E.AbilityWisAbbr": "spi",
 "DND5E.AbilityCha": "Charisma",
 "DND5E.AbilityChaAbbr": "cha",
 "DND5E.AbilityHon": "Honor",
@@ -2848,7 +2848,7 @@
 "DND5E.FlagsPowerfulBuild": "Powerful Build",
 "DND5E.FlagsPowerfulBuildHint": "Provides increased carrying capacity.",
 "DND5E.FlagsElvenAccuracy": "Elven Accuracy",
-"DND5E.FlagsElvenAccuracyHint": "Roll an extra d20 with advantage to Dex, Int, Wis, or Cha.",
+"DND5E.FlagsElvenAccuracyHint": "Roll an extra d20 with advantage to Dex, Int, Spi, or Cha.",
 "DND5E.FlagsHalflingLucky": "Halfling Lucky",
 "DND5E.FlagsHalflingLuckyHint": "Reroll ones when rolling d20 checks.",
 "DND5E.FlagsHalflingNimbleness": "Halfling Nimbleness",
@@ -4894,7 +4894,7 @@
         "Label": "Languages"
       },
       "Mental": {
-        "Hint": "Keep intelligence, wisdom, and charisma scores.",
+        "Hint": "Keep intelligence, spirituality, and charisma scores.",
         "Label": "Mental Abilities"
       },
       "Physical": {
