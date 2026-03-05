@@ -78086,7 +78086,17 @@ async function ensureLotmCompendiumSkeleton() {
     "Monster Details",
     "Spells"
   ];
+  const itemFolderNames = [
+    "Armor",
+    "Consumables",
+    "Equipment",
+    "Tools",
+    "Traps",
+    "Weapons",
+    "Sealed Artifacts"
+  ];
 
+  await ensureCompendiumFolders("lotm.lotm_items", "Item", itemFolderNames);
   await ensureCompendiumFolders("lotm.lotm_actors", "Actor", actorFolderNames);
   await ensureCompendiumFolders("lotm.lotm_tables", "RollTable", tableFolderNames);
 

@@ -669,108 +669,9 @@
             }
         },
         {
-            "name": "lotm_items_armor",
-            "label": "Armor",
-            "path": "packs/lotm_items_armor",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "equipment"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_items_consumables",
-            "label": "Consumables",
-            "path": "packs/lotm_items_consumables",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "consumable"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_items_equipment",
-            "label": "Equipment",
-            "path": "packs/lotm_items_equipment",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "equipment",
-                        "loot",
-                        "container"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_items_tools",
-            "label": "Tools",
-            "path": "packs/lotm_items_tools",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "tool"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_items_traps",
-            "label": "Traps",
-            "path": "packs/lotm_items_traps",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "consumable",
-                        "loot"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_items_weapons",
-            "label": "Weapons",
-            "path": "packs/lotm_items_weapons",
-            "type": "Item",
-            "private": false,
-            "system": "lotm",
-            "flags": {
-                "lotm": {
-                    "sourceBook": "LoTM Core",
-                    "types": [
-                        "weapon"
-                    ]
-                }
-            }
-        },
-        {
-            "name": "lotm_items_sealed_artifacts",
-            "label": "Sealed Artifacts",
-            "path": "packs/lotm_items_sealed_artifacts",
+            "name": "lotm_items",
+            "label": "Items",
+            "path": "packs/lotm_items",
             "type": "Item",
             "private": false,
             "system": "lotm",
@@ -781,6 +682,9 @@
                         "equipment",
                         "weapon",
                         "consumable",
+                        "tool",
+                        "loot",
+                        "container",
                         "feat"
                     ]
                 }
@@ -880,74 +784,9 @@
                 "lotm_rules",
                 "lotm_pathways",
                 "lotm_abilities",
+                "lotm_items",
                 "lotm_actors",
                 "lotm_tables"
-            ],
-            "folders": [
-                {
-                    "name": "Items",
-                    "sorting": "m",
-                    "color": "#7040bb",
-                    "packs": [],
-                    "folders": [
-                        {
-                            "name": "Armor",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_items_armor"
-                            ]
-                        },
-                        {
-                            "name": "Consumables",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_items_consumables"
-                            ]
-                        },
-                        {
-                            "name": "Equipment",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_items_equipment"
-                            ]
-                        },
-                        {
-                            "name": "Tools",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_items_tools"
-                            ]
-                        },
-                        {
-                            "name": "Traps",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_items_traps"
-                            ]
-                        },
-                        {
-                            "name": "Weapons",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_items_weapons"
-                            ]
-                        },
-                        {
-                            "name": "Sealed Artifacts",
-                            "sorting": "m",
-                            "color": "#7a4cc7",
-                            "packs": [
-                                "lotm_items_sealed_artifacts"
-                            ]
-                        }
-                    ]
-                }
             ]
         }
     ],
