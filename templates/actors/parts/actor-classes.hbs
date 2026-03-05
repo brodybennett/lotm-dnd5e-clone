@@ -25,7 +25,7 @@
                 {{ selectOptions ctx.availableLevels selected=0 }}
             </select>
             {{else}}
-            <span>{{ localize "DND5E.AbbreviationLevel" }} {{ cls.system.levels }}</span>
+            <span>{{#if ctx.pathwaySequenceLabel}}{{ctx.pathwaySequenceLabel}}{{else}}{{ localize "DND5E.AbbreviationLevel" }} {{ cls.system.levels }}{{/if}}</span>
             {{/if}}
         </div>
     </div>

@@ -109,8 +109,8 @@
 
         {{!-- Level --}}
         {{#if (eq item.type "class")}}
-        <div class="level-badge badge" aria-label="{{ localize "DND5E.LevelNumber" level=system.levels }}">
-            {{ system.levels }}
+        <div class="level-badge badge" aria-label="{{ ifThen pathwaySequenceLabel pathwaySequenceLabel (localize "DND5E.LevelNumber" level=system.levels) }}">
+            {{ ifThen pathwaySequenceLabel pathwaySequenceLabel system.levels }}
         </div>
         {{/if}}
 

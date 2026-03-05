@@ -5884,8 +5884,10 @@ class ActivityUsageDialog extends Dialog5e {
       const maximumLevel = scale.allowed ? scale.max ? minimumLevel + max - 1 : Infinity : minimumLevel;
       const upperLevel = Number.isFinite(maximumLevel) ? maximumLevel : LOTM_MAX_SPELL_LEVEL;
       if ( useSpirituality ) {
+        const pathwayUpperLevel = actorPathwayMaxSpellLevel(this.actor);
+        const cappedUpperLevel = Math.min(upperLevel, Math.max(minimumLevel, pathwayUpperLevel));
         const sequenceOptions = [];
-        for ( let level = minimumLevel; level <= upperLevel; level++ ) {
+        for ( let level = minimumLevel; level <= cappedUpperLevel; level++ ) {
           const sequence = spellLevelToSequence(level);
           if ( sequence === null ) continue;
           sequenceOptions.push({
@@ -5919,10 +5921,7 @@ class ActivityUsageDialog extends Dialog5e {
     else if ( this.activity.requiresSpellSlot && (this.config.scaling !== false) ) {
       const minimumLevel = this.item.system.level ?? 1;
       if ( useSpirituality ) {
-        const maximumLevel = Math.max(
-          minimumLevel,
-          Object.values(this.actor.system.spells ?? {}).reduce((max, data) => data.max ? Math.max(max, data.level) : max, 0)
-        );
+        const maximumLevel = Math.max(minimumLevel, actorPathwayMaxSpellLevel(this.actor));
         const sequenceOptions = [];
         for ( let level = minimumLevel; level <= maximumLevel; level++ ) {
           const sequence = spellLevelToSequence(level);
@@ -18390,6 +18389,8 @@ class ClassData extends ItemDataModel$1.mixin(
   async getSheetData(context) {
     context.subtitles = [{ label: game.i18n.localize(CONFIG.Item.typeLabels.class) }];
     context.singleDescription = true;
+    context.pathwaySequence = classLevelToPathwaySequence(context.source?.levels ?? this.levels);
+    context.pathwaySequenceLabel = pathwaySequenceLabelFromClassLevel(context.source?.levels ?? this.levels);
 
     context.parts = ["dnd5e.details-class", "dnd5e.details-spellcasting", "dnd5e.details-starting-equipment"];
     context.hitDieOptions = CONFIG.DND5E.hitDieTypes.map(d => ({ value: d, label: d }));
@@ -18455,9 +18456,14 @@ class ClassData extends ItemDataModel$1.mixin(
     }
 
     // Check to make sure the updated class level doesn't exceed level cap
-    if ( changed.system.levels > CONFIG.DND5E.maxLevel ) {
-      ui.notifications.warn(game.i18n.format("DND5E.MaxClassLevelExceededWarn", { max: CONFIG.DND5E.maxLevel }));
-      changed.system.levels = CONFIG.DND5E.maxLevel;
+    const classLevelCap = this.parent.actor?.type === "character"
+      ? actorPathwayClassLevelCap(this.parent.actor, this.parent.id)
+      : CONFIG.DND5E.maxLevel;
+    if ( changed.system.levels > classLevelCap ) {
+      ui.notifications.warn(this.parent.actor?.type === "character"
+        ? game.i18n.localize("DND5E.MaxPathwaySequenceExceededWarn")
+        : game.i18n.format("DND5E.MaxClassLevelExceededWarn", { max: classLevelCap }));
+      changed.system.levels = classLevelCap;
     }
 
     if ( this.parent.actor?.type !== "character" ) return;
@@ -44963,6 +44969,11 @@ preLocalize("spellLevels");
 
 const LOTM_MAX_SPELL_LEVEL = 9;
 const LOTM_MAX_SEQUENCE = 9;
+const LOTM_MIN_SEQUENCE = 0;
+const LOTM_PATHWAY_MIN_CLASS_LEVEL = 1;
+const LOTM_PATHWAY_MAX_CLASS_LEVEL = LOTM_MAX_SEQUENCE + 1;
+const LOTM_ABILITY_PACK_NAMES = ["lotm_pilot_abilities", "lotm_abilities"];
+const LOTM_PATHWAY_SYNC_LOCKS = new Set();
 
 /**
  * Convert an internal spell level to a LoTM sequence.
@@ -44984,7 +44995,8 @@ function spellLevelToSequence(level) {
  */
 function sequenceToSpellLevel(sequence) {
   const numericSequence = Number(sequence);
-  if ( !Number.isInteger(numericSequence) || (numericSequence < 0) || (numericSequence > LOTM_MAX_SEQUENCE) ) {
+  if ( !Number.isInteger(numericSequence) || (numericSequence < LOTM_MIN_SEQUENCE)
+    || (numericSequence > LOTM_MAX_SEQUENCE) ) {
     return null;
   }
   return LOTM_MAX_SEQUENCE - numericSequence;
@@ -45001,6 +45013,237 @@ function sequenceLabelFromSpellLevel(level) {
   const sequence = spellLevelToSequence(level);
   if ( sequence === null ) return null;
   return game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Normalize class level to LoTM pathway range.
+ * @param {number} level  Candidate class level.
+ * @returns {number}
+ */
+function normalizePathwayClassLevel(level) {
+  const numericLevel = Number(level);
+  if ( !Number.isFinite(numericLevel) ) return LOTM_PATHWAY_MIN_CLASS_LEVEL;
+  return Math.clamp(Math.floor(numericLevel), LOTM_PATHWAY_MIN_CLASS_LEVEL, LOTM_PATHWAY_MAX_CLASS_LEVEL);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Convert an internal class level to LoTM sequence.
+ * @param {number} level  Internal class level.
+ * @returns {number|null}
+ */
+function classLevelToPathwaySequence(level) {
+  const normalized = normalizePathwayClassLevel(level);
+  if ( !Number.isInteger(normalized) ) return null;
+  return LOTM_MAX_SEQUENCE - (normalized - LOTM_PATHWAY_MIN_CLASS_LEVEL);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Convert LoTM sequence to internal class level.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number|null}
+ */
+function pathwaySequenceToClassLevel(sequence) {
+  const numericSequence = Number(sequence);
+  if ( !Number.isInteger(numericSequence) || (numericSequence < LOTM_MIN_SEQUENCE)
+    || (numericSequence > LOTM_MAX_SEQUENCE) ) {
+    return null;
+  }
+  return LOTM_PATHWAY_MIN_CLASS_LEVEL + (LOTM_MAX_SEQUENCE - numericSequence);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Get localized pathway sequence label from internal class level.
+ * @param {number} level  Internal class level.
+ * @returns {string|null}
+ */
+function pathwaySequenceLabelFromClassLevel(level) {
+  const sequence = classLevelToPathwaySequence(level);
+  if ( sequence === null ) return null;
+  return game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine max unlocked internal ability level from class level.
+ * @param {number} classLevel  Internal class level.
+ * @returns {number}
+ */
+function pathwayMaxSpellLevelFromClassLevel(classLevel) {
+  const normalized = normalizePathwayClassLevel(classLevel);
+  return Math.clamp(normalized - LOTM_PATHWAY_MIN_CLASS_LEVEL, 0, LOTM_MAX_SPELL_LEVEL);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine max allowed class level for a pathway on an actor.
+ * @param {Actor5e} actor              Actor whose levels are being evaluated.
+ * @param {string} [excludeClassId]    Class ID to exclude from total calculations.
+ * @returns {number}
+ */
+function actorPathwayClassLevelCap(actor, excludeClassId) {
+  if ( actor?.type !== "character" ) return LOTM_PATHWAY_MAX_CLASS_LEVEL;
+  const otherClassLevels = (actor.itemTypes?.class ?? []).reduce((total, cls) => {
+    if ( excludeClassId && (cls.id === excludeClassId) ) return total;
+    return total + (Number(cls.system?.levels) || 0);
+  }, 0);
+  const remainingByCharacterCap = Math.max(CONFIG.DND5E.maxLevel - otherClassLevels, LOTM_PATHWAY_MIN_CLASS_LEVEL);
+  return Math.clamp(remainingByCharacterCap, LOTM_PATHWAY_MIN_CLASS_LEVEL, LOTM_PATHWAY_MAX_CLASS_LEVEL);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine actor max unlocked internal ability level based on pathway level.
+ * @param {Actor5e} actor  Actor to evaluate.
+ * @returns {number}
+ */
+function actorPathwayMaxSpellLevel(actor) {
+  if ( actor?.type !== "character" ) return LOTM_MAX_SPELL_LEVEL;
+  const highestPathwayLevel = Math.max(
+    ...(actor.itemTypes?.class ?? []).map(cls => Number(cls.system?.levels) || LOTM_PATHWAY_MIN_CLASS_LEVEL),
+    LOTM_PATHWAY_MIN_CLASS_LEVEL
+  );
+  return pathwayMaxSpellLevelFromClassLevel(highestPathwayLevel);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Clamp selected sequence to the actor's unlocked pathway range.
+ * @param {number} sequence  Candidate sequence power.
+ * @param {Actor5e} actor    Actor using the ability.
+ * @returns {number|null}
+ */
+function clampSequenceToActorPathway(sequence, actor) {
+  const numericSequence = Number(sequence);
+  if ( !Number.isInteger(numericSequence) || (numericSequence < LOTM_MIN_SEQUENCE)
+    || (numericSequence > LOTM_MAX_SEQUENCE) ) {
+    return null;
+  }
+  if ( actor?.type !== "character" ) return numericSequence;
+  const minAllowedSequence = spellLevelToSequence(actorPathwayMaxSpellLevel(actor));
+  if ( minAllowedSequence === null ) return numericSequence;
+  return Math.clamp(numericSequence, minAllowedSequence, LOTM_MAX_SEQUENCE);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Get a stable key for pathway ability matching.
+ * @param {Item5e|object} item  Candidate ability item/document.
+ * @returns {string|null}
+ */
+function pathwayAbilityKey(item) {
+  if ( item?.type !== "spell" ) return null;
+  const sourceClass = String(item.system?.sourceClass ?? "").trim().toLowerCase();
+  const identifier = String(item.system?.identifier ?? "").trim().toLowerCase();
+  const level = Number(item.system?.level ?? 0);
+  if ( !sourceClass || !Number.isInteger(level) ) return null;
+  if ( identifier ) return `${sourceClass}|id:${identifier}|lvl:${level}`;
+  const name = String(item.name ?? "").trim().toLowerCase();
+  if ( !name ) return null;
+  return `${sourceClass}|name:${name}|lvl:${level}`;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Collect pathway abilities from LoTM compendium packs up to max level.
+ * @param {string} pathwayIdentifier  Pathway identifier slug.
+ * @param {number} maxSpellLevel      Highest internal spell level to include.
+ * @returns {Promise<Item5e[]>}
+ */
+async function collectPathwayCompendiumAbilities(pathwayIdentifier, maxSpellLevel) {
+  const normalizedIdentifier = String(pathwayIdentifier ?? "").trim().toLowerCase();
+  if ( !normalizedIdentifier ) return [];
+  const maxLevel = Math.clamp(Number(maxSpellLevel) || 0, 0, LOTM_MAX_SPELL_LEVEL);
+  const documents = [];
+  const uniqueKeys = new Set();
+  for ( const packName of LOTM_ABILITY_PACK_NAMES ) {
+    const pack = game.packs.get(`${game.system.id}.${packName}`);
+    if ( !pack || (pack.documentName !== "Item") ) continue;
+    const packDocuments = await pack.getDocuments();
+    for ( const document of packDocuments ) {
+      if ( document.type !== "spell" ) continue;
+      if ( String(document.system?.sourceClass ?? "").trim().toLowerCase() !== normalizedIdentifier ) continue;
+      const level = Number(document.system?.level ?? 0);
+      if ( !Number.isInteger(level) || (level < 0) || (level > maxLevel) ) continue;
+      const key = pathwayAbilityKey(document);
+      if ( !key || uniqueKeys.has(key) ) continue;
+      uniqueKeys.add(key);
+      documents.push(document);
+    }
+  }
+  return documents;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Sync pathway abilities for a specific class to ensure all unlocked sequence abilities are present.
+ * @param {Actor5e} actor      Actor receiving abilities.
+ * @param {Item5e} classItem   Pathway class item.
+ * @returns {Promise<number>}  Number of abilities granted.
+ */
+async function syncPathwayAbilitiesForClass(actor, classItem) {
+  if ( (actor?.type !== "character") || (classItem?.type !== "class") ) return 0;
+  const pathwayIdentifier = String(classItem.system?.identifier ?? "").trim();
+  if ( !pathwayIdentifier ) return 0;
+  const maxSpellLevel = pathwayMaxSpellLevelFromClassLevel(classItem.system?.levels);
+  const candidates = await collectPathwayCompendiumAbilities(pathwayIdentifier, maxSpellLevel);
+  if ( !candidates.length ) return 0;
+
+  const existingKeys = new Set((actor.itemTypes?.spell ?? [])
+    .filter(item => String(item.system?.sourceClass ?? "").trim().toLowerCase() === pathwayIdentifier.toLowerCase())
+    .map(pathwayAbilityKey)
+    .filter(_ => _));
+  const toCreate = [];
+  for ( const ability of candidates ) {
+    const key = pathwayAbilityKey(ability);
+    if ( !key || existingKeys.has(key) ) continue;
+    const source = game.items.fromCompendium(ability, { keepId: false });
+    source.folder = null;
+    toCreate.push(source);
+    existingKeys.add(key);
+  }
+  if ( !toCreate.length ) return 0;
+  await actor.createEmbeddedDocuments("Item", toCreate);
+  return toCreate.length;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Sync pathway abilities for all or selected class items on an actor.
+ * @param {Actor5e} actor               Actor being synchronized.
+ * @param {object} [options]
+ * @param {string[]} [options.classIds] Optional class IDs to synchronize.
+ * @returns {Promise<number>}           Number of abilities granted.
+ */
+async function syncPathwayAbilitiesForActor(actor, { classIds }={}) {
+  if ( actor?.type !== "character" ) return 0;
+  const lockKey = actor.uuid ?? actor.id;
+  if ( LOTM_PATHWAY_SYNC_LOCKS.has(lockKey) ) return 0;
+  LOTM_PATHWAY_SYNC_LOCKS.add(lockKey);
+  const classFilter = classIds?.length ? new Set(classIds) : null;
+  const pathwayClasses = (actor.itemTypes?.class ?? []).filter(cls => !classFilter || classFilter.has(cls.id));
+  let granted = 0;
+  try {
+    for ( const cls of pathwayClasses ) granted += await syncPathwayAbilitiesForClass(actor, cls);
+    return granted;
+  } finally {
+    LOTM_PATHWAY_SYNC_LOCKS.delete(lockKey);
+  }
 }
 
 /* -------------------------------------------- */
@@ -45024,7 +45267,7 @@ function isSpiritualityConsumptionActivity(activity) {
  */
 function spellLevelFromUsageConfig(activity, config={}) {
   const baseLevel = Math.max(Number(activity?.item?.system?.level) || 0, 0);
-  const sequencePower = Number(config?.spell?.sequencePower ?? config?.spell?.sequence);
+  const sequencePower = clampSequenceToActorPathway(config?.spell?.sequencePower ?? config?.spell?.sequence, activity?.actor);
   if ( Number.isInteger(sequencePower) ) {
     const levelFromSequence = sequenceToSpellLevel(sequencePower);
     if ( levelFromSequence !== null ) return levelFromSequence;
@@ -45045,8 +45288,8 @@ function spellLevelFromUsageConfig(activity, config={}) {
  * @returns {number|null}
  */
 function sequencePowerFromUsageConfig(activity, config={}) {
-  const explicit = Number(config?.spell?.sequencePower ?? config?.spell?.sequence);
-  if ( Number.isInteger(explicit) && (explicit >= 0) && (explicit <= LOTM_MAX_SEQUENCE) ) return explicit;
+  const explicit = clampSequenceToActorPathway(config?.spell?.sequencePower ?? config?.spell?.sequence, activity?.actor);
+  if ( explicit !== null ) return explicit;
   return spellLevelToSequence(spellLevelFromUsageConfig(activity, config));
 }
 
@@ -54465,12 +54708,21 @@ class BaseActorSheet extends PrimarySheetMixin(
       });
     };
 
-    // Register sections for the available spellcasting methods this character has.
-    for ( const spellcasting of Object.values(CONFIG.DND5E.spellcasting) ) {
-      const levels = spellcasting.getAvailableLevels?.(this.actor) ?? [];
-      if ( !levels.length ) continue;
-      if ( spellcasting.cantrips ) registerSection("spell0", 0, CONFIG.DND5E.spellcasting.spell);
-      levels.forEach(l => registerSection(spellcasting.getSpellSlotKey(l), l, spellcasting));
+    // Register sections for available spellcasting methods or LoTM pathway sequence progression.
+    if ( (this.actor.type === "character") && this.actor.itemTypes.class.length ) {
+      const progression = CONFIG.DND5E.spellcasting.spell;
+      const maxPathwaySpellLevel = actorPathwayMaxSpellLevel(this.actor);
+      registerSection("spell0", 0, progression);
+      for ( let level = 1; level <= maxPathwaySpellLevel; level++ ) {
+        registerSection(progression.getSpellSlotKey(level), level, progression);
+      }
+    } else {
+      for ( const spellcasting of Object.values(CONFIG.DND5E.spellcasting) ) {
+        const levels = spellcasting.getAvailableLevels?.(this.actor) ?? [];
+        if ( !levels.length ) continue;
+        if ( spellcasting.cantrips ) registerSection("spell0", 0, CONFIG.DND5E.spellcasting.spell);
+        levels.forEach(l => registerSection(spellcasting.getSpellSlotKey(l), l, spellcasting));
+      }
     }
 
     // Iterate over every spell item, adding spells to the spellbook by section
@@ -54736,11 +54988,24 @@ class BaseActorSheet extends PrimarySheetMixin(
     // Classes & Subclasses
     if ( ["class", "subclass"].includes(item.type) ) {
       ctx.prefixedImage = item.img ? foundry.utils.getRoute(item.img) : null;
-      if ( item.type === "class" ) ctx.availableLevels = Array.fromRange(CONFIG.DND5E.maxLevel, 1).map(level => {
-        const value = level - item.system.levels;
-        const label = value ? `${level} (${formatNumber(value, { signDisplay: "always" })})` : `${level}`;
-        return { label, value, disabled: value > (CONFIG.DND5E.maxLevel - (item.parent.system.details?.level ?? 0)) };
-      });
+      if ( item.type === "class" ) {
+        const currentLevel = normalizePathwayClassLevel(item.system.levels);
+        const maxClassLevel = actorPathwayClassLevelCap(item.parent, item.id);
+        const availableLevels = [];
+        for ( let sequence = LOTM_MAX_SEQUENCE; sequence >= LOTM_MIN_SEQUENCE; sequence-- ) {
+          const targetLevel = pathwaySequenceToClassLevel(sequence);
+          if ( targetLevel === null ) continue;
+          const value = targetLevel - currentLevel;
+          const sequenceLabel = game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+          const label = value
+            ? `${sequenceLabel} (${formatNumber(value, { signDisplay: "always" })})`
+            : sequenceLabel;
+          availableLevels.push({ label, value, disabled: targetLevel > maxClassLevel });
+        }
+        ctx.availableLevels = availableLevels;
+        ctx.pathwaySequence = classLevelToPathwaySequence(currentLevel);
+        ctx.pathwaySequenceLabel = pathwaySequenceLabelFromClassLevel(currentLevel);
+      }
     }
 
     ctx.subtitle = [item.system.type?.label, item.isActive ? item.labels.activation : null].filterJoin(" • ");
@@ -55096,10 +55361,19 @@ class BaseActorSheet extends PrimarySheetMixin(
    * @private
    */
   async #changeLevel(event) {
-    const delta = Number(event.target.value);
+    let delta = Number(event.target.value);
     const classId = event.target.closest("[data-item-id]")?.dataset.itemId;
     if ( !delta || !classId ) return;
     const classItem = this.actor.items.get(classId);
+    if ( !classItem || (classItem.type !== "class") ) return;
+    const currentLevel = normalizePathwayClassLevel(classItem.system.levels);
+    const maxClassLevel = actorPathwayClassLevelCap(this.actor, classItem.id);
+    const targetLevel = Math.clamp(currentLevel + delta, LOTM_PATHWAY_MIN_CLASS_LEVEL, maxClassLevel);
+    if ( targetLevel === currentLevel ) {
+      ui.notifications.warn("DND5E.MaxPathwaySequenceExceededWarn", { localize: true });
+      return;
+    }
+    delta = targetLevel - currentLevel;
     if ( !game.settings.get("lotm", "disableAdvancements") ) {
       const manager = AdvancementManager.forLevelChange(this.actor, classId, delta);
       this._applyPathwayAdvancementGuardrails?.(manager);
@@ -55114,7 +55388,7 @@ class BaseActorSheet extends PrimarySheetMixin(
         }
       }
     }
-    classItem.update({ "system.levels": classItem.system.levels + delta });
+    classItem.update({ "system.levels": targetLevel });
   }
 
   /* -------------------------------------------- */
@@ -56509,7 +56783,7 @@ class CharacterActorSheet extends BaseActorSheet {
     // Classes Label
     const pathways = Object.values(this.actor.classes).sort((a, b) => {
       return b.system.levels - a.system.levels;
-    }).map(c => `${c.name} ${c.system.levels}`);
+    }).map(c => `${c.name} ${pathwaySequenceLabelFromClassLevel(c.system.levels) ?? c.system.levels}`);
     context.labels.class = pathways.join(" / ") || game.i18n.localize("DND5E.PathwayNone");
 
     // Experience & Epic Boons
@@ -57307,16 +57581,21 @@ class CharacterActorSheet extends BaseActorSheet {
         return;
       }
 
-      const charLevel = this.actor.system.details.level;
-      itemData.system.levels = Math.min(itemData.system.levels, CONFIG.DND5E.maxLevel - charLevel);
-      if ( itemData.system.levels <= 0 ) {
-        const err = game.i18n.format("DND5E.MaxCharacterLevelExceededWarn", { max: CONFIG.DND5E.maxLevel });
+      if ( !cls ) itemData.system.levels = pathwaySequenceToClassLevel(LOTM_MAX_SEQUENCE) ?? LOTM_PATHWAY_MIN_CLASS_LEVEL;
+      else itemData.system.levels = 1;
+
+      const classLevelCap = actorPathwayClassLevelCap(this.actor, cls?.id);
+      const nextLevel = cls
+        ? normalizePathwayClassLevel(cls.system.levels) + itemData.system.levels
+        : normalizePathwayClassLevel(itemData.system.levels);
+      if ( nextLevel > classLevelCap ) {
+        const err = game.i18n.localize("DND5E.MaxPathwaySequenceExceededWarn");
         ui.notifications.error(err);
         return;
       }
 
       if ( cls ) {
-        const priorLevel = cls.system.levels;
+        const priorLevel = normalizePathwayClassLevel(cls.system.levels);
         if ( !game.settings.get("lotm", "disableAdvancements") ) {
           const manager = AdvancementManager.forLevelChange(this.actor, cls.id, itemData.system.levels);
           this._applyPathwayAdvancementGuardrails(manager);
@@ -80322,6 +80601,34 @@ Hooks.on("renderActorDirectory", (app, html, data) => Actor5e.onRenderActorDirec
 
 Hooks.on("getActorContextOptions", Actor5e.addDirectoryContextOptions);
 Hooks.on("getItemContextOptions", Item5e.addDirectoryContextOptions);
+
+Hooks.on("createItem", (item, options, userId) => {
+  if ( userId !== game.user.id ) return;
+  if ( (item.type !== "class") || (item.parent?.type !== "character") ) return;
+  syncPathwayAbilitiesForActor(item.parent, { classIds: [item.id] }).catch(error => {
+    console.error("Failed to sync pathway abilities after class creation.", error);
+  });
+});
+
+Hooks.on("updateItem", (item, changes, options, userId) => {
+  if ( userId !== game.user.id ) return;
+  if ( options?.isAdvancement ) return;
+  if ( (item.type !== "class") || (item.parent?.type !== "character") ) return;
+  if ( !foundry.utils.hasProperty(changes, "system.levels") ) return;
+  syncPathwayAbilitiesForActor(item.parent, { classIds: [item.id] }).catch(error => {
+    console.error("Failed to sync pathway abilities after class update.", error);
+  });
+});
+
+Hooks.on("dnd5e.advancementManagerComplete", manager => {
+  const actor = manager?.actor;
+  if ( actor?.type !== "character" ) return;
+  const classIds = new Set((manager.steps ?? []).map(step => step.class?.item?.id).filter(_ => _));
+  if ( !classIds.size ) return;
+  syncPathwayAbilitiesForActor(actor, { classIds: Array.from(classIds) }).catch(error => {
+    console.error("Failed to sync pathway abilities after advancement completion.", error);
+  });
+});
 
 Hooks.on("renderCompendiumDirectory", (app, html) => CompendiumBrowser.injectSidebarButton(html));
 

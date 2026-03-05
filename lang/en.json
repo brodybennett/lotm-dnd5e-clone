@@ -3354,6 +3354,7 @@
 "DND5E.MaxCharacterLevelExceededWarn": "Character cannot be advanced past level {max}.",
 "DND5E.MaxClassLevelExceededWarn": "Class cannot be advanced past level {max}.",
 "DND5E.MaxClassLevelMinimumWarn": "Class must have at least one level.",
+"DND5E.MaxPathwaySequenceExceededWarn": "Pathway cannot be advanced beyond Sequence 0.",
 "DND5E.Maximum": "Maximum",
 "DND5E.Minimum": "Minimum",
 "DND5E.Method": "Method",
