@@ -55170,6 +55170,7 @@ class BaseActorSheet extends PrimarySheetMixin(
    * @protected
    */
   _renderSpellbook(context, options) {
+    if ( this.actor.type === "character" ) return;
     for ( const { usesSlots, pips, slot, dataset } of Object.values(context.spellbook) ) {
       if ( !usesSlots ) continue;
       const query = `[data-application-part="spells"] .items-section[data-level="${

@@ -30,6 +30,7 @@
     <li class="items-header spellbook-header flexrow" {{ dnd5e-dataset section.dataset }}>
         <div class="item-name flexrow">
             <h3>{{#if section.sequenceLabel}}{{section.sequenceLabel}}{{else}}{{section.label}}{{/if}}</h3>
+            {{#if @root.isNPC}}
             <div class="spell-slots">
                 {{#if section.usesSlots}}
                 <input type="text" name="system.spells.{{section.prop}}.value" value="{{section.uses}}" placeholder="0"
@@ -49,6 +50,7 @@
                 <span class="spell-max">{{{section.slots}}}</span>
                 {{/if}}
             </div>
+            {{/if}}
         </div>
         <div class="spell-school">{{localize "DND5E.SpellSchool"}}</div>
         <div class="spell-action">{{localize "DND5E.SpellUsage"}}</div>
