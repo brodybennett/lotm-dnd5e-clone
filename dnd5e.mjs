@@ -75086,7 +75086,10 @@ class RotateAreaRegionBehaviorType extends foundry.data.regionBehaviors.RegionBe
     // Update status to indicate rotation is occurring and trigger visible animation
     await this.parent.update(
       { "system.status": { angle: targetAngle, position, rotating: true } },
-      { dnd5e: { rotateArea: { angle, duration, pivot } } }
+      {
+        lotm: { rotateArea: { angle, duration, pivot } },
+        dnd5e: { rotateArea: { angle, duration, pivot } }
+      }
     );
 
     // Wait for the visible animation to complete before performing document updates
@@ -75289,7 +75292,8 @@ class RotateAreaRegionBehaviorType extends foundry.data.regionBehaviors.RegionBe
    * @param {object} options
    */
   async updateRotatateArea(changes, options) {
-    const animationDetails = foundry.utils.getProperty(options, "dnd5e.rotateArea");
+    const animationDetails = foundry.utils.getProperty(options, "lotm.rotateArea")
+      ?? foundry.utils.getProperty(options, "dnd5e.rotateArea");
     if ( animationDetails && (canvas.scene === this.scene) ) {
       const { angle, duration, pivot } = animationDetails;
       this.#animateRotation(angle, pivot, duration);
@@ -75369,14 +75373,42 @@ class RotateAreaRegionBehaviorType extends foundry.data.regionBehaviors.RegionBe
 
 Hooks.on("updateRegionBehavior", (doc, changes, options) => doc.system?.updateRotatateArea?.(changes, options));
 
+const REGION_BEHAVIOR_TYPES = Object.freeze({
+  LOTM_DIFFICULT_TERRAIN: "lotm.difficultTerrain",
+  LOTM_ROTATE_AREA: "lotm.rotateArea",
+  DND5E_DIFFICULT_TERRAIN: "dnd5e.difficultTerrain",
+  DND5E_ROTATE_AREA: "dnd5e.rotateArea"
+});
+
+const REGION_BEHAVIOR_TYPE_IDS = Object.freeze([
+  REGION_BEHAVIOR_TYPES.LOTM_DIFFICULT_TERRAIN,
+  REGION_BEHAVIOR_TYPES.LOTM_ROTATE_AREA,
+  REGION_BEHAVIOR_TYPES.DND5E_DIFFICULT_TERRAIN,
+  REGION_BEHAVIOR_TYPES.DND5E_ROTATE_AREA
+]);
+
+const DIFFICULT_TERRAIN_REGION_BEHAVIOR_TYPES = Object.freeze([
+  REGION_BEHAVIOR_TYPES.LOTM_DIFFICULT_TERRAIN,
+  REGION_BEHAVIOR_TYPES.DND5E_DIFFICULT_TERRAIN
+]);
+
+const ROTATE_AREA_REGION_BEHAVIOR_TYPES = Object.freeze([
+  REGION_BEHAVIOR_TYPES.LOTM_ROTATE_AREA,
+  REGION_BEHAVIOR_TYPES.DND5E_ROTATE_AREA
+]);
+
 const config = {
-  "dnd5e.difficultTerrain": DifficultTerrainRegionBehaviorType,
-  "dnd5e.rotateArea": RotateAreaRegionBehaviorType
+  [REGION_BEHAVIOR_TYPES.LOTM_DIFFICULT_TERRAIN]: DifficultTerrainRegionBehaviorType,
+  [REGION_BEHAVIOR_TYPES.LOTM_ROTATE_AREA]: RotateAreaRegionBehaviorType,
+  [REGION_BEHAVIOR_TYPES.DND5E_DIFFICULT_TERRAIN]: DifficultTerrainRegionBehaviorType,
+  [REGION_BEHAVIOR_TYPES.DND5E_ROTATE_AREA]: RotateAreaRegionBehaviorType
 };
 
 const icons = {
-  "dnd5e.difficultTerrain": "fa-solid fa-hill-rockslide",
-  "dnd5e.rotateArea": "fa-solid fa-arrows-spin"
+  [REGION_BEHAVIOR_TYPES.LOTM_DIFFICULT_TERRAIN]: "fa-solid fa-hill-rockslide",
+  [REGION_BEHAVIOR_TYPES.LOTM_ROTATE_AREA]: "fa-solid fa-arrows-spin",
+  [REGION_BEHAVIOR_TYPES.DND5E_DIFFICULT_TERRAIN]: "fa-solid fa-hill-rockslide",
+  [REGION_BEHAVIOR_TYPES.DND5E_ROTATE_AREA]: "fa-solid fa-arrows-spin"
 };
 
 var _module$4 = /*#__PURE__*/Object.freeze({
@@ -80536,17 +80568,28 @@ Hooks.once("init", function() {
     types: ["spells"]
   });
 
-  DocumentSheetConfig.unregisterSheet(RegionBehavior, "core", foundry.applications.sheets.RegionBehaviorConfig, {
-    types: ["dnd5e.difficultTerrain", "dnd5e.rotateArea"]
-  });
-  DocumentSheetConfig.registerSheet(RegionBehavior, "dnd5e", DifficultTerrainConfig, {
-    label: "DND5E.SheetClass.DifficultTerrain",
-    types: ["dnd5e.difficultTerrain"]
-  });
-  DocumentSheetConfig.registerSheet(RegionBehavior, "dnd5e", RotateAreaConfig, {
-    label: "DND5E.SheetClass.RotateArea",
-    types: ["dnd5e.rotateArea"]
-  });
+  const availableRegionTypes = new Set(game.documentTypes.RegionBehavior ?? []);
+  const unregisterRegionTypes = REGION_BEHAVIOR_TYPE_IDS.filter(type => availableRegionTypes.has(type));
+  if ( unregisterRegionTypes.length ) {
+    DocumentSheetConfig.unregisterSheet(RegionBehavior, "core", foundry.applications.sheets.RegionBehaviorConfig, {
+      types: unregisterRegionTypes
+    });
+  }
+  const difficultTerrainTypes = DIFFICULT_TERRAIN_REGION_BEHAVIOR_TYPES
+    .filter(type => availableRegionTypes.has(type));
+  if ( difficultTerrainTypes.length ) {
+    DocumentSheetConfig.registerSheet(RegionBehavior, "dnd5e", DifficultTerrainConfig, {
+      label: "DND5E.SheetClass.DifficultTerrain",
+      types: difficultTerrainTypes
+    });
+  }
+  const rotateAreaTypes = ROTATE_AREA_REGION_BEHAVIOR_TYPES.filter(type => availableRegionTypes.has(type));
+  if ( rotateAreaTypes.length ) {
+    DocumentSheetConfig.registerSheet(RegionBehavior, "dnd5e", RotateAreaConfig, {
+      label: "DND5E.SheetClass.RotateArea",
+      types: rotateAreaTypes
+    });
+  }
 
   CONFIG.Token.prototypeSheetClass = PrototypeTokenConfig5e;
   DocumentSheetConfig.unregisterSheet(TokenDocument, "core", foundry.applications.sheets.TokenConfig);
