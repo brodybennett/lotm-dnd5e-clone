@@ -1,8 +1,5 @@
-2026/03/02-23:03:16.899 b6d8 Recovering log #59
-2026/03/02-23:03:16.902 b6d8 Delete type=0 #59
-2026/03/02-23:03:16.902 b6d8 Delete type=3 #58
-2026/03/02-23:03:36.471 5944 Level-0 table #63: started
-2026/03/02-23:03:36.471 5944 Level-0 table #63: 0 bytes OK
-2026/03/02-23:03:36.472 5944 Delete type=0 #61
-2026/03/02-23:03:36.474 5944 Manual compaction at level-0 from '!folders!3SjcO2acsFnWegp4' @ 72057594037927935 : 1 .. '!items.effects!phbsplZoneofTrut.BgkyT4A5qyArRveO' @ 0 : 0; will stop at (end)
-2026/03/02-23:03:36.474 5944 Manual compaction at level-1 from '!folders!3SjcO2acsFnWegp4' @ 72057594037927935 : 1 .. '!items.effects!phbsplZoneofTrut.BgkyT4A5qyArRveO' @ 0 : 0; will stop at (end)
+2026/03/07-22:34:48.351 3c34 Log #66: 0 ops saved to Table #67 OK
+2026/03/07-22:34:48.352 3c34 Archiving C:\Users\dan\AppData\Local\FoundryVTT\Data\systems\lotm\packs\spells24/000066.log: OK
+2026/03/07-22:34:48.356 3c34 Table #5: 612 entries OK
+2026/03/07-22:34:48.357 3c34 Archiving C:\Users\dan\AppData\Local\FoundryVTT\Data\systems\lotm\packs\spells24/MANIFEST-000064: OK
+2026/03/07-22:34:48.359 3c34 **** Repaired leveldb C:\Users\dan\AppData\Local\FoundryVTT\Data\systems\lotm\packs\spells24; recovered 1 files; 604209 bytes. Some data may have been lost. ****

@@ -1,8 +1,5 @@
-2026/03/02-23:03:16.852 b6d8 Recovering log #59
-2026/03/02-23:03:16.855 b6d8 Delete type=0 #59
-2026/03/02-23:03:16.855 b6d8 Delete type=3 #58
-2026/03/02-23:03:36.468 5944 Level-0 table #63: started
-2026/03/02-23:03:36.468 5944 Level-0 table #63: 0 bytes OK
-2026/03/02-23:03:36.469 5944 Delete type=0 #61
-2026/03/02-23:03:36.470 5944 Manual compaction at level-0 from '!folders!1dQPltrHt3bFzqtu' @ 72057594037927935 : 1 .. '!items.effects!phbwzdSpellMaste.P5SxPZNi4KPzW8dD' @ 0 : 0; will stop at (end)
-2026/03/02-23:03:36.470 5944 Manual compaction at level-1 from '!folders!1dQPltrHt3bFzqtu' @ 72057594037927935 : 1 .. '!items.effects!phbwzdSpellMaste.P5SxPZNi4KPzW8dD' @ 0 : 0; will stop at (end)
+2026/03/07-22:34:48.298 80e0 Log #66: 0 ops saved to Table #67 OK
+2026/03/07-22:34:48.299 80e0 Archiving C:\Users\dan\AppData\Local\FoundryVTT\Data\systems\lotm\packs\classes24/000066.log: OK
+2026/03/07-22:34:48.303 80e0 Table #5: 464 entries OK
+2026/03/07-22:34:48.304 80e0 Archiving C:\Users\dan\AppData\Local\FoundryVTT\Data\systems\lotm\packs\classes24/MANIFEST-000064: OK
+2026/03/07-22:34:48.306 80e0 **** Repaired leveldb C:\Users\dan\AppData\Local\FoundryVTT\Data\systems\lotm\packs\classes24; recovered 1 files; 387615 bytes. Some data may have been lost. ****

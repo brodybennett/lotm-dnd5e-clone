@@ -1,8 +1,8 @@
-2026/03/02-23:03:16.917 a668 Recovering log #60
-2026/03/02-23:03:16.920 a668 Delete type=0 #60
-2026/03/02-23:03:16.920 a668 Delete type=3 #59
-2026/03/02-23:03:36.472 5944 Level-0 table #64: started
-2026/03/02-23:03:36.472 5944 Level-0 table #64: 0 bytes OK
-2026/03/02-23:03:36.473 5944 Delete type=0 #62
-2026/03/02-23:03:36.474 5944 Manual compaction at level-0 from '!folders!0qKr1rbesCSNE0MA' @ 72057594037927935 : 1 .. '!items.effects!phbagNet00000000.67ofG0FVqrrkAHKa' @ 0 : 0; will stop at (end)
-2026/03/02-23:03:36.474 5944 Manual compaction at level-1 from '!folders!0qKr1rbesCSNE0MA' @ 72057594037927935 : 1 .. '!items.effects!phbagNet00000000.67ofG0FVqrrkAHKa' @ 0 : 0; will stop at (end)
+2026/03/04-00:15:24.394 50d4 Recovering log #63
+2026/03/04-00:15:24.396 50d4 Delete type=0 #63
+2026/03/04-00:15:24.397 50d4 Delete type=3 #61
+2026/03/04-01:12:01.117 89b8 Level-0 table #68: started
+2026/03/04-01:12:01.118 89b8 Level-0 table #68: 0 bytes OK
+2026/03/04-01:12:01.119 89b8 Delete type=0 #66
+2026/03/04-01:12:01.123 89b8 Manual compaction at level-0 from '!folders!0qKr1rbesCSNE0MA' @ 72057594037927935 : 1 .. '!items.effects!phbagNet00000000.67ofG0FVqrrkAHKa' @ 0 : 0; will stop at (end)
+2026/03/04-01:12:01.123 89b8 Manual compaction at level-1 from '!folders!0qKr1rbesCSNE0MA' @ 72057594037927935 : 1 .. '!items.effects!phbagNet00000000.67ofG0FVqrrkAHKa' @ 0 : 0; will stop at (end)
