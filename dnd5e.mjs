@@ -610,7 +610,14 @@ function getTargetDescriptors() {
     const { img, system, uuid, statuses } = token.actor ?? {};
     if ( uuid ) {
       const ac = statuses.has("coverTotal") ? null : system.attributes?.ac?.value;
-      targets.set(uuid, { name, img, uuid, ac: ac ?? null });
+      const targetTier = Number(system?.pathway?.tier);
+      targets.set(uuid, {
+        name,
+        img,
+        uuid,
+        ac: ac ?? null,
+        tier: Number.isFinite(targetTier) ? Math.max(Math.floor(targetTier), 0) : null
+      });
     }
   }
   return Array.from(targets.values());
@@ -17078,11 +17085,14 @@ class SpellcastingField extends SchemaField$O {
     // Prepare attack bonus and save DC
     const ability = actor.system.abilities?.[this.spellcasting.ability];
     const mod = ability?.mod ?? 0;
+    const pathwayPotency = actor.type === "character"
+      ? (Number(actor.system.attributes?.potency) || Number(actor.system.pathway?.potency) || Number(actor.system.attributes?.prof) || 0)
+      : (actor.system.attributes?.prof ?? 0);
     const modProf = mod + (actor.system.attributes?.prof ?? 0);
     const msak = simplifyBonus(actor.system.bonuses?.msak?.attack, rollData);
     const rsak = simplifyBonus(actor.system.bonuses?.rsak?.attack, rollData);
     this.spellcasting.attack = modProf + (msak === rsak ? msak : 0);
-    this.spellcasting.save = ability?.dc ?? (8 + modProf);
+    this.spellcasting.save = ability?.dc ?? (8 + mod + pathwayPotency);
   }
 }
 
@@ -29577,7 +29587,14 @@ class BaseRestDialog extends Dialog5e {
       value: context.config.recoverSpirituality
     });
     if ( hasSpirituality && (this.config.type === "short") ) {
-      const percent = Math.clamp(Math.round((Number(context.config.recoverSpiritualityFraction) || 0) * 100), 0, 100);
+      const pathwayTier = this.isPartyGroup
+        ? Math.max(0, ...(this.actor.system.members ?? []).map(m => Number(m.actor?.system?.pathway?.tier) || 0))
+        : Math.max(Number(this.actor.system.pathway?.tier) || 0, 0);
+      const defaultFraction = 0.15 + (0.05 * pathwayTier);
+      const fraction = Number.isFinite(Number(context.config.recoverSpiritualityFraction))
+        ? Number(context.config.recoverSpiritualityFraction)
+        : defaultFraction;
+      const percent = Math.clamp(Math.round(fraction * 100), 0, 100);
       context.fields.push({
         disabled: !!this.config.request,
         field: new BooleanField$s({
@@ -34994,12 +35011,13 @@ class Actor5e extends SystemDocumentMixin(Actor) {
     const clone = this.clone();
     const restConfig = CONFIG.DND5E.restTypes.short;
     const shortRestSpiritualityDefaults = getShortRestSpiritualityDefaults();
+    const defaultPathwayRecovery = this.type === "character";
     config = foundry.utils.mergeObject({
       type: "short", dialog: true, chat: true, newDay: false, advanceTime: false, autoHD: false, autoHDThreshold: 3,
       duration: CONFIG.DND5E.restTypes.short.duration[game.settings.get("lotm", "restVariant")],
       recoverTemp: restConfig.recoverTemp, recoverTempMax: restConfig.recoverTempMax,
-      recoverSpirituality: shortRestSpiritualityDefaults.recoverSpirituality,
-      recoverSpiritualityFraction: shortRestSpiritualityDefaults.recoverSpiritualityFraction,
+      recoverSpirituality: defaultPathwayRecovery || shortRestSpiritualityDefaults.recoverSpirituality,
+      recoverSpiritualityFraction: defaultPathwayRecovery ? null : shortRestSpiritualityDefaults.recoverSpiritualityFraction,
       exhaustionDelta: restConfig.exhaustionDelta
     }, config);
 
@@ -35370,19 +35388,37 @@ class Actor5e extends SystemDocumentMixin(Actor) {
 
     const max = Math.max(Number(spirituality.max) || 0, 0);
     const current = Math.clamp(Number(spirituality.value) || 0, 0, max);
+    const pathwayTier = Math.max(Number(this.system.pathway?.tier) || 0, 0);
     let recovered = 0;
 
     if ( (config.type === "long") && (recoverSpirituality !== false) ) {
       recovered = Math.max(0, max - current);
     } else if ( (config.type === "short") && recoverSpirituality ) {
-      const fraction = Math.clamp(Number(recoverSpiritualityFraction) || 0, 0, 1);
-      const step = Math.floor(max * fraction);
+      const defaultFraction = 0.15 + (0.05 * pathwayTier);
+      const fraction = Math.clamp(
+        Number.isFinite(Number(recoverSpiritualityFraction)) ? Number(recoverSpiritualityFraction) : defaultFraction,
+        0,
+        1
+      );
+      const step = Math.ceil(max * fraction);
       recovered = Math.min(max - current, Math.max(step, max > 0 ? 1 : 0));
     }
 
     if ( recovered <= 0 ) return;
     result.updateData ??= {};
     result.updateData["system.attributes.spirituality.value"] = current + recovered;
+
+    // Long rests also relieve corruption pressure at higher sequence stability.
+    if ( config.type === "long" ) {
+      const corruption = this.system.attributes?.corruption;
+      const currentCorruption = Math.max(Number(corruption?.value) || 0, 0);
+      if ( currentCorruption > 0 ) {
+        const spiMod = Number(this.system.abilities?.wis?.mod) || 0;
+        const resistance = Number(this.system.attributes?.resistance) || pathwayPotencyFromSequence(this.system.pathway?.sequence);
+        const reduction = Math.max(1, Math.floor((spiMod + resistance + pathwayTier) / 3));
+        result.updateData["system.attributes.corruption.value"] = Math.max(currentCorruption - reduction, 0);
+      }
+    }
   }
 
   /* -------------------------------------------- */
@@ -40680,11 +40716,19 @@ class AttributesFields {
    * @param {HitPointsAdvancement[]} [options.advancement=[]]  Advancement items from which to get hit points per-level.
    * @param {number} [options.bonus=0]  Additional bonus to add atop the calculated value.
    * @param {number} [options.mod=0]    Modifier for the ability to add to hit points from advancement.
+   * @param {number} [options.pathwayBase]     Explicit pathway base HP to use.
+   * @param {number} [options.pathwayTier=0]   Pathway tier index.
    * @this {ActorDataModel}
    */
-  static prepareHitPoints(hp, { advancement=[], mod=0, bonus=0 }={}) {
-    const base = advancement.reduce((total, advancement) => total + advancement.getAdjustedTotal(mod), 0);
+  static prepareHitPoints(hp, { advancement=[], mod=0, bonus=0, pathwayBase, pathwayTier=0 }={}) {
+    const hasPathwayBase = Number.isFinite(Number(pathwayBase));
+    const tier = Math.max(Math.floor(Number(pathwayTier) || 0), 0);
+    const base = hasPathwayBase
+      ? Math.max(Math.floor(Number(pathwayBase)), 0)
+      : advancement.reduce((total, advancement) => total + advancement.getAdjustedTotal(mod), 0);
+    const modBonus = hasPathwayBase ? (mod * (3 + tier)) : 0;
     hp.max = (hp.max ?? 0) + base + bonus;
+    if ( hasPathwayBase ) hp.max += modBonus;
     if ( this.parent.hasConditionEffect("halfHealth") ) hp.max = Math.floor(hp.max * 0.5);
 
     hp.effectiveMax = Math.max(hp.max + (hp.temp ?? 0) + (hp.tempmax ?? 0), 0);
@@ -40701,14 +40745,15 @@ class AttributesFields {
    */
   static prepareSpirituality() {
     const spirituality = this.attributes.spirituality ??= {};
-    const classes = Object.values(this.parent?.classes ?? {}).sort((a, b) => {
-      return (Number(b.system?.levels) || 0) - (Number(a.system?.levels) || 0);
-    });
-    const pathwaySequence = classes.length ? classLevelToPathwaySequence(classes[0].system?.levels) : LOTM_MAX_SEQUENCE;
-    const sequence = Number.isInteger(pathwaySequence) ? pathwaySequence : LOTM_MAX_SEQUENCE;
-    const proficiencyBonus = Number(this.attributes.prof) || 0;
+    const sequence = Number.isFinite(this.pathway?.sequence)
+      ? normalizePathwaySequence(this.pathway.sequence)
+      : LOTM_MAX_SEQUENCE;
+    const tier = Number.isFinite(this.pathway?.tier) ? Math.max(Math.floor(this.pathway.tier), 0) : 0;
+    const spiritualityBase = Number.isFinite(this.pathway?.spiritualityBase)
+      ? Math.max(Math.floor(this.pathway.spiritualityBase), 0)
+      : pathwaySpiritualityBaseFromSequence(sequence);
     const spiritualityModifier = Number(this.abilities?.wis?.mod) || 0;
-    spirituality.max = Math.max(proficiencyBonus + spiritualityModifier + (LOTM_MAX_SEQUENCE - sequence), 0);
+    spirituality.max = Math.max(spiritualityBase + (spiritualityModifier * (2 + tier)), 0);
     spirituality.temp = Math.max(Number(spirituality.temp) || 0, 0);
     spirituality.tempmax = Number(spirituality.tempmax) || 0;
     spirituality.effectiveMax = Math.max(spirituality.max + spirituality.temp + spirituality.tempmax, 0);
@@ -40716,7 +40761,7 @@ class AttributesFields {
     spirituality.pct = Math.clamp(
       spirituality.effectiveMax ? (spirituality.value / spirituality.effectiveMax) * 100 : 0, 0, 100
     );
-    spirituality.formula = typeof spirituality.formula === "string" ? spirituality.formula : "";
+    spirituality.formula = game.i18n.localize("DND5E.SpiritualityDerivedFormulaPathway");
   }
 
   /* -------------------------------------------- */
@@ -40727,14 +40772,28 @@ class AttributesFields {
    */
   static prepareCorruption() {
     const corruption = this.attributes.corruption ??= {};
+    const isCharacter = this.parent?.type === "character";
     const rawMax = Number(corruption.max);
     const rawValue = Number(corruption.value);
-    corruption.max = Math.max(Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0), 0);
+    const baseMax = isCharacter
+      ? LOTM_CORRUPTION_DEFAULT_MAX
+      : (Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0));
+    corruption.max = Math.max(baseMax, 0);
     corruption.temp = Math.max(Number(corruption.temp) || 0, 0);
     corruption.tempmax = Number(corruption.tempmax) || 0;
     corruption.effectiveMax = Math.max(corruption.max + corruption.temp + corruption.tempmax, 0);
     corruption.value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, corruption.effectiveMax);
     corruption.pct = Math.clamp(corruption.effectiveMax ? (corruption.value / corruption.effectiveMax) * 100 : 0, 0, 100);
+    if ( isCharacter ) {
+      const thresholds = LOTM_CORRUPTION_THRESHOLDS.map(threshold => {
+        return {
+          value: threshold,
+          reached: corruption.value >= threshold
+        };
+      });
+      corruption.thresholds = thresholds;
+      corruption.stability = Math.clamp(corruption.effectiveMax - corruption.value, 0, corruption.effectiveMax);
+    }
   }
 
   /* -------------------------------------------- */
@@ -40774,9 +40833,26 @@ class AttributesFields {
     const initBonus = simplifyBonus(init.bonus, rollData);
     const abilityBonus = simplifyBonus(ability.bonuses?.check, rollData);
     const quality = this.attributes.quality?.value ?? 0;
+    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
+    const pathwayPotency = this.parent?.type === "character" ? Math.max(Number(this.attributes?.potency) || 0, 0) : 0;
+
+    // Sequence-based reaction edge:
+    // +0 at low sequence, scaling up to +6 at Sequence 0 for equal-attribute comparisons.
+    const pathwayInitiativeEdge = this.parent?.type === "character"
+      ? Math.clamp(pathwayTier + Math.floor(Math.max(pathwayPotency - 2, 0) / 3), 0, 6)
+      : 0;
+
+    // Instability pressure from corruption offsets some high-tier reaction speed.
+    const corruptionValue = Math.max(Number(this.attributes?.corruption?.value) || 0, 0);
+    let instabilityPenalty = 0;
+    if ( corruptionValue >= 100 ) instabilityPenalty = -4;
+    else if ( corruptionValue >= 75 ) instabilityPenalty = -2;
+    else if ( corruptionValue >= 50 ) instabilityPenalty = -1;
     init.total = init.mod + initBonus + abilityBonus + globalCheckBonus + quality
       + (flags.initiativeAlert && isLegacy ? 5 : 0)
-      + (Number.isNumeric(init.prof.term) ? init.prof.flat : 0);
+      + (Number.isNumeric(init.prof.term) ? init.prof.flat : 0)
+      + pathwayInitiativeEdge
+      + instabilityPenalty;
     init.score = CONFIG.DND5E.skillPassive.base + init.total + (init.roll.mode * CONFIG.DND5E.skillPassive.modifier);
   }
 
@@ -40791,6 +40867,18 @@ class AttributesFields {
     const statuses = this.parent.statuses;
     const noMovement = this.parent.hasConditionEffect("noMovement");
     const crawl = this.parent.hasConditionEffect("crawl");
+    const units = this.attributes.movement.units ??= defaultUnits("length");
+
+    // Ensure pathway characters always have a functional baseline walk speed
+    // even if no species/race movement has been assigned yet.
+    if ( this.parent?.type === "character" ) {
+      const currentWalk = Number(this.attributes.movement.walk);
+      if ( !Number.isFinite(currentWalk) || (currentWalk <= 0) ) {
+        const defaultWalk = convertLength(30, CONFIG.DND5E.defaultUnits.length.imperial, units);
+        this.attributes.movement.walk = Math.max(defaultWalk, 0);
+      }
+    }
+
     for ( const type of Object.keys(CONFIG.DND5E.movementTypes) ) {
       if ( noMovement || (crawl && (type !== "walk")) ) this.attributes.movement[type] = 0;
       else this.attributes.movement[type] = Math.max(0, simplifyBonus(this.attributes.movement[type], rollData));
@@ -40801,16 +40889,27 @@ class AttributesFields {
     const encumbered = statuses.has("encumbered");
     const heavilyEncumbered = statuses.has("heavilyEncumbered");
     const exceedingCarryingCapacity = statuses.has("exceedingCarryingCapacity");
-    const units = this.attributes.movement.units ??= defaultUnits("length");
+    const pathwayMobilityEdge = this.parent?.type === "character"
+      ? convertLength(pathwayMovementEdgeFeetFromSequence(this.pathway?.sequence), CONFIG.DND5E.defaultUnits.length.imperial, units)
+      : 0;
+    const instabilityPenalty = this.parent?.type === "character"
+      ? convertLength(
+        corruptionMovementPenaltyFeet(this.attributes?.corruption?.value),
+        CONFIG.DND5E.defaultUnits.length.imperial,
+        units
+      )
+      : 0;
     let reduction = game.settings.get("lotm", "rulesVersion") === "modern"
       ? (this.attributes.exhaustion ?? 0) * (CONFIG.DND5E.conditionTypes.exhaustion?.reduction?.speed ?? 0) : 0;
     reduction = convertLength(reduction, CONFIG.DND5E.defaultUnits.length.imperial, units);
     const bonus = simplifyBonus(this.attributes.movement.bonus, rollData);
+    this.attributes.movement.pathwayEdge = pathwayMobilityEdge;
+    this.attributes.movement.instabilityPenalty = instabilityPenalty;
     this.attributes.movement.max = 0;
     for ( const type of Object.keys(CONFIG.DND5E.movementTypes) ) {
       let speed = Math.max(0, this.attributes.movement[type] - reduction);
       if ( speed ) {
-        speed = Math.max(0, speed + bonus);
+        speed = Math.max(0, speed + bonus + pathwayMobilityEdge - instabilityPenalty);
         if ( halfMovement ) speed *= 0.5;
         if ( heavilyEncumbered ) {
           speed = Math.max(0, speed - (CONFIG.DND5E.encumbrance.speedReduction.heavilyEncumbered[units] ?? 0));
@@ -40866,10 +40965,13 @@ class AttributesFields {
    */
   static prepareSpellcastingAbility() {
     const ability = this.abilities?.[this.attributes.spellcasting];
+    const pathwayPotency = this.parent?.type === "character"
+      ? (Number(this.attributes?.potency) || Number(this.pathway?.potency) || Number(this.attributes?.prof) || 0)
+      : (Number(this.attributes?.prof) || 0);
     this.attributes.spell ??= {};
     this.attributes.spell.abilityLabel = CONFIG.DND5E.abilities[this.attributes.spellcasting]?.label ?? "";
     this.attributes.spell.attack = ability ? ability.attack : this.attributes.prof;
-    this.attributes.spell.dc = ability ? ability.dc : 8 + this.attributes.prof;
+    this.attributes.spell.dc = ability ? ability.dc : 8 + pathwayPotency;
     this.attributes.spell.mod = ability ? ability.mod : 0;
   }
 }
@@ -41092,6 +41194,12 @@ class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
   prepareAbilities({ rollData={}, originalSaves }={}) {
     const flags = this.parent.flags.lotm ?? {};
     const { prof = 0, ac } = this.attributes ?? {};
+    const pathwayPotency = this.parent?.type === "character"
+      ? (Number(this.attributes?.potency) || Number(this.pathway?.potency) || prof)
+      : prof;
+    const abilityCap = this.parent?.type === "character"
+      ? pathwayAbilityCapFromTier(this.pathway?.tier ?? 0)
+      : CONFIG.DND5E.maxAbilityScore;
     Object.values(this.abilities).forEach(a => a.mod = Math.floor((a.value - 10) / 2));
     const checkBonus = simplifyBonus(this.bonuses?.abilities?.check, rollData);
     const saveBonus = simplifyBonus(this.bonuses?.abilities?.save, rollData);
@@ -41119,9 +41227,9 @@ class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
       abl.save.value = abl.mod + abl.saveBonus;
       if ( Number.isNumeric(abl.saveProf.term) ) abl.save.value += abl.saveProf.flat;
       abl.attack = abl.mod + prof;
-      abl.dc = 8 + abl.mod + prof + dcBonus;
+      abl.dc = 8 + abl.mod + pathwayPotency + dcBonus;
 
-      if ( !Number.isFinite(abl.max) ) abl.max = CONFIG.DND5E.maxAbilityScore;
+      if ( !Number.isFinite(abl.max) ) abl.max = abilityCap;
 
       // Adjust rolling mode
       if ( this.parent.hasConditionEffect("abilityCheckDisadvantage") ) {
@@ -45009,8 +45117,233 @@ const LOTM_MAX_SEQUENCE = 9;
 const LOTM_MIN_SEQUENCE = 0;
 const LOTM_PATHWAY_MIN_CLASS_LEVEL = 1;
 const LOTM_PATHWAY_MAX_CLASS_LEVEL = LOTM_MAX_SEQUENCE + 1;
+const LOTM_SEQUENCE_BUDGETS = Object.freeze({
+  9: 2,
+  8: 5,
+  7: 18,
+  6: 27,
+  5: 40,
+  4: 73,
+  3: 93,
+  2: 143,
+  1: 217,
+  0: 331
+});
+const LOTM_ABILITY_CAP_BY_TIER = Object.freeze([20, 22, 24, 26, 30]);
+const LOTM_CORRUPTION_DEFAULT_MAX = 100;
+const LOTM_CORRUPTION_THRESHOLDS = Object.freeze([25, 50, 75, 100]);
 const LOTM_ABILITY_PACK_NAMES = ["lotm_pilot_abilities", "lotm_abilities"];
 const LOTM_PATHWAY_SYNC_LOCKS = new Set();
+
+/**
+ * Normalize a LoTM sequence to a valid integer in range.
+ * @param {number} sequence  Candidate sequence number.
+ * @returns {number}
+ */
+function normalizePathwaySequence(sequence) {
+  const numericSequence = Number(sequence);
+  if ( !Number.isFinite(numericSequence) ) return LOTM_MAX_SEQUENCE;
+  return Math.clamp(Math.floor(numericSequence), LOTM_MIN_SEQUENCE, LOTM_MAX_SEQUENCE);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine tier index from pathway sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwayTierFromSequence(sequence) {
+  const normalized = normalizePathwaySequence(sequence);
+  if ( normalized >= 7 ) return 0;
+  if ( normalized >= 5 ) return 1;
+  if ( normalized >= 3 ) return 2;
+  if ( normalized >= 1 ) return 3;
+  return 4;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine guide budget from pathway sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwayBudgetFromSequence(sequence) {
+  const normalized = normalizePathwaySequence(sequence);
+  return Number(LOTM_SEQUENCE_BUDGETS[normalized]) || 0;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine sequence bonus from pathway sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwaySequenceBonus(sequence) {
+  const normalized = normalizePathwaySequence(sequence);
+  return 2 + Math.floor((LOTM_MAX_SEQUENCE - normalized) / 2);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine potency from pathway sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwayPotencyFromSequence(sequence) {
+  const tier = pathwayTierFromSequence(sequence);
+  return pathwaySequenceBonus(sequence) + tier;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine resistance from pathway sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwayResistanceFromSequence(sequence) {
+  return pathwayPotencyFromSequence(sequence);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine base HP from pathway sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwayHpBaseFromSequence(sequence) {
+  return Math.round(10 + (1.2 * pathwayBudgetFromSequence(sequence)));
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine base spirituality from pathway sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwaySpiritualityBaseFromSequence(sequence) {
+  return Math.round(6 + pathwayBudgetFromSequence(sequence));
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine default ability score cap from tier index.
+ * @param {number} tier  Pathway tier index.
+ * @returns {number}
+ */
+function pathwayAbilityCapFromTier(tier) {
+  const normalizedTier = Math.clamp(Math.floor(Number(tier) || 0), 0, LOTM_ABILITY_CAP_BY_TIER.length - 1);
+  return LOTM_ABILITY_CAP_BY_TIER[normalizedTier];
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine promotion points earned based on sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwayPromotionPointsForSequence(sequence) {
+  const normalized = normalizePathwaySequence(sequence);
+  return [8, 6, 4, 2, 1].filter(pointSequence => normalized <= pointSequence).length;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine movement edge in feet from pathway progression.
+ * @param {number} sequence  Pathway sequence.
+ * @returns {number}
+ */
+function pathwayMovementEdgeFeetFromSequence(sequence) {
+  const tier = pathwayTierFromSequence(sequence);
+  const potency = pathwayPotencyFromSequence(sequence);
+  const steps = Math.clamp(tier + Math.floor(Math.max(potency - 2, 0) / 3), 0, 6);
+  return steps * 5;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine instability movement penalty in feet from corruption.
+ * @param {number} corruption  Current corruption value.
+ * @returns {number}
+ */
+function corruptionMovementPenaltyFeet(corruption) {
+  const value = Math.max(Number(corruption) || 0, 0);
+  if ( value >= 100 ) return 15;
+  if ( value >= 75 ) return 10;
+  if ( value >= 50 ) return 5;
+  return 0;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Clamp a pathway adjustment by percentage bounds of a base value.
+ * @param {number} value     Candidate adjustment.
+ * @param {number} base      Base value for relative percentage limits.
+ * @param {number} minPct    Minimum allowed percentage (negative for reduction).
+ * @param {number} maxPct    Maximum allowed percentage.
+ * @returns {number}
+ */
+function clampPathwayAdjustment(value, base, minPct, maxPct) {
+  const numericValue = Number(value);
+  if ( !Number.isFinite(numericValue) ) return 0;
+  const numericBase = Math.max(Number(base) || 0, 0);
+  const min = Math.floor(numericBase * minPct);
+  const max = Math.ceil(numericBase * maxPct);
+  return Math.clamp(Math.floor(numericValue), min, max);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Build normalized pathway stats for an actor from sequence.
+ * @param {number} sequence  Pathway sequence.
+ * @param {object} [options={}]
+ * @param {number} [options.durabilityAdj=0]   Pathway durability adjustment.
+ * @param {number} [options.spiritualityAdj=0] Pathway spirituality adjustment.
+ * @returns {{
+ *   sequence: number,
+ *   tier: number,
+ *   budget: number,
+ *   sequenceBonus: number,
+ *   potency: number,
+ *   resistance: number,
+ *   hpBase: number,
+ *   spiritualityBase: number,
+ *   promotionPoints: number
+ * }}
+ */
+function pathwayStatsForSequence(sequence, { durabilityAdj=0, spiritualityAdj=0 }={}) {
+  const normalized = normalizePathwaySequence(sequence);
+  const tier = pathwayTierFromSequence(normalized);
+  const budget = pathwayBudgetFromSequence(normalized);
+  const sequenceBonus = pathwaySequenceBonus(normalized);
+  const potency = pathwayPotencyFromSequence(normalized);
+  const resistance = pathwayResistanceFromSequence(normalized);
+  const hpBase = pathwayHpBaseFromSequence(normalized);
+  const spiritualityBase = pathwaySpiritualityBaseFromSequence(normalized);
+  return {
+    sequence: normalized,
+    tier,
+    budget,
+    sequenceBonus,
+    potency,
+    resistance,
+    hpBase: hpBase + clampPathwayAdjustment(durabilityAdj, hpBase, -0.15, 0.15),
+    spiritualityBase: spiritualityBase + clampPathwayAdjustment(spiritualityAdj, spiritualityBase, -0.10, 0.20),
+    promotionPoints: pathwayPromotionPointsForSequence(normalized)
+  };
+}
 
 /**
  * Convert an internal spell level to a LoTM sequence.
@@ -45140,16 +45473,77 @@ function actorPathwayClassLevelCap(actor, excludeClassId) {
 /* -------------------------------------------- */
 
 /**
+ * Determine actor pathway sequence from highest class level.
+ * @param {Actor5e} actor  Actor to evaluate.
+ * @returns {number}
+ */
+function actorPathwaySequence(actor) {
+  if ( actor?.type !== "character" ) return LOTM_MAX_SEQUENCE;
+  const highestPathwayLevel = Math.max(
+    ...(actor.itemTypes?.class ?? []).map(cls => Number(cls.system?.levels) || LOTM_PATHWAY_MIN_CLASS_LEVEL),
+    LOTM_PATHWAY_MIN_CLASS_LEVEL
+  );
+  return classLevelToPathwaySequence(highestPathwayLevel) ?? LOTM_MAX_SEQUENCE;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine actor pathway stats.
+ * @param {Actor5e} actor  Actor to evaluate.
+ * @returns {ReturnType<typeof pathwayStatsForSequence>}
+ */
+function actorPathwayStats(actor) {
+  const sequence = actorPathwaySequence(actor);
+  const pathwayData = actor?.system?.pathway ?? {};
+  return pathwayStatsForSequence(sequence, {
+    durabilityAdj: Number(pathwayData?.durabilityAdj) || 0,
+    spiritualityAdj: Number(pathwayData?.spiritualityAdj) || 0
+  });
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine attacker versus target pathway tier delta.
+ * @param {number} attackerTier  Attacker tier.
+ * @param {number} targetTier    Target tier.
+ * @returns {number}
+ */
+function pathwayTierDelta(attackerTier, targetTier) {
+  const aTier = Number(attackerTier);
+  const tTier = Number(targetTier);
+  if ( !Number.isFinite(aTier) || !Number.isFinite(tTier) ) return 0;
+  return Math.floor(aTier) - Math.floor(tTier);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Get a tier-gap modifier bundle for combat scaling.
+ * @param {number} deltaTier  Attacker tier minus target tier.
+ * @returns {{ attackDc: number, magnitude: number, saveMode: number, suppressControl: boolean, capDamagePct: number|null }}
+ */
+function pathwayTierScalingFromDelta(deltaTier) {
+  const delta = Math.floor(Number(deltaTier) || 0);
+  if ( delta >= 2 ) return { attackDc: 5, magnitude: 1.5, saveMode: -1, suppressControl: false, capDamagePct: null };
+  if ( delta === 1 ) return { attackDc: 2, magnitude: 1.25, saveMode: 0, suppressControl: false, capDamagePct: null };
+  if ( delta === -1 ) return { attackDc: -2, magnitude: 0.75, saveMode: 0, suppressControl: false, capDamagePct: null };
+  if ( delta === -2 ) return { attackDc: -5, magnitude: 0.5, saveMode: 1, suppressControl: false, capDamagePct: null };
+  if ( delta <= -3 ) return { attackDc: -5, magnitude: 0.5, saveMode: 1, suppressControl: true, capDamagePct: 0.10 };
+  return { attackDc: 0, magnitude: 1, saveMode: 0, suppressControl: false, capDamagePct: null };
+}
+
+/* -------------------------------------------- */
+
+/**
  * Determine actor max unlocked internal ability level based on pathway level.
  * @param {Actor5e} actor  Actor to evaluate.
  * @returns {number}
  */
 function actorPathwayMaxSpellLevel(actor) {
   if ( actor?.type !== "character" ) return LOTM_MAX_SPELL_LEVEL;
-  const highestPathwayLevel = Math.max(
-    ...(actor.itemTypes?.class ?? []).map(cls => Number(cls.system?.levels) || LOTM_PATHWAY_MIN_CLASS_LEVEL),
-    LOTM_PATHWAY_MIN_CLASS_LEVEL
-  );
+  const highestPathwayLevel = pathwaySequenceToClassLevel(actorPathwaySequence(actor)) ?? LOTM_PATHWAY_MIN_CLASS_LEVEL;
   return pathwayMaxSpellLevelFromClassLevel(highestPathwayLevel);
 }
 
@@ -69724,8 +70118,9 @@ class CreatureTemplate extends CommonTemplate {
     const advantageMode = AdvantageModeField.combineFields(this, [
       `abilities.${ability}.check.roll.mode`, `skills.${skillId}.roll.mode`
     ])?.mode ?? 0;
+    const pathwayTierBonus = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
     skillData.passive = CONFIG.DND5E.skillPassive.base + skillData.mod + skillData.bonus + skillData.prof.flat
-      + passive + passiveBonus + (advantageMode * CONFIG.DND5E.skillPassive.modifier);
+      + passive + passiveBonus + pathwayTierBonus + (advantageMode * CONFIG.DND5E.skillPassive.modifier);
 
     return skillData;
   }
@@ -69856,6 +70251,16 @@ class CharacterData extends CreatureTemplate {
           }),
           formula: new FormulaField({ deterministic: true, label: "DND5E.SpiritualityFormula" })
         }, { label: "DND5E.Spirituality" }),
+        potency: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.PathwayPotency"
+        }),
+        resistance: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.PathwayResistance"
+        }),
+        stability: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, initial: LOTM_CORRUPTION_DEFAULT_MAX,
+          label: "DND5E.PathwayStability"
+        }),
         corruption: new SchemaField$j({
           value: new NumberField$e({
             required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CorruptionCurrent"
@@ -69884,6 +70289,36 @@ class CharacterData extends CreatureTemplate {
         }, { label: "DND5E.DeathSave" }),
         inspiration: new BooleanField$c({ required: true, label: "DND5E.Inspiration" })
       }, { label: "DND5E.Attributes" }),
+      pathway: new SchemaField$j({
+        sequence: new NumberField$e({
+          required: true, nullable: false, integer: true, min: LOTM_MIN_SEQUENCE, max: LOTM_MAX_SEQUENCE,
+          initial: LOTM_MAX_SEQUENCE, label: "DND5E.PathwaySequence"
+        }),
+        tier: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, max: 4, initial: 0, label: "DND5E.PathwayTier"
+        }),
+        budget: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, initial: pathwayBudgetFromSequence(LOTM_MAX_SEQUENCE),
+          label: "DND5E.PathwayBudget"
+        }),
+        hpBase: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, initial: pathwayHpBaseFromSequence(LOTM_MAX_SEQUENCE),
+          label: "DND5E.PathwayHPBase"
+        }),
+        spiritualityBase: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, initial: pathwaySpiritualityBaseFromSequence(LOTM_MAX_SEQUENCE),
+          label: "DND5E.PathwaySpiritualityBase"
+        }),
+        promotionPoints: new NumberField$e({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.PathwayPromotionPoints"
+        }),
+        durabilityAdj: new NumberField$e({
+          required: true, nullable: false, integer: true, initial: 0, label: "DND5E.PathwayDurabilityAdj"
+        }),
+        spiritualityAdj: new NumberField$e({
+          required: true, nullable: false, integer: true, initial: 0, label: "DND5E.PathwaySpiritualityAdj"
+        })
+      }, { label: "DND5E.Pathway" }),
       bastion: new SchemaField$j({
         name: new StringField$n({ required: true }),
         description: new HTMLField$5()
@@ -69954,13 +70389,24 @@ class CharacterData extends CreatureTemplate {
     this.attributes.hd = new HitDice(this.parent);
     this.details.level = 0;
     this.attributes.attunement.value = 0;
+    this.pathway ??= {};
 
     for ( const item of this.parent.items ) {
       if ( item.type === "class" ) this.details.level += item.system.levels;
     }
 
-    // Character proficiency bonus
-    this.attributes.prof = Proficiency.calculateMod(this.details.level);
+    // Character proficiency bonus and pathway progression stats
+    const pathwayStats = actorPathwayStats(this.parent);
+    this.pathway.sequence = pathwayStats.sequence;
+    this.pathway.tier = pathwayStats.tier;
+    this.pathway.budget = pathwayStats.budget;
+    this.pathway.hpBase = pathwayStats.hpBase;
+    this.pathway.spiritualityBase = pathwayStats.spiritualityBase;
+    this.pathway.promotionPoints = pathwayStats.promotionPoints;
+    this.attributes.prof = pathwayStats.sequenceBonus;
+    this.attributes.potency = pathwayStats.potency;
+    this.attributes.resistance = pathwayStats.resistance;
+    this.attributes.stability = LOTM_CORRUPTION_DEFAULT_MAX - (Number(this.attributes?.corruption?.value) || 0);
 
     // Experience required for next level
     const { xp, level } = this.details;
@@ -70027,15 +70473,22 @@ class CharacterData extends CreatureTemplate {
     // Hit Points
     const hpOptions = {};
     if ( this.attributes.hp.max === null ) {
-      hpOptions.advancement = Object.values(this.parent.classes)
-        .map(c => c.advancement.byType.HitPoints?.[0]).filter(a => a);
-      hpOptions.bonus = (simplifyBonus(this.attributes.hp.bonuses.level, rollData) * this.details.level)
-        + simplifyBonus(this.attributes.hp.bonuses.overall, rollData);
       hpOptions.mod = this.abilities[CONFIG.DND5E.defaultAbilities.hitPoints ?? "con"]?.mod ?? 0;
+      hpOptions.bonus = simplifyBonus(this.attributes.hp.bonuses.overall, rollData);
+      if ( this.parent.type === "character" ) {
+        hpOptions.pathwayBase = Number(this.pathway?.hpBase) || pathwayHpBaseFromSequence(this.pathway?.sequence);
+        hpOptions.pathwayTier = Number(this.pathway?.tier) || 0;
+      } else {
+        hpOptions.advancement = Object.values(this.parent.classes)
+          .map(c => c.advancement.byType.HitPoints?.[0]).filter(a => a);
+        hpOptions.bonus += simplifyBonus(this.attributes.hp.bonuses.level, rollData) * this.details.level;
+      }
     }
     AttributesFields.prepareHitPoints.call(this, this.attributes.hp, hpOptions);
     AttributesFields.prepareSpirituality.call(this);
     AttributesFields.prepareCorruption.call(this);
+    this.attributes.stability = Math.max((Number(this.attributes.corruption?.effectiveMax) || LOTM_CORRUPTION_DEFAULT_MAX)
+      - (Number(this.attributes.corruption?.value) || 0), 0);
   }
 
   /* -------------------------------------------- */
