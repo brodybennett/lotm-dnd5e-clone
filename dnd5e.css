@@ -8669,6 +8669,57 @@ dialog.dnd5e2.application {
   position: absolute;
   top: 1.5625rem;
 }
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion {
+  --potion-percentage: 0;
+  overflow: hidden;
+  font-family: var(--dnd5e-font-roboto-condensed);
+  font-variant-numeric: tabular-nums;
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion .potion-meter {
+  position: relative;
+  width: 16px;
+  height: 19px;
+  display: block;
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion .potion-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion .potion-liquid {
+  fill: color-mix(in oklab, var(--dnd5e-color-red), white 20%);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transform: scaleY(calc(var(--potion-percentage) / 100));
+  transition: transform 200ms ease;
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion .potion-outline {
+  fill: none;
+  stroke: var(--dnd5e-color-gold);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion .potion-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
+  color: var(--color-text-light-0);
+  text-shadow: 0 0 3px black;
+  font-size: 6px;
+  letter-spacing: -0.1px;
+  line-height: 1;
+  pointer-events: none;
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion:not(:disabled):is(:hover, :focus-visible) .potion-liquid {
+  filter: drop-shadow(0 0 2px color-mix(in oklab, var(--dnd5e-color-gold), white 20%));
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion:disabled .potion-liquid {
+  opacity: 0.45;
+}
 .dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .xp-label {
   color: var(--dnd5e-color-gold);
   font-size: var(--font-size-12);

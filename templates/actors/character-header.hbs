@@ -36,8 +36,8 @@
 
         <div>
             {{!-- Resting & Special Traits --}}
-            {{#if showRests}}
             <div class="sheet-header-buttons">
+                {{#if showRests}}
                 <button type="button" class="short-rest gold-button" data-action="rest" data-type="short"
                         data-tooltip="DND5E.REST.Short.Label" aria-label="{{ localize 'DND5E.REST.Short.Label' }}">
                     <i class="fas fa-utensils" inert></i>
@@ -46,8 +46,25 @@
                         data-tooltip="DND5E.REST.Long.Label" aria-label="{{ localize 'DND5E.REST.Long.Label' }}">
                     <i class="fas fa-campground" inert></i>
                 </button>
+                {{/if}}
+                <button type="button" class="sequence-potion gold-button" data-action="setSequencePotionProgress"
+                        style="--potion-percentage: {{ sequencePotionProgress }};"
+                        data-tooltip="{{ localize 'DND5E.SequencePotion.Tooltip' value=sequencePotionProgress }}"
+                        aria-label="{{ localize 'DND5E.SequencePotion.Tooltip' value=sequencePotionProgress }}"
+                        aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ sequencePotionProgress }}"
+                        aria-valuetext="{{ localize 'DND5E.SequencePotion.Value' value=sequencePotionProgress }}"
+                        {{#unless editable}}disabled{{/unless}}>
+                    <span class="potion-meter" aria-hidden="true">
+                        <svg class="potion-icon" viewBox="0 0 24 24" focusable="false">
+                            <path class="potion-liquid"
+                                  d="M7 12h10v5a5 5 0 0 1-10 0z"></path>
+                            <path class="potion-outline"
+                                  d="M9 2h6v2l-1 1v2.4l4.3 6.7A5.8 5.8 0 0 1 13.4 22h-2.8a5.8 5.8 0 0 1-4.9-7.9L10 7.4V5L9 4V2zm2 5.1-4 6.2A3.8 3.8 0 0 0 10.6 20h2.8a3.8 3.8 0 0 0 3.6-6.7l-4-6.2z"></path>
+                        </svg>
+                        <span class="potion-value">{{ sequencePotionProgress }}</span>
+                    </span>
+                </button>
             </div>
-            {{/if}}
 
             {{!-- XP --}}
             {{#if showExperience}}

@@ -4176,6 +4176,15 @@
 "DND5E.SpellSlotsConfigCharacter": "Configure Sequence Uses",
 "DND5E.SpellSlotsConfig": "Configure Spell Slots",
 "DND5E.SequenceUsesLabel": "{sequence} Uses",
+"DND5E.SequencePotion": {
+  "Label": "Sequence Potion",
+  "Tooltip": "Sequence Potion Digested: {value}%",
+  "Value": "{value}% digested",
+  "DialogTitle": "Set Sequence Potion Digestion",
+  "DialogLabel": "Digested Percentage",
+  "DialogHint": "Enter a value from 0 to 100.",
+  "DialogValidation": "Enter a number from 0 to 100. Invalid values are set to 0."
+},
 "DND5E.SpellTag": "Ability Tag",
 "DND5E.SpellTarget": "Ability Target",
 "DND5E.SpellUnprepared": "Unprepared",

@@ -56286,6 +56286,7 @@ class CharacterActorSheet extends BaseActorSheet {
       deleteOccupant: CharacterActorSheet.#deleteOccupant,
       findItem: CharacterActorSheet.#findItem,
       setSpellcastingAbility: CharacterActorSheet.#setSpellcastingAbility,
+      setSequencePotionProgress: CharacterActorSheet.#setSequencePotionProgress,
       toggleDeathTray: CharacterActorSheet.#toggleDeathTray,
       toggleInspiration: CharacterActorSheet.#toggleInspiration,
       useFacility: CharacterActorSheet.#useFacility,
@@ -56424,6 +56425,21 @@ class CharacterActorSheet extends BaseActorSheet {
   tabGroups = {
     primary: "details"
   };
+
+  /* -------------------------------------------- */
+  /*  Helpers                                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Normalize sequence potion progress to an integer percentage.
+   * @param {number|string} value  Candidate percentage.
+   * @returns {number}
+   */
+  static #sanitizeSequencePotionProgress(value) {
+    const numeric = Number(value);
+    if ( !Number.isFinite(numeric) ) return 0;
+    return Math.clamp(Math.round(numeric), 0, 100);
+  }
 
   /* -------------------------------------------- */
   /*  Pathway Flow Guardrails                     */
@@ -56799,6 +56815,9 @@ class CharacterActorSheet extends BaseActorSheet {
     // Visibility
     context.showExperience = game.settings.get("lotm", "levelingMode") !== "noxp";
     context.showRests = game.user.isGM || (this.actor.isOwner && game.settings.get("lotm", "allowRests"));
+    context.sequencePotionProgress = CharacterActorSheet.#sanitizeSequencePotionProgress(
+      this.actor.getFlag("lotm", "sequencePotionProgress")
+    );
 
     return context;
   }
@@ -57397,6 +57416,46 @@ class CharacterActorSheet extends BaseActorSheet {
    */
   static #toggleInspiration(event, target) {
     this.submit({ updateData: { "system.attributes.inspiration": !this.actor.system.attributes.inspiration } });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle setting sequence potion digestion progress.
+   * @this {CharacterActorSheet}
+   * @param {Event} event         Triggering click event.
+   * @param {HTMLElement} target  Button that was clicked.
+   */
+  static #setSequencePotionProgress(event, target) {
+    if ( !this.isEditable ) return;
+    const current = CharacterActorSheet.#sanitizeSequencePotionProgress(
+      this.actor.getFlag("lotm", "sequencePotionProgress")
+    );
+    const content = `
+      <div class="form-group">
+        <label>${game.i18n.localize("DND5E.SequencePotion.DialogLabel")}</label>
+        <div class="form-fields">
+          <input type="number" name="progress" min="0" max="100" step="1" value="${current}" autofocus>
+        </div>
+        <p class="hint">${game.i18n.localize("DND5E.SequencePotion.DialogHint")}</p>
+      </div>
+    `;
+    foundry.applications.api.Dialog.prompt({
+      content,
+      window: { title: game.i18n.localize("DND5E.SequencePotion.DialogTitle") },
+      ok: {
+        label: game.i18n.localize("DND5E.Confirm"),
+        callback: (dialogEvent, button, dialog) => {
+          const rawValue = new foundry.applications.ux.FormDataExtended(button.form).object.progress;
+          const parsedValue = Number(rawValue);
+          if ( Number.isNaN(parsedValue) ) {
+            ui.notifications.warn("DND5E.SequencePotion.DialogValidation", { localize: true });
+          }
+          const value = CharacterActorSheet.#sanitizeSequencePotionProgress(parsedValue);
+          return this.actor.setFlag("lotm", "sequencePotionProgress", value);
+        }
+      }
+    });
   }
 
   /* -------------------------------------------- */
