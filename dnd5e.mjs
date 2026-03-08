@@ -41194,9 +41194,12 @@ class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
   prepareAbilities({ rollData={}, originalSaves }={}) {
     const flags = this.parent.flags.lotm ?? {};
     const { prof = 0, ac } = this.attributes ?? {};
+    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
     const pathwayPotency = this.parent?.type === "character"
       ? (Number(this.attributes?.potency) || Number(this.pathway?.potency) || prof)
       : prof;
+    const pathwaySaveEdge = this.parent?.type === "character" ? pathwaySaveEdgeFromTier(pathwayTier) : 0;
+    const pathwayCheckEdge = this.parent?.type === "character" ? pathwayCheckEdgeFromTier(pathwayTier, false) : 0;
     const abilityCap = this.parent?.type === "character"
       ? pathwayAbilityCapFromTier(this.pathway?.tier ?? 0)
       : CONFIG.DND5E.maxAbilityScore;
@@ -41218,11 +41221,11 @@ class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
       const saveBonusAbl = simplifyBonus(abl.bonuses?.save, rollData);
 
       const cover = id === "dex" ? Math.max(ac?.cover ?? 0, this.parent.coverBonus) : 0;
-      abl.saveBonus = saveBonusAbl + saveBonus + cover;
+      abl.saveBonus = saveBonusAbl + saveBonus + cover + pathwaySaveEdge;
 
       abl.saveProf = abl.merged ? originalAbility.saveProf.clone() : new Proficiency(prof, abl.proficient);
       const checkBonusAbl = simplifyBonus(abl.bonuses?.check, rollData);
-      abl.checkBonus = checkBonusAbl + checkBonus;
+      abl.checkBonus = checkBonusAbl + checkBonus + pathwayCheckEdge;
 
       abl.save.value = abl.mod + abl.saveBonus;
       if ( Number.isNumeric(abl.saveProf.term) ) abl.save.value += abl.saveProf.flat;
@@ -45253,6 +45256,31 @@ function pathwayAbilityCapFromTier(tier) {
 function pathwayPromotionPointsForSequence(sequence) {
   const normalized = normalizePathwaySequence(sequence);
   return [8, 6, 4, 2, 1].filter(pointSequence => normalized <= pointSequence).length;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine bonus applied to all saving throws from pathway tier.
+ * @param {number} tier  Pathway tier index.
+ * @returns {number}
+ */
+function pathwaySaveEdgeFromTier(tier) {
+  return Math.clamp(Math.floor(Number(tier) || 0), 0, 4);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine bonus applied to ability/skill/tool checks from pathway tier.
+ * @param {number} tier               Pathway tier index.
+ * @param {boolean} hasProficiency    Whether the check includes proficiency.
+ * @returns {number}
+ */
+function pathwayCheckEdgeFromTier(tier, hasProficiency) {
+  const normalizedTier = Math.clamp(Math.floor(Number(tier) || 0), 0, 4);
+  if ( hasProficiency ) return normalizedTier;
+  return Math.floor(normalizedTier / 2);
 }
 
 /* -------------------------------------------- */
@@ -70073,6 +70101,7 @@ class CreatureTemplate extends CommonTemplate {
     globalCheckBonus, globalSkillBonus, ability
   }={}) {
     const flags = this.parent.flags.lotm ?? {};
+    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
 
     skillData ??= foundry.utils.deepClone(this.skills[skillId]);
     rollData ??= this.parent.getRollData();
@@ -70101,8 +70130,12 @@ class CreatureTemplate extends CommonTemplate {
     skillData.prof = originalSkill?.prof?.multiplier > calculatedProf.multiplier
       ? originalSkill.prof.clone() : calculatedProf;
     skillData.value = skillData.proficient = skillData.prof.multiplier;
+    skillData.pathwayEdge = this.parent?.type === "character"
+      ? pathwayCheckEdgeFromTier(pathwayTier, skillData.prof.hasProficiency)
+      : 0;
     skillData.total = skillData.mod + skillData.bonus;
     if ( Number.isNumeric(skillData.prof.term) ) skillData.total += skillData.prof.flat;
+    skillData.total += skillData.pathwayEdge;
 
     // If we merged skills when transforming, take the highest bonus
     const difference = (originalSkill?.total ?? 0) - skillData.total;
@@ -70118,9 +70151,8 @@ class CreatureTemplate extends CommonTemplate {
     const advantageMode = AdvantageModeField.combineFields(this, [
       `abilities.${ability}.check.roll.mode`, `skills.${skillId}.roll.mode`
     ])?.mode ?? 0;
-    const pathwayTierBonus = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
     skillData.passive = CONFIG.DND5E.skillPassive.base + skillData.mod + skillData.bonus + skillData.prof.flat
-      + passive + passiveBonus + pathwayTierBonus + (advantageMode * CONFIG.DND5E.skillPassive.modifier);
+      + passive + passiveBonus + skillData.pathwayEdge + (advantageMode * CONFIG.DND5E.skillPassive.modifier);
 
     return skillData;
   }
@@ -70134,6 +70166,7 @@ class CreatureTemplate extends CommonTemplate {
    */
   prepareTools({ rollData={} }={}) {
     const globalCheckBonus = simplifyBonus(this.bonuses.abilities.check, rollData);
+    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
     for ( const tool of Object.values(this.tools) ) {
       const ability = this.abilities[tool.ability];
       const baseBonus = simplifyBonus(tool.bonuses.check, rollData);
@@ -70142,8 +70175,12 @@ class CreatureTemplate extends CommonTemplate {
       tool.bonus = baseBonus + globalCheckBonus + checkBonusAbl;
       tool.mod = ability?.mod ?? 0;
       tool.prof = this.calculateToolProficiency(tool.value, tool.ability);
+      tool.pathwayEdge = this.parent?.type === "character"
+        ? pathwayCheckEdgeFromTier(pathwayTier, tool.prof.hasProficiency)
+        : 0;
       tool.total = tool.mod + tool.bonus;
       if ( Number.isNumeric(tool.prof.term) ) tool.total += tool.prof.flat;
+      tool.total += tool.pathwayEdge;
       tool.value = tool.prof.multiplier;
     }
   }

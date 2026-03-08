@@ -106,10 +106,6 @@
                     </button>
                     {{/if}}
                 </div>
-                {{else if actor.isOwner}}
-                <div class="pill-lg empty roboto-upper" data-action="findItem" data-item-type="race">
-                    {{ localize "DND5E.Species.Add" }}
-                </div>
                 {{/if}}
                 {{#if background}}
                 <div class="draggable pill-lg texture background item-tooltip" data-action="showDocument"
@@ -128,10 +124,6 @@
                         <i class="fas fa-trash" inert></i>
                     </button>
                     {{/if}}
-                </div>
-                {{else if actor.isOwner}}
-                <div class="pill-lg empty roboto-upper" data-action="findItem" data-item-type="background">
-                    {{ localize "DND5E.BackgroundAdd" }}
                 </div>
                 {{/if}}
             </div>
@@ -227,4 +219,3 @@
     {{/if}}
 </li>
 {{/inline}}
-
