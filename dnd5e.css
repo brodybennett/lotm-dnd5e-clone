@@ -8667,18 +8667,25 @@ dialog.dnd5e2.application {
 }
 .dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons {
   position: absolute;
-  top: 1.5625rem;
+  top: 1.35rem;
+  z-index: 2;
 }
 .dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion {
+  --potion-button-size: 40px;
   --potion-percentage: 0;
+  width: var(--potion-button-size);
+  height: var(--potion-button-size);
+  flex: 0 0 var(--potion-button-size);
+  z-index: 3;
   overflow: hidden;
   font-family: var(--dnd5e-font-roboto-condensed);
+  font-weight: bold;
   font-variant-numeric: tabular-nums;
 }
 .dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion .potion-meter {
   position: relative;
-  width: 16px;
-  height: 19px;
+  width: 24px;
+  height: 30px;
   display: block;
 }
 .dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion .potion-icon {
@@ -8704,12 +8711,12 @@ dialog.dnd5e2.application {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 2px;
+  padding-top: 4px;
   color: var(--color-text-light-0);
-  text-shadow: 0 0 3px black;
-  font-size: 6px;
+  text-shadow: 0 0 3px black, 0 0 2px black;
+  font-size: 8px;
   letter-spacing: -0.1px;
   line-height: 1;
   pointer-events: none;
@@ -8719,6 +8726,9 @@ dialog.dnd5e2.application {
 }
 .dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion:disabled .potion-liquid {
   opacity: 0.45;
+}
+.dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .sheet-header-buttons .sequence-potion:disabled .potion-outline {
+  opacity: 0.6;
 }
 .dnd5e2.sheet.actor.character .sheet-header > .right > div:last-child .xp-label {
   color: var(--dnd5e-color-gold);

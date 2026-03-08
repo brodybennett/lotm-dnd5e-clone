@@ -56798,10 +56798,17 @@ class CharacterActorSheet extends BaseActorSheet {
     }
 
     // Classes Label
-    const pathways = Object.values(this.actor.classes).sort((a, b) => {
+    const classes = Object.values(this.actor.classes).sort((a, b) => {
       return b.system.levels - a.system.levels;
-    }).map(c => `${c.name} ${pathwaySequenceLabelFromClassLevel(c.system.levels) ?? c.system.levels}`);
+    });
+    const pathways = classes.map(c => `${c.name} ${pathwaySequenceLabelFromClassLevel(c.system.levels) ?? c.system.levels}`);
     context.labels.class = pathways.join(" / ") || game.i18n.localize("DND5E.PathwayNone");
+    const pathwaySequence = classes.length ? classLevelToPathwaySequence(classes[0].system.levels) : null;
+    context.hasPathwaySequence = Number.isInteger(pathwaySequence);
+    context.pathwaySequence = context.hasPathwaySequence ? pathwaySequence : "";
+    context.pathwaySequenceLabel = context.hasPathwaySequence
+      ? game.i18n.localize(`DND5E.SpellLevel${pathwaySequence}`)
+      : game.i18n.localize("DND5E.PathwayNone");
 
     // Experience & Epic Boons
     if ( context.system.details.xp.boonsEarned !== undefined ) {
