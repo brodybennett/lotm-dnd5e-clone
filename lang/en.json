@@ -3061,9 +3061,16 @@
 "DND5E.SpiritualityCostHint": "Leave blank to derive cost from internal ability level.",
 "DND5E.SpiritualityCurrent": "Current Spirituality",
 "DND5E.SpiritualityMax": "Maximum Spirituality",
+"DND5E.SpiritualityTemp": "Temporary Spirituality",
+"DND5E.SpiritualityTempMax": "Temporary Maximum Spirituality",
 "DND5E.SpiritualityFormula": "Spirituality Formula",
 "DND5E.SpiritualityDerivedFormula": "PB + SPI Modifier + (9 - Sequence #)",
 "DND5E.SpiritualityDerivedHint": "Spirituality Max: {formula}",
+"DND5E.Corruption": "Corruption",
+"DND5E.CorruptionCurrent": "Current Corruption",
+"DND5E.CorruptionMax": "Maximum Corruption",
+"DND5E.CorruptionTemp": "Temporary Corruption",
+"DND5E.CorruptionTempMax": "Temporary Maximum Corruption",
 
 "DND5E.HITDICE": {
   "Abbreviation": "HD",

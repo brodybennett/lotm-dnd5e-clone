@@ -170,23 +170,60 @@
                     <span>{{ localize "DND5E.Spirituality" }}</span>
                 </div>
                 <div class="meter sectioned spirituality">
-                    <div class="progress spirituality" role="meter" aria-valuemin="0"
-                         aria-valuenow="{{ value }}" aria-valuemax="{{ max }}"
+                    <div class="progress spirituality
+                         {{~#if (gt tempmax 0)}} temp-positive
+                         {{~else if (lt tempmax 0)}} temp-negative{{/if}}"
+                         role="meter" aria-valuemin="0" aria-valuenow="{{ value }}"
+                         aria-valuemax="{{ effectiveMax }}"
                          style="--bar-percentage: {{ pct }}%">
                         <div class="label">
                             <span class="value">{{ value }}</span>
                             <span class="separator">&sol;</span>
-                            <span class="max">{{ max }}</span>
+                            <span class="max">{{ effectiveMax }}</span>
+                            {{#if tempmax}}
+                            <span class="bonus">{{dnd5e-numberFormat tempmax signDisplay="always"}}</span>
+                            {{/if}}
                         </div>
                         <input type="text" name="system.attributes.spirituality.value" data-dtype="Number"
                                placeholder="0" value="{{ value }}" hidden>
                     </div>
                     <div class="tmp">
-                        <input type="text" name="system.attributes.spirituality.max" data-dtype="Number"
-                               placeholder="{{ localize 'DND5E.Max' }}"
-                               value="{{#if max}}{{ max }}{{/if}}" readonly
-                               data-tooltip="{{ localize 'DND5E.SpiritualityDerivedHint'
-                                   formula=(localize 'DND5E.SpiritualityDerivedFormula') }}">
+                        <input type="text" name="system.attributes.spirituality.temp" data-dtype="Number"
+                               placeholder="{{ localize 'DND5E.TMP' }}"
+                               value="{{#if temp}}{{ temp }}{{/if}}">
+                    </div>
+                </div>
+            </div>
+            {{/with}}
+
+            {{!-- Corruption --}}
+            {{#with system.attributes.corruption}}
+            <div class="meter-group">
+                <div class="label roboto-condensed-upper">
+                    <span>{{ localize "DND5E.Corruption" }}</span>
+                </div>
+                <div class="meter sectioned corruption">
+                    <div class="progress corruption
+                         {{~#if (gt tempmax 0)}} temp-positive
+                         {{~else if (lt tempmax 0)}} temp-negative{{/if}}"
+                         role="meter" aria-valuemin="0" aria-valuenow="{{ value }}"
+                         aria-valuemax="{{ effectiveMax }}"
+                         style="--bar-percentage: {{ pct }}%">
+                        <div class="label">
+                            <span class="value">{{ value }}</span>
+                            <span class="separator">&sol;</span>
+                            <span class="max">{{ effectiveMax }}</span>
+                            {{#if tempmax}}
+                            <span class="bonus">{{dnd5e-numberFormat tempmax signDisplay="always"}}</span>
+                            {{/if}}
+                        </div>
+                        <input type="text" name="system.attributes.corruption.value" data-dtype="Number"
+                               placeholder="0" value="{{ value }}" hidden>
+                    </div>
+                    <div class="tmp">
+                        <input type="text" name="system.attributes.corruption.temp" data-dtype="Number"
+                               placeholder="{{ localize 'DND5E.TMP' }}"
+                               value="{{#if temp}}{{ temp }}{{/if}}">
                     </div>
                 </div>
             </div>

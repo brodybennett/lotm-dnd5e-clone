@@ -56,6 +56,12 @@
     --dnd5e-color-hd-1: #401f25;
     --dnd5e-color-hd-2: var(--dnd5e-color-maroon);
     --dnd5e-color-hd-3: #500000;
+    --dnd5e-color-spirituality-1: #12456a;
+    --dnd5e-color-spirituality-2: #2a8fcb;
+    --dnd5e-color-spirituality-3: #1a5f8d;
+    --dnd5e-color-corruption-1: #4b1f63;
+    --dnd5e-color-corruption-2: #8d40bd;
+    --dnd5e-color-corruption-3: #632a86;
     --dnd5e-color-sc-1: #433754;
     --dnd5e-color-sc-2: #776493;
     --dnd5e-color-blue-white: #cfd2da;
@@ -7455,10 +7461,26 @@ dialog.dnd5e2.application {
   background: linear-gradient(to right, var(--dnd5e-color-hp-1) 0%, var(--dnd5e-color-hp-2) 100%);
   border-inline-end: none;
 }
-.dnd5e2.sheet.actor .meter.hit-points .temp-positive .label :is(.max, .bonus) {
+.dnd5e2.sheet.actor .meter.spirituality {
+  height: 32px;
+  font-size: var(--font-size-16);
+}
+.dnd5e2.sheet.actor .meter.spirituality .progress::before {
+  background: linear-gradient(to right, var(--dnd5e-color-spirituality-1) 0%, var(--dnd5e-color-spirituality-2) 100%);
+  border-inline-end: none;
+}
+.dnd5e2.sheet.actor .meter.corruption {
+  height: 32px;
+  font-size: var(--font-size-16);
+}
+.dnd5e2.sheet.actor .meter.corruption .progress::before {
+  background: linear-gradient(to right, var(--dnd5e-color-corruption-1) 0%, var(--dnd5e-color-corruption-2) 100%);
+  border-inline-end: none;
+}
+.dnd5e2.sheet.actor .meter:is(.hit-points, .spirituality, .corruption) .temp-positive .label :is(.max, .bonus) {
   color: color-mix(in oklab, currentcolor, blue 25%);
 }
-.dnd5e2.sheet.actor .meter.hit-points .temp-negative .label :is(.max, .bonus) {
+.dnd5e2.sheet.actor .meter:is(.hit-points, .spirituality, .corruption) .temp-negative .label :is(.max, .bonus) {
   color: color-mix(in oklab, currentcolor, red 25%);
 }
 .dnd5e2.sheet.actor .meter.hit-dice {
@@ -7498,14 +7520,14 @@ dialog.dnd5e2.application {
 .dnd5e2.sheet.actor .meter.sectioned > div {
   height: 100%;
 }
-.dnd5e2.sheet.actor .meter.sectioned > .hit-points {
+.dnd5e2.sheet.actor .meter.sectioned > :is(.hit-points, .spirituality, .corruption) {
   flex: 1;
   position: relative;
   display: flex;
   align-items: center;
   cursor: var(--cursor-pointer);
 }
-.dnd5e2.sheet.actor .meter.sectioned > .hit-points > input {
+.dnd5e2.sheet.actor .meter.sectioned > :is(.hit-points, .spirituality, .corruption) > input {
   position: relative;
 }
 .dnd5e2.sheet.actor .meter.sectioned > .tmp {
@@ -7515,6 +7537,12 @@ dialog.dnd5e2.application {
 }
 .dnd5e2.sheet.actor .meter.sectioned > .tmp > input {
   color: var(--dnd5e-color-blue);
+}
+.dnd5e2.sheet.actor .meter.sectioned.spirituality > .tmp > input {
+  color: var(--dnd5e-color-spirituality-2);
+}
+.dnd5e2.sheet.actor .meter.sectioned.corruption > .tmp > input {
+  color: var(--dnd5e-color-corruption-2);
 }
 .dnd5e2.sheet.actor .tab.features.active {
   display: flex;

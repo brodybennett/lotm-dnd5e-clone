@@ -5761,7 +5761,9 @@ class ActivityUsageDialog extends Dialog5e {
       const spirituality = this.actor.system.attributes?.spirituality ?? {};
       const value = (this.config.consume !== false) && (this.config.consume?.spirituality !== false);
       const cost = spiritualityCostFromUsageConfig(this.activity, this.config);
-      const available = Math.max(Number(spirituality.value) || 0, 0);
+      const base = Math.max(Number(spirituality.value) || 0, 0);
+      const temp = Math.max(Number(spirituality.temp) || 0, 0);
+      const available = base + temp;
       const remaining = Math.max(available - (value ? cost : 0), 0);
       const warn = value && (cost > available);
       context.fields.push({
@@ -7845,13 +7847,18 @@ function ActivityMixin(Base) {
         if ( shouldConsumeSpirituality ) {
           const cost = spiritualityCostFromUsageConfig(this, config);
           const current = Math.max(Number(this.actor.system.attributes?.spirituality?.value) || 0, 0);
-          if ( current < cost ) {
+          const temp = Math.max(Number(this.actor.system.attributes?.spirituality?.temp) || 0, 0);
+          const available = current + temp;
+          if ( available < cost ) {
             errors.push(new ConsumptionError(formatSpiritualityConsumptionWarning({
               cost,
-              available: current
+              available
             })));
           } else if ( cost > 0 ) {
-            updates.actor["system.attributes.spirituality.value"] = current - cost;
+            const tempSpent = Math.min(temp, cost);
+            const valueSpent = cost - tempSpent;
+            updates.actor["system.attributes.spirituality.temp"] = temp - tempSpent;
+            updates.actor["system.attributes.spirituality.value"] = current - valueSpent;
           }
         }
       }
@@ -40680,7 +40687,7 @@ class AttributesFields {
     hp.max = (hp.max ?? 0) + base + bonus;
     if ( this.parent.hasConditionEffect("halfHealth") ) hp.max = Math.floor(hp.max * 0.5);
 
-    hp.effectiveMax = Math.max(hp.max + (hp.tempmax ?? 0), 0);
+    hp.effectiveMax = Math.max(hp.max + (hp.temp ?? 0) + (hp.tempmax ?? 0), 0);
     hp.value = Math.min(hp.value, hp.effectiveMax);
     hp.damage = hp.effectiveMax - hp.value;
     hp.pct = Math.clamp(hp.effectiveMax ? (hp.value / hp.effectiveMax) * 100 : 0, 0, 100);
@@ -40702,9 +40709,32 @@ class AttributesFields {
     const proficiencyBonus = Number(this.attributes.prof) || 0;
     const spiritualityModifier = Number(this.abilities?.wis?.mod) || 0;
     spirituality.max = Math.max(proficiencyBonus + spiritualityModifier + (LOTM_MAX_SEQUENCE - sequence), 0);
-    spirituality.value = Math.clamp(Number(spirituality.value) || 0, 0, spirituality.max);
-    spirituality.pct = Math.clamp(spirituality.max ? (spirituality.value / spirituality.max) * 100 : 0, 0, 100);
+    spirituality.temp = Math.max(Number(spirituality.temp) || 0, 0);
+    spirituality.tempmax = Number(spirituality.tempmax) || 0;
+    spirituality.effectiveMax = Math.max(spirituality.max + spirituality.temp + spirituality.tempmax, 0);
+    spirituality.value = Math.clamp(Number(spirituality.value) || 0, 0, spirituality.effectiveMax);
+    spirituality.pct = Math.clamp(
+      spirituality.effectiveMax ? (spirituality.value / spirituality.effectiveMax) * 100 : 0, 0, 100
+    );
     spirituality.formula = typeof spirituality.formula === "string" ? spirituality.formula : "";
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Prepare corruption data for an actor.
+   * @this {CharacterData}
+   */
+  static prepareCorruption() {
+    const corruption = this.attributes.corruption ??= {};
+    const rawMax = Number(corruption.max);
+    const rawValue = Number(corruption.value);
+    corruption.max = Math.max(Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0), 0);
+    corruption.temp = Math.max(Number(corruption.temp) || 0, 0);
+    corruption.tempmax = Number(corruption.tempmax) || 0;
+    corruption.effectiveMax = Math.max(corruption.max + corruption.temp + corruption.tempmax, 0);
+    corruption.value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, corruption.effectiveMax);
+    corruption.pct = Math.clamp(corruption.effectiveMax ? (corruption.value / corruption.effectiveMax) * 100 : 0, 0, 100);
   }
 
   /* -------------------------------------------- */
@@ -68630,11 +68660,12 @@ class Token5e extends foundry.canvas.placeables.Token {
 
     // Differentiate between effective maximum and displayed maximum
     effectiveMax = Math.max(0, effectiveMax);
-    let displayMax = max + (tempmax > 0 ? tempmax : 0);
+    let displayMax = effectiveMax;
 
     // Allocate percentages of the total
-    const tempPct = Math.clamp(temp, 0, displayMax) / displayMax;
-    const colorPct = Math.clamp(value, 0, effectiveMax) / displayMax;
+    const denominator = Math.max(displayMax, 1);
+    const tempPct = Math.clamp(temp, 0, denominator) / denominator;
+    const colorPct = Math.clamp(value, 0, effectiveMax) / denominator;
     const hpColor = dnd5e.documents.Actor5e.getHPColor(value, effectiveMax);
 
     // Determine colors to use
@@ -69817,8 +69848,28 @@ class CharacterData extends CreatureTemplate {
           max: new NumberField$e({
             required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpiritualityMax"
           }),
+          temp: new NumberField$e({
+            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpiritualityTemp"
+          }),
+          tempmax: new NumberField$e({
+            required: true, nullable: false, integer: true, initial: 0, label: "DND5E.SpiritualityTempMax"
+          }),
           formula: new FormulaField({ deterministic: true, label: "DND5E.SpiritualityFormula" })
         }, { label: "DND5E.Spirituality" }),
+        corruption: new SchemaField$j({
+          value: new NumberField$e({
+            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CorruptionCurrent"
+          }),
+          max: new NumberField$e({
+            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CorruptionMax"
+          }),
+          temp: new NumberField$e({
+            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CorruptionTemp"
+          }),
+          tempmax: new NumberField$e({
+            required: true, nullable: false, integer: true, initial: 0, label: "DND5E.CorruptionTempMax"
+          })
+        }, { label: "DND5E.Corruption" }),
         death: new RollConfigField({
           ability: false,
           success: new NumberField$e({
@@ -69984,6 +70035,7 @@ class CharacterData extends CreatureTemplate {
     }
     AttributesFields.prepareHitPoints.call(this, this.attributes.hp, hpOptions);
     AttributesFields.prepareSpirituality.call(this);
+    AttributesFields.prepareCorruption.call(this);
   }
 
   /* -------------------------------------------- */
@@ -76910,6 +76962,17 @@ class TokenDocument5e extends SystemFlagsMixin(TokenDocument) {
       const hp = this.actor.system.attributes.hp || {};
       data.value += (hp.temp || 0);
       data.max = Math.max(0, hp.effectiveMax);
+    } else if ( data?.attribute === "attributes.spirituality" ) {
+      const spirituality = this.actor.system.attributes.spirituality || {};
+      data.value += (spirituality.temp || 0);
+      data.max = Math.max(
+        0,
+        spirituality.effectiveMax ?? (spirituality.max + (spirituality.temp || 0) + (spirituality.tempmax || 0))
+      );
+    } else if ( data?.attribute === "attributes.corruption" ) {
+      const corruption = this.actor.system.attributes.corruption || {};
+      data.value += (corruption.temp || 0);
+      data.max = Math.max(0, corruption.effectiveMax ?? (corruption.max + (corruption.temp || 0) + (corruption.tempmax || 0)));
     } else if ( ["resources.legact", "resources.legres"].includes(data?.attribute) ) {
       data.editable = true;
     }
@@ -76938,7 +77001,8 @@ class TokenDocument5e extends SystemFlagsMixin(TokenDocument) {
       senses: game.i18n.localize("DND5E.Senses"),
       skills: game.i18n.localize("DND5E.SkillPassives"),
       slots: game.i18n.localize("JOURNALENTRYPAGE.DND5E.Class.SpellSlots"),
-      spirituality: game.i18n.localize("DND5E.Spirituality")
+      spirituality: game.i18n.localize("DND5E.Spirituality"),
+      corruption: game.i18n.localize("DND5E.Corruption")
     };
     for ( const entry of groups ) {
       const { value } = entry;
@@ -76946,6 +77010,7 @@ class TokenDocument5e extends SystemFlagsMixin(TokenDocument) {
       else if ( value.startsWith("attributes.movement.") ) entry.group = i18n.movement;
       else if ( value.startsWith("attributes.senses.") ) entry.group = i18n.senses;
       else if ( value.startsWith("attributes.spirituality") ) entry.group = i18n.spirituality;
+      else if ( value.startsWith("attributes.corruption") ) entry.group = i18n.corruption;
       else if ( value.startsWith("skills.") ) entry.group = i18n.skills;
       else if ( value.startsWith("spells.") ) entry.group = i18n.slots;
     }
@@ -78652,6 +78717,7 @@ function migrateActorData(actor, actorData, migrationData, flags={}, { actorUuid
   _migrateActorFlags(actorData, updateData);
   _migrateActorMovementSenses(actorData, updateData);
   _migrateActorSpirituality(actorData, updateData);
+  _migrateActorCorruption(actorData, updateData);
 
   // Migrate embedded effects
   if ( actorData.effects ) {
@@ -79045,22 +79111,66 @@ function _migrateActorMovementSenses(actorData, updateData) {
 function _migrateActorSpirituality(actorData, updateData) {
   if ( actorData.type !== "character" ) return updateData;
   const spirituality = foundry.utils.getProperty(actorData, "system.attributes.spirituality");
-  const needsVersionMigration = foundry.utils.isNewerVersion("5.2.6", actorData._stats?.systemVersion ?? "0");
+  const needsVersionMigration = foundry.utils.isNewerVersion("5.2.7", actorData._stats?.systemVersion ?? "0");
 
   const rawMax = Number(spirituality?.max);
   const rawValue = Number(spirituality?.value);
+  const rawTemp = Number(spirituality?.temp);
+  const rawTempMax = Number(spirituality?.tempmax);
   const max = Math.max(Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0), 0);
-  const value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, max);
+  const temp = Math.max(Number.isFinite(rawTemp) ? rawTemp : 0, 0);
+  const tempmax = Number.isFinite(rawTempMax) ? rawTempMax : 0;
+  const effectiveMax = Math.max(max + temp + tempmax, 0);
+  const value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, effectiveMax);
   const formula = typeof spirituality?.formula === "string" ? spirituality.formula : "";
 
   if ( (foundry.utils.getType(spirituality) !== "Object") || needsVersionMigration ) {
-    updateData["system.attributes.spirituality"] = { value, max, formula };
+    updateData["system.attributes.spirituality"] = { value, max, temp, tempmax, formula };
     return updateData;
   }
 
   if ( spirituality.max !== max ) updateData["system.attributes.spirituality.max"] = max;
+  if ( spirituality.temp !== temp ) updateData["system.attributes.spirituality.temp"] = temp;
+  if ( spirituality.tempmax !== tempmax ) updateData["system.attributes.spirituality.tempmax"] = tempmax;
   if ( spirituality.value !== value ) updateData["system.attributes.spirituality.value"] = value;
   if ( typeof spirituality.formula !== "string" ) updateData["system.attributes.spirituality.formula"] = formula;
+
+  return updateData;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Migrate character corruption data to the expected object shape.
+ * @param {object} actorData   Actor data being migrated.
+ * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
+ * @returns {object}           Modified version of update data.
+ * @private
+ */
+function _migrateActorCorruption(actorData, updateData) {
+  if ( actorData.type !== "character" ) return updateData;
+  const corruption = foundry.utils.getProperty(actorData, "system.attributes.corruption");
+  const needsVersionMigration = foundry.utils.isNewerVersion("5.2.7", actorData._stats?.systemVersion ?? "0");
+
+  const rawMax = Number(corruption?.max);
+  const rawValue = Number(corruption?.value);
+  const rawTemp = Number(corruption?.temp);
+  const rawTempMax = Number(corruption?.tempmax);
+  const max = Math.max(Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0), 0);
+  const temp = Math.max(Number.isFinite(rawTemp) ? rawTemp : 0, 0);
+  const tempmax = Number.isFinite(rawTempMax) ? rawTempMax : 0;
+  const effectiveMax = Math.max(max + temp + tempmax, 0);
+  const value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, effectiveMax);
+
+  if ( (foundry.utils.getType(corruption) !== "Object") || needsVersionMigration ) {
+    updateData["system.attributes.corruption"] = { value, max, temp, tempmax };
+    return updateData;
+  }
+
+  if ( corruption.max !== max ) updateData["system.attributes.corruption.max"] = max;
+  if ( corruption.temp !== temp ) updateData["system.attributes.corruption.temp"] = temp;
+  if ( corruption.tempmax !== tempmax ) updateData["system.attributes.corruption.tempmax"] = tempmax;
+  if ( corruption.value !== value ) updateData["system.attributes.corruption.value"] = value;
 
   return updateData;
 }
@@ -80771,9 +80881,10 @@ function _configureTrackableAttributes() {
       bar: [
         ...creature.bar,
         "attributes.spirituality",
+        "attributes.corruption",
         "resources.primary", "resources.secondary", "resources.tertiary", "details.xp"
       ],
-      value: [...creature.value, "attributes.spirituality.value"]
+      value: [...creature.value, "attributes.spirituality.value", "attributes.corruption.value"]
     },
     npc: {
       bar: [...creature.bar, "resources.legact", "resources.legres"],
