@@ -184,7 +184,9 @@
                     <div class="tmp">
                         <input type="text" name="system.attributes.spirituality.max" data-dtype="Number"
                                placeholder="{{ localize 'DND5E.Max' }}"
-                               value="{{#if max}}{{ max }}{{/if}}">
+                               value="{{#if max}}{{ max }}{{/if}}" readonly
+                               data-tooltip="{{ localize 'DND5E.SpiritualityDerivedHint'
+                                   formula=(localize 'DND5E.SpiritualityDerivedFormula') }}">
                     </div>
                 </div>
             </div>

@@ -3062,6 +3062,8 @@
 "DND5E.SpiritualityCurrent": "Current Spirituality",
 "DND5E.SpiritualityMax": "Maximum Spirituality",
 "DND5E.SpiritualityFormula": "Spirituality Formula",
+"DND5E.SpiritualityDerivedFormula": "PB + SPI Modifier + (9 - Sequence #)",
+"DND5E.SpiritualityDerivedHint": "Spirituality Max: {formula}",
 
 "DND5E.HITDICE": {
   "Abbreviation": "HD",

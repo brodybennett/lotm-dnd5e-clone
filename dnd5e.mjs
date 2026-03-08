@@ -40694,7 +40694,14 @@ class AttributesFields {
    */
   static prepareSpirituality() {
     const spirituality = this.attributes.spirituality ??= {};
-    spirituality.max = Math.max(Number(spirituality.max) || 0, 0);
+    const classes = Object.values(this.parent?.classes ?? {}).sort((a, b) => {
+      return (Number(b.system?.levels) || 0) - (Number(a.system?.levels) || 0);
+    });
+    const pathwaySequence = classes.length ? classLevelToPathwaySequence(classes[0].system?.levels) : LOTM_MAX_SEQUENCE;
+    const sequence = Number.isInteger(pathwaySequence) ? pathwaySequence : LOTM_MAX_SEQUENCE;
+    const proficiencyBonus = Number(this.attributes.prof) || 0;
+    const spiritualityModifier = Number(this.abilities?.wis?.mod) || 0;
+    spirituality.max = Math.max(proficiencyBonus + spiritualityModifier + (LOTM_MAX_SEQUENCE - sequence), 0);
     spirituality.value = Math.clamp(Number(spirituality.value) || 0, 0, spirituality.max);
     spirituality.pct = Math.clamp(spirituality.max ? (spirituality.value / spirituality.max) * 100 : 0, 0, 100);
     spirituality.formula = typeof spirituality.formula === "string" ? spirituality.formula : "";
