@@ -1,0 +1,74 @@
+70167:  prepareTools({ rollData={} }={}) {
+70168:    const globalCheckBonus = simplifyBonus(this.bonuses.abilities.check, rollData);
+70169:    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
+70170:    for ( const tool of Object.values(this.tools) ) {
+70171:      const ability = this.abilities[tool.ability];
+70172:      const baseBonus = simplifyBonus(tool.bonuses.check, rollData);
+70173:      const checkBonusAbl = simplifyBonus(ability?.bonuses?.check, rollData);
+70174:      tool.effectValue = tool.value;
+70175:      tool.bonus = baseBonus + globalCheckBonus + checkBonusAbl;
+70176:      tool.mod = ability?.mod ?? 0;
+70177:      tool.prof = this.calculateToolProficiency(tool.value, tool.ability);
+70178:      tool.pathwayEdge = this.parent?.type === "character"
+70179:        ? pathwayCheckEdgeFromTier(pathwayTier, tool.prof.hasProficiency)
+70180:        : 0;
+70181:      tool.total = tool.mod + tool.bonus;
+70182:      if ( Number.isNumeric(tool.prof.term) ) tool.total += tool.prof.flat;
+70183:      tool.total += tool.pathwayEdge;
+70184:      tool.value = tool.prof.multiplier;
+70185:    }
+70186:  }
+70187:
+70188:  /* -------------------------------------------- */
+70189:  /*  Helpers                                     */
+70190:  /* -------------------------------------------- */
+70191:
+70192:  /** @inheritDoc */
+70193:  getRollData({ deterministic=false }={}) {
+70194:    const data = super.getRollData({ deterministic });
+70195:    data.classes = {};
+70196:    data.subclasses = {};
+70197:    for ( const [identifier, cls] of Object.entries(this.parent.classes) ) {
+70198:      data.classes[identifier] = {...cls.system};
+70199:      data.classes[identifier].hitDice = cls.system.hd.denomination; // Backwards compatibility
+70200:      if ( cls.subclass ) {
+70201:        data.classes[identifier].subclass = cls.subclass.system;
+70202:        data.subclasses[cls.subclass.identifier] = { levels: cls.system.levels };
+70203:      }
+70204:    }
+70205:    return data;
+70206:  }
+70207:}
+70208:
+70209:/* -------------------------------------------- */
+70210:
+70211:/**
+70212: * Produce the schema field for a simple trait.
+70213: * @param {object} schemaOptions  Options passed to the outer schema.
+70214: * @returns {AttackBonusesData}
+70215: */
+70216:function makeAttackBonuses(schemaOptions={}) {
+70217:  return new SchemaField$k({
+70218:    attack: new FormulaField({required: true}),
+70219:    damage: new FormulaField({required: true})
+70220:  }, schemaOptions);
+70221:}
+70222:
+70223:const {
+70224:  ArrayField: ArrayField$9, BooleanField: BooleanField$c, HTMLField: HTMLField$5, IntegerSortField, NumberField: NumberField$e, SchemaField: SchemaField$j, SetField: SetField$e, StringField: StringField$n
+70225:} = foundry.data.fields;
+70226:
+70227:/**
+70228: * @import { ActorFavorites5e, CharacterActorSystemData, ResourceData } from "./_types.mjs";
+70229: */
+70230:
+70231:/**
+70232: * System data definition for Characters.
+70233: * @extends {CreatureTemplate<CharacterActorSystemData>}
+70234: * @mixes CharacterActorSystemData
+70235: */
+70236:class CharacterData extends CreatureTemplate {
+70237:
+70238:  /* -------------------------------------------- */
+70239:  /*  Model Configuration                         */
+70240:  /* -------------------------------------------- */

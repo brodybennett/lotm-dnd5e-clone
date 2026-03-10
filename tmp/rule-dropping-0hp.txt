@@ -1,0 +1,5 @@
+JOURNAL:phbDamageAndHeal
+PAGE:Dropping to 0 Hit Points (unGgf3TA3iSawYAn)
+TYPE:text
+
+Dropping to 0 Hit Points When a creature reaches 0 Hit Points, standard unconsciousness/death procedures still apply unless a feature says otherwise. Massive Damage Massive damage and instant death remain possible under normal baseline rules. High-Tier Confrontation Rule For extreme cross-tier gaps, lower-tier damage against a much higher-tier target is capped unless special sequence-piercing mechanics apply. If DeltaT (attacker tier - defender tier) &lt;= -3: non-piercing damage from the attacker is capped at 10% of defender HP_max per hit. This cap is a pacing safeguard to preserve the qualitative difference between upper and lower sequence tiers.

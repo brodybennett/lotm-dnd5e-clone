@@ -63,24 +63,6 @@
 
             {{!-- Background --}}
             <div class="pills-lg">
-                {{#with creatureType}}
-                <div class="pill-lg texture type" {{#if reference}}data-reference-tooltip="{{ reference }}"{{/if}}>
-                    <div class="gold-icon creature-type {{ class }}" style="background-image: url('{{ icon }}');"></div>
-                    <div class="name name-stacked">
-                        <span class="title">
-                            {{ localize title }}
-                        </span>
-                        <span class="subtitle">{{ subtitle }}</span>
-                    </div>
-                    {{#if (and @root.editable @root.species)}}
-                    <button type="button" class="config-button unbutton" data-action="showConfiguration"
-                            data-config="creatureType" data-tooltip="DND5E.CreatureTypeConfig"
-                            aria-label="{{ localize 'DND5E.CreatureTypeConfig' }}">
-                        <i class="fas fa-cog" inert></i>
-                    </button>
-                    {{/if}}
-                </div>
-                {{/with}}
                 {{#if species}}
                 <div class="draggable pill-lg texture race item-tooltip" data-action="showDocument"
                      data-item-id="{{ species.id }}" data-uuid="{{ species.uuid }}"

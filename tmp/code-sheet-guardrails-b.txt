@@ -1,0 +1,461 @@
+57760:  static async #deleteOccupant(event, target) {
+57761:    const { facilityId } = target.closest("[data-facility-id]")?.dataset ?? {};
+57762:    const { prop } = target.closest("[data-prop]")?.dataset ?? {};
+57763:    const { index } = target.closest("[data-index]")?.dataset ?? {};
+57764:    const facility = this.actor.items.get(facilityId);
+57765:    if ( !facility || !prop || (index === undefined) ) return;
+57766:
+57767:    // Prompt to clear a pending trade
+57768:    if ( target.closest(".occupant-slot.pending") ) {
+57769:      const result = await foundry.applications.api.DialogV2.confirm({
+57770:        content: `
+57771:          <p>
+57772:            <strong>${game.i18n.localize("AreYouSure")}</strong> ${game.i18n.localize("DND5E.Bastion.Trade.Invalid")}
+57773:          </p>
+57774:        `,
+57775:        window: {
+57776:          icon: "fa-solid fa-coins",
+57777:          title: "DND5E.Bastion.Trade.Cancel"
+57778:        },
+57779:        position: { width: 400 }
+57780:      }, { rejectClose: false });
+57781:      if ( result ) facility.update({
+57782:        system: {
+57783:          progress: { max: null, order: "", value: null },
+57784:          trade: {
+57785:            pending: { creatures: [], operation: null }
+57786:          }
+57787:        }
+57788:      });
+57789:    }
+57790:
+57791:    // Remove the occupant
+57792:    else {
+57793:      let { value } = foundry.utils.getProperty(facility, prop);
+57794:      value = value.filter((_, i) => i !== Number(index));
+57795:      facility.update({ [`${prop}.value`]: value });
+57796:    }
+57797:  }
+57798:
+57799:  /* -------------------------------------------- */
+57800:
+57801:  /**
+57802:   * Handle finding an available item of a given type.
+57803:   * @this {CharacterActorSheet}
+57804:   * @param {Event} event         Triggering click event.
+57805:   * @param {HTMLElement} target  Button that was clicked.
+57806:   */
+57807:  static async #findItem(event, target) {
+57808:    if ( !this.isEditable ) return;
+57809:    const { classIdentifier, facilityType, itemType: type } = target.dataset;
+57810:    if ( (type === "class") && this.actor.itemTypes.class.length ) {
+57811:      ui.notifications.warn("DND5E.PathwaySingleFlowWarn", { localize: true });
+57812:      return;
+57813:    }
+57814:    const filters = { locked: { types: new Set([type]) } };
+57815:
+57816:    if ( classIdentifier ) filters.locked.additional = { class: { [classIdentifier]: 1 } };
+57817:    if ( type === "class" ) {
+57818:      const existingIdentifiers = new Set(Object.keys(this.actor.classes));
+57819:      filters.initial = { additional: { properties: { sidekick: -1 } } };
+57820:      filters.locked.arbitrary = [{ o: "NOT", v: { k: "system.identifier", o: "in", v: existingIdentifiers } }];
+57821:    }
+57822:    if ( type === "facility" ) {
+57823:      const otherType = facilityType === "basic" ? "special" : "basic";
+57824:      filters.locked.additional = {
+57825:        type: { [facilityType]: 1, [otherType]: -1 },
+57826:        level: { max: this.actor.system.details.level }
+57827:      };
+57828:    }
+57829:
+57830:    const result = await CompendiumBrowser.selectOne({ filters });
+57831:    if ( result ) this._onDropCreateItems(event, [game.items.fromCompendium(await fromUuid(result), { keepId: true })]);
+57832:  }
+57833:
+57834:  /* -------------------------------------------- */
+57835:
+57836:  /**
+57837:   * Handle setting the character's spellcasting ability.
+57838:   * @this {CharacterActorSheet}
+57839:   * @param {Event} event         Triggering click event.
+57840:   * @param {HTMLElement} target  Button that was clicked.
+57841:   */
+57842:  static #setSpellcastingAbility(event, target) {
+57843:    const ability = target.closest("[data-ability]")?.dataset.ability;
+57844:    this.submit({ updateData: { "system.attributes.spellcasting": ability } });
+57845:  }
+57846:
+57847:  /* -------------------------------------------- */
+57848:
+57849:  /**
+57850:   * Handle toggling the death saves tray.
+57851:   * @this {CharacterActorSheet}
+57852:   * @param {Event} event         Triggering click event.
+57853:   * @param {HTMLElement} target  Button that was clicked.
+57854:   */
+57855:  static #toggleDeathTray(event, target) {
+57856:    this._toggleDeathTray();
+57857:  }
+57858:
+57859:  /* -------------------------------------------- */
+57860:
+57861:  /**
+57862:   * Toggle the death save tray.
+57863:   * @param {boolean} [open]  Force a particular open state.
+57864:   * @protected
+57865:   */
+57866:  _toggleDeathTray(open) {
+57867:    const tray = this.form.querySelector(".death-tray");
+57868:    const tab = tray.querySelector(".death-tab");
+57869:    tray.classList.toggle("open", open);
+57870:    this._deathTrayOpen = tray.classList.contains("open");
+57871:    tab.dataset.tooltip = `DND5E.DeathSave${this._deathTrayOpen ? "Hide" : "Show"}`;
+57872:    tab.setAttribute("aria-label", game.i18n.localize(tab.dataset.tooltip));
+57873:  }
+57874:
+57875:  /* -------------------------------------------- */
+57876:
+57877:  /**
+57878:   * Handle toggling inspiration.
+57879:   * @this {CharacterActorSheet}
+57880:   * @param {Event} event         Triggering click event.
+57881:   * @param {HTMLElement} target  Button that was clicked.
+57882:   */
+57883:  static #toggleInspiration(event, target) {
+57884:    this.submit({ updateData: { "system.attributes.inspiration": !this.actor.system.attributes.inspiration } });
+57885:  }
+57886:
+57887:  /* -------------------------------------------- */
+57888:
+57889:  /**
+57890:   * Handle setting sequence potion digestion progress.
+57891:   * @this {CharacterActorSheet}
+57892:   * @param {Event} event         Triggering click event.
+57893:   * @param {HTMLElement} target  Button that was clicked.
+57894:   */
+57895:  static #setSequencePotionProgress(event, target) {
+57896:    if ( !this.isEditable ) return;
+57897:    const current = CharacterActorSheet.#sanitizeSequencePotionProgress(
+57898:      this.actor.getFlag("lotm", "sequencePotionProgress")
+57899:    );
+57900:    const content = `
+57901:      <div class="form-group">
+57902:        <label>${game.i18n.localize("DND5E.SequencePotion.DialogLabel")}</label>
+57903:        <div class="form-fields">
+57904:          <input type="number" name="progress" min="0" max="100" step="1" value="${current}" autofocus>
+57905:        </div>
+57906:        <p class="hint">${game.i18n.localize("DND5E.SequencePotion.DialogHint")}</p>
+57907:      </div>
+57908:    `;
+57909:    foundry.applications.api.Dialog.prompt({
+57910:      content,
+57911:      window: { title: game.i18n.localize("DND5E.SequencePotion.DialogTitle") },
+57912:      ok: {
+57913:        label: game.i18n.localize("DND5E.Confirm"),
+57914:        callback: (dialogEvent, button, dialog) => {
+57915:          const rawValue = new foundry.applications.ux.FormDataExtended(button.form).object.progress;
+57916:          const parsedValue = Number(rawValue);
+57917:          if ( Number.isNaN(parsedValue) ) {
+57918:            ui.notifications.warn("DND5E.SequencePotion.DialogValidation", { localize: true });
+57919:          }
+57920:          const value = CharacterActorSheet.#sanitizeSequencePotionProgress(parsedValue);
+57921:          return this.actor.setFlag("lotm", "sequencePotionProgress", value);
+57922:        }
+57923:      }
+57924:    });
+57925:  }
+57926:
+57927:  /* -------------------------------------------- */
+57928:
+57929:  /**
+57930:   * Handle using a facility.
+57931:   * @this {CharacterActorSheet}
+57932:   * @param {Event} event         Triggering click event.
+57933:   * @param {HTMLElement} target  Button that was clicked.
+57934:   */
+57935:  static #useFacility(event, target) {
+57936:    if ( !target.classList.contains("rollable") ) return;
+57937:    const { facilityId } = target.closest("[data-facility-id]")?.dataset ?? {};
+57938:    const facility = this.actor.items.get(facilityId);
+57939:    facility?.use({ legacy: false, chooseActivity: true, event });
+57940:  }
+57941:
+57942:  /* -------------------------------------------- */
+57943:
+57944:  /**
+57945:   * Handle using a favorited item.
+57946:   * @this {CharacterActorSheet}
+57947:   * @param {Event} event         Triggering click event.
+57948:   * @param {HTMLElement} target  Button that was clicked.
+57949:   */
+57950:  static async #useFavorite(event, target) {
+57951:    if ( !this.isEditable || (event.target.tagName === "INPUT") ) return;
+57952:    const { favoriteId } = target.closest("[data-favorite-id]").dataset;
+57953:    const favorite = await fromUuid(favoriteId, { relative: this.actor });
+57954:    if ( (favorite instanceof dnd5e.documents.Item5e) || target.dataset.activityId ) {
+57955:      if ( favorite.type === "container" ) favorite.sheet.render({ force: true });
+57956:      else favorite.use({ event });
+57957:    }
+57958:    else if ( favorite instanceof dnd5e.dataModels.activity.BaseActivityData ) {
+57959:      if ( favorite.canUse ) favorite.use({ event });
+57960:    }
+57961:    else if ( favorite instanceof dnd5e.documents.ActiveEffect5e ) favorite.update({ disabled: !favorite.disabled });
+57962:    else {
+57963:      const { key } = target.closest("[data-key]")?.dataset ?? {};
+57964:      if ( key ) {
+57965:        if ( target.classList.contains("skill-name") ) this.actor.rollSkill({ event, skill: key });
+57966:        else if ( target.classList.contains("tool-name") ) this.actor.rollToolCheck({ event, tool: key });
+57967:      }
+57968:    }
+57969:  }
+57970:
+57971:  /* -------------------------------------------- */
+57972:  /*  Drag & Drop                                 */
+57973:  /* -------------------------------------------- */
+57974:
+57975:  /** @override */
+57976:  _defaultDropBehavior(event, data) {
+57977:    if ( data.dnd5e?.action === "favorite" || (["Activity", "Item"].includes(data.type)
+57978:      && event.target.closest(".favorites")) ) return "link";
+57979:    return super._defaultDropBehavior(event, data);
+57980:  }
+57981:
+57982:  /* -------------------------------------------- */
+57983:
+57984:  /** @inheritDoc */
+57985:  _onDragStart(event) {
+57986:    const methods = CONFIG.DND5E.spellcasting;
+57987:    const { key } = event.target.closest("[data-key]")?.dataset ?? {};
+57988:    const { level, method } = event.target.closest("[data-level]")?.dataset ?? {};
+57989:    const isSlots = event.target.closest("[data-favorite-id]") || event.target.classList.contains("items-header");
+57990:    let type;
+57991:    if ( key in CONFIG.DND5E.skills ) type = "skill";
+57992:    else if ( key in CONFIG.DND5E.tools ) type = "tool";
+57993:    else if ( methods[method]?.slots && (level !== "0") && isSlots ) type = "slots";
+57994:    if ( !type ) return super._onDragStart(event);
+57995:
+57996:    // Add another deferred deactivation to catch the second pointerenter event that seems to be fired on Firefox.
+57997:    requestAnimationFrame(() => game.tooltip.deactivate());
+57998:    game.tooltip.deactivate();
+57999:
+58000:    const dragData = { dnd5e: { action: "favorite", type } };
+58001:    if ( type === "slots" ) dragData.dnd5e.id = methods[method].getSpellSlotKey(Number(level));
+58002:    else dragData.dnd5e.id = key;
+58003:    event.dataTransfer.setData("application/json", JSON.stringify(dragData));
+58004:    event.dataTransfer.effectAllowed = "link";
+58005:  }
+58006:
+58007:  /* -------------------------------------------- */
+58008:
+58009:  /** @inheritDoc */
+58010:  async _onDrop(event) {
+58011:    if ( !event.target.closest(".favorites") ) return super._onDrop(event);
+58012:    const dragData = event.dataTransfer.getData("application/json") || event.dataTransfer.getData("text/plain");
+58013:    if ( !dragData ) return super._onDrop(event);
+58014:    let data;
+58015:    try {
+58016:      data = JSON.parse(dragData);
+58017:    } catch(e) {
+58018:      console.error(e);
+58019:      return;
+58020:    }
+58021:    const { action, type, id } = data.dnd5e ?? {};
+58022:    if ( action === "favorite" ) return this._onDropFavorite(event, { type, id });
+58023:    if ( data.type === "Activity" ) {
+58024:      const activity = await fromUuid(data.uuid);
+58025:      if ( activity ) return this._onDropActivity(event, activity);
+58026:    }
+58027:    return super._onDrop(event);
+58028:  }
+58029:
+58030:  /* -------------------------------------------- */
+58031:
+58032:  /** @inheritDoc */
+58033:  async _onDropActiveEffect(event, effect) {
+58034:    if ( !event.target.closest(".favorites") || (effect.target !== this.actor) ) {
+58035:      return super._onDropActiveEffect(event, effect);
+58036:    }
+58037:    const uuid = effect.getRelativeUUID(this.actor);
+58038:    return this._onDropFavorite(event, { type: "effect", id: uuid });
+58039:  }
+58040:
+58041:  /* -------------------------------------------- */
+58042:
+58043:  /**
+58044:   * Handle dropping an Activity onto the sheet.
+58045:   * @param {DragEvent} event    The originating drag event.
+58046:   * @param {Activity} activity  The dropped Activity document.
+58047:   * @returns {Promise<Actor5e|void>}
+58048:   * @protected
+58049:   */
+58050:  async _onDropActivity(event, activity) {
+58051:    if ( !event.target.closest(".favorites") || (activity.actor !== this.actor) ) return;
+58052:    const uuid = `${activity.item.getRelativeUUID(this.actor)}.Activity.${activity.id}`;
+58053:    return this._onDropFavorite(event, { type: "activity", id: uuid });
+58054:  }
+58055:
+58056:  /* -------------------------------------------- */
+58057:
+58058:  /** @inheritDoc */
+58059:  async _onDropActor(event, actor) {
+58060:    if ( !event.target.closest(".facility-occupants") || !actor.uuid ) return super._onDropActor(event, actor);
+58061:    const { facilityId } = event.target.closest("[data-facility-id]").dataset;
+58062:    const facility = this.actor.items.get(facilityId);
+58063:    if ( !facility ) return;
+58064:    const { prop } = event.target.closest("[data-prop]").dataset;
+58065:    const { max, value } = foundry.utils.getProperty(facility, prop);
+58066:    if ( (value.length + 1) > max ) return;
+58067:    return facility.update({ [`${prop}.value`]: [...value, actor.uuid] });
+58068:  }
+58069:
+58070:  /* -------------------------------------------- */
+58071:
+58072:  /**
+58073:   * Handle an owned item or effect being dropped in the favorites area.
+58074:   * @param {DragEvent} event            The triggering event.
+58075:   * @param {ActorFavorites5e} favorite  The favorite that was dropped.
+58076:   * @returns {Promise<Actor5e>|void}
+58077:   * @protected
+58078:   */
+58079:  _onDropFavorite(event, favorite) {
+58080:    if ( this.actor.system.hasFavorite(favorite.id) ) return this._onSortFavorites(event, favorite.id);
+58081:    return this.actor.system.addFavorite(favorite);
+58082:  }
+58083:
+58084:  /* -------------------------------------------- */
+58085:
+58086:  /** @inheritDoc */
+58087:  async _onDropItem(event, item) {
+58088:    if ( !event.target.closest(".favorites") || (item.parent !== this.actor) ) return super._onDropItem(event, item);
+58089:    const uuid = item.getRelativeUUID(this.actor);
+58090:    return this._onDropFavorite(event, { type: "item", id: uuid });
+58091:  }
+58092:
+58093:  /* -------------------------------------------- */
+58094:
+58095:  /** @override */
+58096:  async _onDropSingleItem(event, itemData) {
+58097:    // Increment the number of class levels a character instead of creating a new item
+58098:    if ( itemData.type === "class" ) {
+58099:      const droppedIdentifier = String(itemData.system.identifier ?? "").trim();
+58100:      const droppedName = String(itemData.name ?? "").trim().toLowerCase();
+58101:      const cls = this.actor.itemTypes.class.find(c => {
+58102:        if ( droppedIdentifier && (c.identifier === droppedIdentifier) ) return true;
+58103:        return droppedName && (c.name?.trim().toLowerCase() === droppedName);
+58104:      });
+58105:      if ( !cls && this.actor.itemTypes.class.length ) {
+58106:        ui.notifications.warn("DND5E.PathwaySingleFlowWarn", { localize: true });
+58107:        return;
+58108:      }
+58109:
+58110:      if ( !cls ) itemData.system.levels = pathwaySequenceToClassLevel(LOTM_MAX_SEQUENCE) ?? LOTM_PATHWAY_MIN_CLASS_LEVEL;
+58111:      else itemData.system.levels = 1;
+58112:
+58113:      const classLevelCap = actorPathwayClassLevelCap(this.actor, cls?.id);
+58114:      const nextLevel = cls
+58115:        ? normalizePathwayClassLevel(cls.system.levels) + itemData.system.levels
+58116:        : normalizePathwayClassLevel(itemData.system.levels);
+58117:      if ( nextLevel > classLevelCap ) {
+58118:        const err = game.i18n.localize("DND5E.MaxPathwaySequenceExceededWarn");
+58119:        ui.notifications.error(err);
+58120:        return;
+58121:      }
+58122:
+58123:      if ( cls ) {
+58124:        const priorLevel = normalizePathwayClassLevel(cls.system.levels);
+58125:        if ( !game.settings.get("lotm", "disableAdvancements") ) {
+58126:          const manager = AdvancementManager.forLevelChange(this.actor, cls.id, itemData.system.levels);
+58127:          this._applyPathwayAdvancementGuardrails(manager);
+58128:          if ( manager.steps.length ) {
+58129:            manager.render({ force: true });
+58130:            return;
+58131:          }
+58132:        }
+58133:        cls.update({ "system.levels": priorLevel + itemData.system.levels });
+58134:        return;
+58135:      }
+58136:    }
+58137:
+58138:    // Subclass selection is deferred in the pathway-first UX
+58139:    else if ( itemData.type === "subclass" ) {
+58140:      ui.notifications.warn("DND5E.SubclassDeferredWarn", { localize: true });
+58141:      return;
+58142:    }
+58143:
+58144:    return super._onDropSingleItem(event, itemData);
+58145:  }
+58146:
+58147:  /* -------------------------------------------- */
+58148:
+58149:  /**
+58150:   * Handle re-ordering the favorites list.
+58151:   * @param {DragEvent} event  The drop event.
+58152:   * @param {string} srcId     The identifier of the dropped favorite.
+58153:   * @returns {Promise<Actor5e>|void}
+58154:   * @protected
+58155:   */
+58156:  _onSortFavorites(event, srcId) {
+58157:    const dropTarget = event.target.closest("[data-favorite-id]");
+58158:    if ( !dropTarget ) return;
+58159:    let source;
+58160:    let target;
+58161:    const targetId = dropTarget.dataset.favoriteId;
+58162:    if ( srcId === targetId ) return;
+58163:    const siblings = this.actor.system.favorites.filter(f => {
+58164:      if ( f.id === targetId ) target = f;
+58165:      else if ( f.id === srcId ) source = f;
+58166:      return f.id !== srcId;
+58167:    });
+58168:    const updates = foundry.utils.performIntegerSort(source, { target, siblings });
+58169:    const favorites = this.actor.system.favorites.reduce((map, f) => map.set(f.id, { ...f }), new Map());
+58170:    for ( const { target, update } of updates ) {
+58171:      const favorite = favorites.get(target.id);
+58172:      foundry.utils.mergeObject(favorite, update);
+58173:    }
+58174:    return this.actor.update({ "system.favorites": Array.from(favorites.values()) });
+58175:  }
+58176:
+58177:  /* -------------------------------------------- */
+58178:  /*  Filtering                                   */
+58179:  /* -------------------------------------------- */
+58180:
+58181:  /** @inheritDoc */
+58182:  _filterItem(item, filters) {
+58183:    const allowed = super._filterItem(item, filters);
+58184:    if ( allowed !== undefined ) return allowed;
+58185:    if ( item.type === "container" ) return true;
+58186:  }
+58187:
+58188:  /* -------------------------------------------- */
+58189:  /*  Helpers                                     */
+58190:  /* -------------------------------------------- */
+58191:
+58192:  /** @inheritDoc */
+58193:  canExpand(item) {
+58194:    return !["background", "race", "facility"].includes(item.type) && super.canExpand(item);
+58195:  }
+58196:}
+58197:
+58198:/**
+58199: * An abstract class that implements functionality for sheets that contain multiple actors.
+58200: * @extends {BaseActorSheet}
+58201: */
+58202:class MultiActorSheet extends BaseActorSheet {
+58203:  /** @override */
+58204:  static DEFAULT_OPTIONS = {
+58205:    actions: {
+58206:      editDescription: MultiActorSheet.#onEditDescription,
+58207:      placeMembers: MultiActorSheet.#onPlaceMembers,
+58208:      removeMember: MultiActorSheet.#onRemoveMember
+58209:    }
+58210:  };
+58211:
+58212:  /* -------------------------------------------- */
+58213:  /*  Properties                                  */
+58214:  /* -------------------------------------------- */
+58215:
+58216:  /** @override */
+58217:  static unsupportedItemTypes = new Set([
+58218:    "background", "class", "facility", "feat", "race", "spell", "subclass"
+58219:  ]);
+58220:

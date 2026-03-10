@@ -1,0 +1,251 @@
+10940:      const ammo = rollConfig.ammunition?.system;
+10941:      if ( ammo?.magicAvailable && ammo.magicalBonus ) {
+10942:        roll.parts.push("@ammoBonus");
+10943:        roll.data.ammoBonus = ammo.magicalBonus;
+10944:      }
+10945:    }
+10946:
+10947:    const criticalBonusDice = this.actor?.getFlag("lotm", "meleeCriticalDamageDice") ?? 0;
+10948:    if ( (this.getActionType(rollConfig.attackMode) === "mwak") && (parseInt(criticalBonusDice) !== 0) ) {
+10949:      foundry.utils.setProperty(roll, "options.critical.bonusDice", criticalBonusDice);
+10950:    }
+10951:
+10952:    return roll;
+10953:  }
+10954:}
+10955:
+10956:/**
+10957: * @import {
+10958: *   AttackRollDialogConfiguration, AttackRollProcessConfiguration, BasicRollMessageConfiguration, D20RollConfiguration
+10959: * } from "../../dice/_types.mjs";
+10960: * @import { AmmunitionUpdate } from "./_types.mjs";
+10961: */
+10962:
+10963:/**
+10964: * Activity for making attacks and rolling damage.
+10965: */
+10966:class AttackActivity extends ActivityMixin(BaseAttackActivityData) {
+10967:  /* -------------------------------------------- */
+10968:  /*  Model Configuration                         */
+10969:  /* -------------------------------------------- */
+10970:
+10971:  /** @inheritDoc */
+10972:  static LOCALIZATION_PREFIXES = [...super.LOCALIZATION_PREFIXES, "DND5E.ATTACK"];
+10973:
+10974:  /* -------------------------------------------- */
+10975:
+10976:  /** @inheritDoc */
+10977:  static metadata = Object.freeze(
+10978:    foundry.utils.mergeObject(super.metadata, {
+10979:      type: "attack",
+10980:      img: "systems/lotm/icons/svg/activity/attack.svg",
+10981:      title: "DND5E.ATTACK.Title.one",
+10982:      hint: "DND5E.ATTACK.Hint",
+10983:      sheetClass: AttackSheet,
+10984:      usage: {
+10985:        actions: {
+10986:          rollAttack: AttackActivity.#rollAttack,
+10987:          rollDamage: AttackActivity.#rollDamage
+10988:        }
+10989:      }
+10990:    }, { inplace: false })
+10991:  );
+10992:
+10993:  /* -------------------------------------------- */
+10994:  /*  Activation                                  */
+10995:  /* -------------------------------------------- */
+10996:
+10997:  /** @override */
+10998:  _usageChatButtons(message) {
+10999:    const buttons = [{
+11000:      label: game.i18n.localize("DND5E.Attack"),
+11001:      icon: '<i class="dnd5e-icon" data-src="systems/lotm/icons/svg/trait-weapon-proficiencies.svg" inert></i>',
+11002:      dataset: {
+11003:        action: "rollAttack"
+11004:      }
+11005:    }];
+11006:    if ( this.damage.parts.length || this.item.system.properties?.has("amm") ) buttons.push({
+11007:      label: game.i18n.localize("DND5E.Damage"),
+11008:      icon: '<i class="fa-solid fa-burst" inert></i>',
+11009:      dataset: {
+11010:        action: "rollDamage"
+11011:      }
+11012:    });
+11013:    return buttons.concat(super._usageChatButtons(message));
+11014:  }
+11015:
+11016:  /* -------------------------------------------- */
+11017:
+11018:  /** @override */
+11019:  async _triggerSubsequentActions(config, results) {
+11020:    this.rollAttack({ event: config.event }, {}, { data: { "flags.lotm.originatingMessage": results.message?.id } });
+11021:  }
+11022:
+11023:  /* -------------------------------------------- */
+11024:  /*  Rolling                                     */
+11025:  /* -------------------------------------------- */
+11026:
+11027:  /**
+11028:   * Perform an attack roll.
+11029:   * @param {AttackRollProcessConfiguration} config  Configuration information for the roll.
+11030:   * @param {AttackRollDialogConfiguration} dialog   Configuration for the roll dialog.
+11031:   * @param {BasicRollMessageConfiguration} message  Configuration for the roll message.
+11032:   * @returns {Promise<D20Roll[]|null>}
+11033:   */
+11034:  async rollAttack(config={}, dialog={}, message={}) {
+11035:    const targets = getTargetDescriptors();
+11036:
+11037:    if ( (this.item.type === "weapon") && (this.item.system.quantity === 0) ) {
+11038:      ui.notifications.warn("DND5E.ATTACK.Warning.NoQuantity", { localize: true });
+11039:    }
+11040:
+11041:    const buildConfig = this._buildAttackConfig.bind(this);
+11042:
+11043:    const rollConfig = foundry.utils.mergeObject({
+11044:      ammunition: this.item.getFlag("lotm", `last.${this.id}.ammunition`),
+11045:      attackMode: this.item.getFlag("lotm", `last.${this.id}.attackMode`),
+11046:      elvenAccuracy: this.actor?.getFlag("lotm", "elvenAccuracy")
+11047:        && CONFIG.DND5E.characterFlags.elvenAccuracy.abilities.includes(this.ability),
+11048:      halflingLucky: this.actor?.getFlag("lotm", "halflingLucky"),
+11049:      mastery: this.item.getFlag("lotm", `last.${this.id}.mastery`),
+11050:      target: targets.length === 1 ? targets[0].ac : undefined
+11051:    }, config);
+11052:
+11053:    const ammunitionOptions = this.item.system.ammunitionOptions ?? [];
+11054:    if ( ammunitionOptions.length ) ammunitionOptions.unshift({ value: "", label: "" });
+11055:    if ( rollConfig.ammunition === undefined ) rollConfig.ammunition = ammunitionOptions?.[1]?.value;
+11056:    else if ( !ammunitionOptions?.find(m => m.value === rollConfig.ammunition) ) {
+11057:      rollConfig.ammunition = ammunitionOptions?.[0]?.value;
+11058:    }
+11059:    const attackModeOptions = this.item.system.attackModes;
+11060:    if ( !attackModeOptions?.find(m => m.value === rollConfig.attackMode) ) {
+11061:      rollConfig.attackMode = attackModeOptions?.[0]?.value;
+11062:    }
+11063:    const masteryOptions = this.item.system.masteryOptions;
+11064:    if ( !masteryOptions?.find(m => m.value === rollConfig.mastery) ) {
+11065:      rollConfig.mastery = masteryOptions?.[0]?.value;
+11066:    }
+11067:
+11068:    rollConfig.hookNames = [...(config.hookNames ?? []), "attack", "d20Test"];
+11069:    rollConfig.rolls = [CONFIG.Dice.D20Roll.mergeConfigs({
+11070:      options: {
+11071:        ammunition: rollConfig.ammunition,
+11072:        attackMode: rollConfig.attackMode,
+11073:        criticalSuccess: this.criticalThreshold,
+11074:        mastery: rollConfig.mastery
+11075:      }
+11076:    }, config.rolls?.shift())].concat(config.rolls ?? []);
+11077:    rollConfig.subject = this;
+11078:
+11079:    const dialogConfig = foundry.utils.mergeObject({
+11080:      applicationClass: AttackRollConfigurationDialog,
+11081:      options: {
+11082:        ammunitionOptions: rollConfig.ammunition !== false ? ammunitionOptions : [],
+11083:        attackModeOptions,
+11084:        buildConfig,
+11085:        masteryOptions: (masteryOptions?.length > 1) && !config.mastery ? masteryOptions : [],
+11086:        position: {
+11087:          top: config.event ? config.event.clientY - 80 : null,
+11088:          left: window.innerWidth - 710
+11089:        },
+11090:        window: {
+11091:          title: game.i18n.localize("DND5E.AttackRoll"),
+11092:          subtitle: this.item.name,
+11093:          icon: this.item.img
+11094:        }
+11095:      }
+11096:    }, dialog);
+11097:
+11098:    const messageConfig = foundry.utils.mergeObject({
+11099:      create: true,
+11100:      data: {
+11101:        flavor: `${this.item.name} - ${game.i18n.localize("DND5E.AttackRoll")}`,
+11102:        flags: { lotm: {
+11103:            ...this.messageFlags,
+11104:            messageType: "roll",
+11105:            roll: { type: "attack" }
+11106:          }
+11107:        },
+11108:        speaker: ChatMessage.getSpeaker({ actor: this.actor })
+11109:      }
+11110:    }, message);
+11111:
+11112:    const rolls = await CONFIG.Dice.D20Roll.buildConfigure(rollConfig, dialogConfig, messageConfig);
+11113:    await CONFIG.Dice.D20Roll.buildEvaluate(rolls, rollConfig, messageConfig);
+11114:    if ( !rolls.length ) return null;
+11115:    for ( const key of ["ammunition", "attackMode", "mastery"] ) {
+11116:      if ( !rolls[0].options[key] ) continue;
+11117:      foundry.utils.setProperty(messageConfig.data, `flags.lotm.roll.${key}`, rolls[0].options[key]);
+11118:    }
+11119:    await CONFIG.Dice.D20Roll.buildPost(rolls, rollConfig, messageConfig);
+11120:
+11121:    const flags = {};
+11122:    let ammoUpdate = null;
+11123:
+11124:    const canUpdate = this.item.isOwner && !this.item.inCompendium;
+11125:    if ( rolls[0].options.ammunition ) {
+11126:      const ammo = this.actor?.items.get(rolls[0].options.ammunition);
+11127:      if ( ammo ) {
+11128:        if ( !ammo.system.properties?.has("ret") ) {
+11129:          ammoUpdate = { id: ammo.id, quantity: Math.max(0, ammo.system.quantity - 1) };
+11130:          ammoUpdate.destroy = ammo.system.uses.autoDestroy && (ammoUpdate.quantity === 0);
+11131:        }
+11132:        flags.ammunition = rolls[0].options.ammunition;
+11133:      }
+11134:    } else if ( rolls[0].options.attackMode?.startsWith("thrown") && !this.item.system.properties?.has("ret") ) {
+11135:      ammoUpdate = { id: this.item.id, quantity: Math.max(0, this.item.system.quantity - 1) };
+11136:    } else if ( !rolls[0].options.ammunition && dialogConfig.options?.ammunitionOptions?.length ) {
+11137:      flags.ammunition = "";
+11138:    }
+11139:    if ( rolls[0].options.attackMode ) flags.attackMode = rolls[0].options.attackMode;
+11140:    else if ( rollConfig.attackMode ) rolls[0].options.attackMode = rollConfig.attackMode;
+11141:    if ( rolls[0].options.mastery ) flags.mastery = rolls[0].options.mastery;
+11142:    if ( canUpdate && !foundry.utils.isEmpty(flags) && (this.actor && this.actor.items.has(this.item.id)) ) {
+11143:      await this.item.setFlag("lotm", `last.${this.id}`, flags);
+11144:    }
+11145:
+11146:    /**
+11147:     * A hook event that fires after an attack has been rolled but before any ammunition is consumed.
+11148:     * @function dnd5e.rollAttack
+11149:     * @memberof hookEvents
+11150:     * @param {D20Roll[]} rolls                        The resulting rolls.
+11151:     * @param {object} data
+11152:     * @param {AttackActivity|null} data.subject       The Activity that performed the attack.
+11153:     * @param {AmmunitionUpdate|null} data.ammoUpdate  Any updates related to ammo consumption for this attack.
+11154:     */
+11155:    Hooks.callAll("dnd5e.rollAttack", rolls, { subject: this, ammoUpdate });
+11156:    Hooks.callAll("dnd5e.rollAttackV2", rolls, { subject: this, ammoUpdate });
+11157:
+11158:    // Commit ammunition consumption on attack rolls resource consumption if the attack roll was made
+11159:    if ( canUpdate && ammoUpdate?.destroy ) {
+11160:      // If ammunition was deleted, store a copy of it in the roll message
+11161:      const data = this.actor.items.get(ammoUpdate.id).toObject();
+11162:      const messageId = messageConfig.data?.flags?.lotm?.originatingMessage
+11163:        ?? rollConfig.event?.target.closest("[data-message-id]")?.dataset.messageId;
+11164:      const attackMessage = dnd5e.registry.messages.get(messageId, "attack")?.pop();
+11165:      await attackMessage?.setFlag("lotm", "roll.ammunitionData", data);
+11166:      await this.actor.deleteEmbeddedDocuments("Item", [ammoUpdate.id]);
+11167:    }
+11168:    else if ( canUpdate && ammoUpdate ) await this.actor?.updateEmbeddedDocuments("Item", [
+11169:      { _id: ammoUpdate.id, "system.quantity": ammoUpdate.quantity }
+11170:    ]);
+11171:
+11172:    /**
+11173:     * A hook event that fires after an attack has been rolled and ammunition has been consumed.
+11174:     * @function dnd5e.postRollAttack
+11175:     * @memberof hookEvents
+11176:     * @param {D20Roll[]} rolls                   The resulting rolls.
+11177:     * @param {object} data
+11178:     * @param {AttackActivity|null} data.subject  The activity that performed the attack.
+11179:     */
+11180:    Hooks.callAll("dnd5e.postRollAttack", rolls, { subject: this });
+11181:
+11182:    return rolls;
+11183:  }
+11184:
+11185:  /* -------------------------------------------- */
+11186:
+11187:  /**
+11188:   * Configure a roll config for each roll performed as part of the attack process. Will be called once per roll
+11189:   * in the process each time an option is changed in the roll configuration interface.
+11190:   * @param {AttackRollProcessConfiguration} process       Configuration for the entire rolling process.

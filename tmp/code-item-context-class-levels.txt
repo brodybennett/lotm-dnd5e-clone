@@ -1,0 +1,86 @@
+55420:      : game.i18n.localize("DND5E.AbbreviationDC") : null;
+55421:
+55422:    // Linked Uses
+55423:    const cachedFor = fromUuidSync(item.flags.lotm?.cachedFor, { relative: item.parent, strict: false });
+55424:    if ( cachedFor ) {
+55425:      const targetItemUses = cachedFor.consumption?.targets.find(t => t.type === "itemUses");
+55426:      ctx.linkedUses = cachedFor.consumption?.targets.find(t => t.type === "activityUses")
+55427:        ? cachedFor.uses : targetItemUses
+55428:          ? (this.actor.items.get(targetItemUses.target) ?? cachedFor.item).system.uses : null;
+55429:    }
+55430:    ctx.uses = { ...(item.system.uses ?? {}) };
+55431:    ctx.uses.hasRecharge = item.hasRecharge;
+55432:    ctx.uses.hasUses = item.hasLimitedUses;
+55433:    ctx.uses.isOnCooldown = item.isOnCooldown;
+55434:    ctx.uses.prop = "system.uses.value";
+55435:    ctx.uses.pct = ctx.uses.max ? Math.clamp((ctx.uses.value / ctx.uses.max) * 100, 0, 100) : 0;
+55436:  }
+55437:
+55438:  /* -------------------------------------------- */
+55439:
+55440:  /**
+55441:   * Prepare context for a feature. Called in addition to the standard `_prepareItem` for this item.
+55442:   * @param {Item5e} item  Item being prepared for display.
+55443:   * @param {object} ctx   Item specific context.
+55444:   * @protected
+55445:   */
+55446:  async _prepareItemFeature(item, ctx) {
+55447:    // Classes & Subclasses
+55448:    if ( ["class", "subclass"].includes(item.type) ) {
+55449:      ctx.prefixedImage = item.img ? foundry.utils.getRoute(item.img) : null;
+55450:      if ( item.type === "class" ) {
+55451:        const currentLevel = normalizePathwayClassLevel(item.system.levels);
+55452:        const maxClassLevel = actorPathwayClassLevelCap(item.parent, item.id);
+55453:        const availableLevels = [];
+55454:        for ( let sequence = LOTM_MAX_SEQUENCE; sequence >= LOTM_MIN_SEQUENCE; sequence-- ) {
+55455:          const targetLevel = pathwaySequenceToClassLevel(sequence);
+55456:          if ( targetLevel === null ) continue;
+55457:          const value = targetLevel - currentLevel;
+55458:          const sequenceLabel = game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+55459:          const label = value
+55460:            ? `${sequenceLabel} (${formatNumber(value, { signDisplay: "always" })})`
+55461:            : sequenceLabel;
+55462:          availableLevels.push({ label, value, disabled: targetLevel > maxClassLevel });
+55463:        }
+55464:        ctx.availableLevels = availableLevels;
+55465:        ctx.pathwaySequence = classLevelToPathwaySequence(currentLevel);
+55466:        ctx.pathwaySequenceLabel = pathwaySequenceLabelFromClassLevel(currentLevel);
+55467:      }
+55468:    }
+55469:
+55470:    ctx.subtitle = [item.system.type?.label, item.isActive ? item.labels.activation : null].filterJoin(" • ");
+55471:  }
+55472:
+55473:  /* -------------------------------------------- */
+55474:
+55475:  /**
+55476:   * Prepare context for a physical item. Called in addition to the standard `_prepareItem` for this item.
+55477:   * @param {Item5e} item  Item being prepared for display.
+55478:   * @param {object} ctx   Item specific context.
+55479:   * @protected
+55480:   */
+55481:  async _prepareItemPhysical(item, ctx) {
+55482:    // Attuned
+55483:    if ( ctx.attunement ) {
+55484:      ctx.attunement.applicable = true;
+55485:      ctx.attunement.disabled = !item.isOwner;
+55486:      ctx.attunement.cls = ctx.attunement.cls === "attuned" ? "active" : "";
+55487:    }
+55488:    else ctx.attunement = { applicable: false };
+55489:
+55490:    // Equipped
+55491:    if ( "equipped" in item.system ) ctx.equip = {
+55492:      applicable: true,
+55493:      cls: item.system.equipped ? "active" : "",
+55494:      title: `DND5E.${item.system.equipped ? "Equipped" : "Unequipped"}`,
+55495:      disabled: !item.isOwner
+55496:    };
+55497:    else ctx.equip = { applicable: false };
+55498:
+55499:    // Subtitles
+55500:    ctx.subtitle = [item.system.type?.label, item.isActive ? item.labels.activation : null].filterJoin(" • ");
+55501:
+55502:    // Weight
+55503:    ctx.totalWeight = item.system.totalWeight?.toNearest(0.1);
+55504:
+55505:    // Grouping

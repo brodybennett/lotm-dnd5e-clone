@@ -1,0 +1,121 @@
+40940:   */
+40941:  static prepareRace(race, { force=false }={}) {
+40942:    for ( const key of Object.keys(CONFIG.DND5E.movementTypes) ) {
+40943:      if ( !race.system.movement[key] || (!force && this.attributes.movement[key]) ) continue;
+40944:      this.attributes.movement.fromSpecies ??= {};
+40945:      this.attributes.movement[key] = this.attributes.movement.fromSpecies[key] = race.system.movement[key];
+40946:    }
+40947:    if ( race.system.movement.hover ) this.attributes.movement.hover = true;
+40948:    if ( force && race.system.movement.units ) this.attributes.movement.units = race.system.movement.units;
+40949:    else this.attributes.movement.units ??= race.system.movement.units;
+40950:
+40951:    for ( const key of Object.keys(CONFIG.DND5E.senses) ) {
+40952:      if ( !race.system.senses[key] || (!force && (this.attributes.senses[key] !== null)) ) continue;
+40953:      this.attributes.senses[key] = race.system.senses[key];
+40954:    }
+40955:    this.attributes.senses.special = [this.attributes.senses.special, race.system.senses.special].filterJoin(";");
+40956:    if ( force && race.system.senses.units ) this.attributes.senses.units = race.system.senses.units;
+40957:    else this.attributes.senses.units ??= race.system.senses.units;
+40958:  }
+40959:
+40960:  /* -------------------------------------------- */
+40961:
+40962:  /**
+40963:   * Prepare spellcasting DC & modifier.
+40964:   * @this {CharacterData|NPCData}
+40965:   */
+40966:  static prepareSpellcastingAbility() {
+40967:    const ability = this.abilities?.[this.attributes.spellcasting];
+40968:    const pathwayPotency = this.parent?.type === "character"
+40969:      ? (Number(this.attributes?.potency) || Number(this.pathway?.potency) || Number(this.attributes?.prof) || 0)
+40970:      : (Number(this.attributes?.prof) || 0);
+40971:    this.attributes.spell ??= {};
+40972:    this.attributes.spell.abilityLabel = CONFIG.DND5E.abilities[this.attributes.spellcasting]?.label ?? "";
+40973:    this.attributes.spell.attack = ability ? ability.attack : this.attributes.prof;
+40974:    this.attributes.spell.dc = ability ? ability.dc : 8 + pathwayPotency;
+40975:    this.attributes.spell.mod = ability ? ability.mod : 0;
+40976:  }
+40977:}
+40978:
+40979:/**
+40980: * @import { CombatRecoveryResults } from "../../documents/_types.mjs";
+40981: * @import { ActorDataModelMetadata } from "./_types.mjs";
+40982: */
+40983:
+40984:/**
+40985: * Variant of the SystemDataModel with some extra actor-specific handling.
+40986: */
+40987:let ActorDataModel$1 = class ActorDataModel extends SystemDataModel$1 {
+40988:
+40989:  /** @type {ActorDataModelMetadata} */
+40990:  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+40991:    supportsAdvancement: false
+40992:  }, { inplace: false }));
+40993:
+40994:  /* -------------------------------------------- */
+40995:  /*  Properties                                  */
+40996:  /* -------------------------------------------- */
+40997:
+40998:  /** @override */
+40999:  get embeddedDescriptionKeyPath() {
+41000:    return "details.biography.value";
+41001:  }
+41002:
+41003:  /* -------------------------------------------- */
+41004:
+41005:  /**
+41006:   * Other actors that are available for currency transfers from this actor.
+41007:   * @type {Actor5e[]}
+41008:   */
+41009:  get transferDestinations() {
+41010:    const primaryParty = game.actors.party;
+41011:    if ( !primaryParty?.system.members.ids.has(this.parent.id) ) return [];
+41012:    const destinations = primaryParty.system.members.map(m => m.actor).filter(a => a.isOwner && a !== this.parent);
+41013:    if ( primaryParty.isOwner ) destinations.unshift(primaryParty);
+41014:    return destinations;
+41015:  }
+41016:
+41017:  /* -------------------------------------------- */
+41018:  /*  Data Preparation                            */
+41019:  /* -------------------------------------------- */
+41020:
+41021:  /**
+41022:   * Data preparation steps to perform after item data has been prepared, but before active effects are applied.
+41023:   */
+41024:  prepareEmbeddedData() {
+41025:    this._prepareScaleValues();
+41026:  }
+41027:
+41028:  /* -------------------------------------------- */
+41029:
+41030:  /**
+41031:   * Derive any values that have been scaled by the Advancement system.
+41032:   * Mutates the value of the `system.scale` object.
+41033:   * @protected
+41034:   */
+41035:  _prepareScaleValues() {
+41036:    this.scale = this.parent.items.reduce((scale, item) => {
+41037:      const scaleValues = item.scaleValues;
+41038:      if ( !foundry.utils.isEmpty(scaleValues) ) scale[item.identifier] = scaleValues;
+41039:      return scale;
+41040:    }, {});
+41041:  }
+41042:
+41043:  /* -------------------------------------------- */
+41044:  /*  Helpers                                     */
+41045:  /* -------------------------------------------- */
+41046:
+41047:  /**
+41048:   * Prepare a data object which defines the data schema used by dice roll commands against this Actor.
+41049:   * @param {object} [options]
+41050:   * @param {boolean} [options.deterministic] Whether to force deterministic values for data properties that could be
+41051:   *                                          either a die term or a flat term.
+41052:   * @returns {object}
+41053:   */
+41054:  getRollData({ deterministic=false }={}) {
+41055:    const data = { ...this };
+41056:    data.prof = new Proficiency(this.attributes?.prof ?? 0, 1);
+41057:    data.prof.deterministic = deterministic;
+41058:    return data;
+41059:  }
+41060:

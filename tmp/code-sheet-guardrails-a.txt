@@ -1,0 +1,161 @@
+56880:
+56881:  /* -------------------------------------------- */
+56882:
+56883:  /** @override */
+56884:  tabGroups = {
+56885:    primary: "details"
+56886:  };
+56887:
+56888:  /* -------------------------------------------- */
+56889:  /*  Helpers                                     */
+56890:  /* -------------------------------------------- */
+56891:
+56892:  /**
+56893:   * Normalize sequence potion progress to an integer percentage.
+56894:   * @param {number|string} value  Candidate percentage.
+56895:   * @returns {number}
+56896:   */
+56897:  static #sanitizeSequencePotionProgress(value) {
+56898:    const numeric = Number(value);
+56899:    if ( !Number.isFinite(numeric) ) return 0;
+56900:    return Math.clamp(Math.round(numeric), 0, 100);
+56901:  }
+56902:
+56903:  /* -------------------------------------------- */
+56904:  /*  Pathway Flow Guardrails                     */
+56905:  /* -------------------------------------------- */
+56906:
+56907:  /**
+56908:   * Adjust advancement steps for the standard single-pathway LoTM flow.
+56909:   * @param {AdvancementManager} manager  Advancement manager to adjust.
+56910:   * @protected
+56911:   */
+56912:  _applyPathwayAdvancementGuardrails(manager) {
+56913:    if ( !this.#isStandardPathwayFlow() || !manager?.steps?.length ) return;
+56914:    const initialStepCount = manager.steps.length;
+56915:    manager.steps = manager.steps.filter(step => !this.#isSubclassAdvancementStep(step));
+56916:    if ( initialStepCount !== manager.steps.length ) {
+56917:      ui.notifications.warn("DND5E.SubclassDeferredWarn", { localize: true });
+56918:    }
+56919:  }
+56920:
+56921:  /* -------------------------------------------- */
+56922:
+56923:  /**
+56924:   * Is this actor currently in the normal single-pathway flow.
+56925:   * @returns {boolean}
+56926:   */
+56927:  #isStandardPathwayFlow() {
+56928:    return (this.actor.itemTypes.class.length <= 1) && !this.actor.itemTypes.subclass.length;
+56929:  }
+56930:
+56931:  /* -------------------------------------------- */
+56932:
+56933:  /**
+56934:   * Is this advancement step for subclass selection.
+56935:   * @param {AdvancementStep} step  Advancement step being checked.
+56936:   * @returns {boolean}
+56937:   */
+56938:  #isSubclassAdvancementStep(step) {
+56939:    const advancement = step?.flow?.advancement;
+56940:    return (advancement?.type === "Subclass") || (advancement?.constructor?.name === "SubclassAdvancement");
+56941:  }
+56942:
+56943:  /* -------------------------------------------- */
+56944:  /*  Rendering                                   */
+56945:  /* -------------------------------------------- */
+56946:
+56947:  /** @override */
+56948:  async _configureInventorySections(sections) {
+56949:    sections.forEach(s => {
+56950:      s.minWidth = 250;
+56951:      if ( s.id === "weapons" ) s.columns = ["price", "weight", "quantity", "charges", "roll", "formula", "controls"];
+56952:    });
+56953:  }
+56954:
+56955:  /* -------------------------------------------- */
+56956:
+56957:  /** @inheritDoc */
+56958:  async _prepareContext(options) {
+56959:    const context = {
+56960:      ...await super._prepareContext(options),
+56961:      abilityRows: {
+56962:        bottom: [], top: [], optional: Object.keys(CONFIG.DND5E.abilities).length - 6
+56963:      },
+56964:      isCharacter: true
+56965:    };
+56966:    context.spellbook = this._prepareSpellbook(context);
+56967:    return context;
+56968:  }
+56969:
+56970:  /* -------------------------------------------- */
+56971:
+56972:  /** @inheritDoc */
+56973:  async _preparePartContext(partId, context, options) {
+56974:    context = await super._preparePartContext(partId, context, options);
+56975:    switch ( partId ) {
+56976:      case "abilityScores": return this._prepareAbilityScoresContext(context, options);
+56977:      case "bastion": return this._prepareBastionContext(context, options);
+56978:      case "biography": return this._prepareBiographyContext(context, options);
+56979:      case "details": return this._prepareDetailsContext(context, options);
+56980:      case "effects": return this._prepareEffectsContext(context, options);
+56981:      case "features": return this._prepareFeaturesContext(context, options);
+56982:      case "header": return this._prepareHeaderContext(context, options);
+56983:      case "inventory": return this._prepareInventoryContext(context, options);
+56984:      case "sidebar": return this._prepareSidebarContext(context, options);
+56985:      case "specialTraits": return this._prepareSpecialTraitsContext(context, options);
+56986:      case "spells": return this._prepareSpellsContext(context, options);
+56987:      case "tabs": return this._prepareTabsContext(context, options);
+56988:      default: return context;
+56989:    }
+56990:  }
+56991:
+56992:  /* -------------------------------------------- */
+56993:
+56994:  /**
+56995:   * Prepare rendering context for the ability scores.
+56996:   * @param {ApplicationRenderContext} context  Context being prepared.
+56997:   * @param {HandlebarsRenderOptions} options   Options which configure application rendering behavior.
+56998:   * @returns {ApplicationRenderContext}
+56999:   * @protected
+57000:   */
+57001:  async _prepareAbilityScoresContext(context, options) {
+57002:    for ( const ability of this._prepareAbilities(context) ) {
+57003:      if ( context.abilityRows.bottom.length > 5 ) context.abilityRows.top.push(ability);
+57004:      else context.abilityRows.bottom.push(ability);
+57005:    }
+57006:    return context;
+57007:  }
+57008:
+57009:  /* -------------------------------------------- */
+57010:
+57011:  /**
+57012:   * Prepare rendering context for the bastion tab.
+57013:   * @param {ApplicationRenderContext} context  Context being prepared.
+57014:   * @param {HandlebarsRenderOptions} options   Options which configure application rendering behavior.
+57015:   * @returns {ApplicationRenderContext}
+57016:   * @protected
+57017:   */
+57018:  async _prepareBastionContext(context, options) {
+57019:    context.bastion = {
+57020:      description: await TextEditor$8.enrichHTML(this.actor.system.bastion.description, {
+57021:        secrets: this.actor.isOwner, relativeTo: this.actor, rollData: context.rollData
+57022:      })
+57023:    };
+57024:    context.defenders = [];
+57025:    context.facilities = { basic: { chosen: [] }, special: { chosen: [] } };
+57026:
+57027:    for ( const facility of context.itemCategories.facilities ?? [] ) {
+57028:      const ctx = context.itemContext[facility.id] ?? {};
+57029:      context.defenders.push(...ctx.defenders.map(({ actor }) => {
+57030:        if ( !actor ) return null;
+57031:        const { img, name, uuid } = actor;
+57032:        return { img, name, uuid, facility: facility.id };
+57033:      }).filter(_ => _));
+57034:      if ( ctx.isSpecial ) context.facilities.special.chosen.push(ctx);
+57035:      else context.facilities.basic.chosen.push(ctx);
+57036:    }
+57037:
+57038:    for ( const [type, facilities] of Object.entries(context.facilities) ) {
+57039:      const config = CONFIG.DND5E.facilities.advancement[type];
+57040:      let [, available] = Object.entries(config).reverse().find(([level]) => {

@@ -1,0 +1,71 @@
+79570:
+79571:/**
+79572: * Migrate the actor movement & senses to replace `0` with `null`.
+79573: * @param {object} actorData   Actor data being migrated.
+79574: * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
+79575: * @returns {object}           Modified version of update data.
+79576: * @private
+79577: */
+79578:function _migrateActorMovementSenses(actorData, updateData) {
+79579:  if ( actorData._stats?.systemVersion && foundry.utils.isNewerVersion("2.4.0", actorData._stats.systemVersion) ) {
+79580:    for ( const key of Object.keys(CONFIG.DND5E.movementTypes) ) {
+79581:      const keyPath = `system.attributes.movement.${key}`;
+79582:      if ( foundry.utils.getProperty(actorData, keyPath) === 0 ) updateData[keyPath] = null;
+79583:    }
+79584:    for ( const key of Object.keys(CONFIG.DND5E.senses) ) {
+79585:      const keyPath = `system.attributes.senses.${key}`;
+79586:      if ( foundry.utils.getProperty(actorData, keyPath) === 0 ) updateData[keyPath] = null;
+79587:    }
+79588:  }
+79589:  return updateData;
+79590:}
+79591:
+79592:/* -------------------------------------------- */
+79593:
+79594:/**
+79595: * Migrate character spirituality data to the expected object shape.
+79596: * @param {object} actorData   Actor data being migrated.
+79597: * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
+79598: * @returns {object}           Modified version of update data.
+79599: * @private
+79600: */
+79601:function _migrateActorSpirituality(actorData, updateData) {
+79602:  if ( actorData.type !== "character" ) return updateData;
+79603:  const spirituality = foundry.utils.getProperty(actorData, "system.attributes.spirituality");
+79604:  const needsVersionMigration = foundry.utils.isNewerVersion("5.2.7", actorData._stats?.systemVersion ?? "0");
+79605:
+79606:  const rawMax = Number(spirituality?.max);
+79607:  const rawValue = Number(spirituality?.value);
+79608:  const rawTemp = Number(spirituality?.temp);
+79609:  const rawTempMax = Number(spirituality?.tempmax);
+79610:  const max = Math.max(Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0), 0);
+79611:  const temp = Math.max(Number.isFinite(rawTemp) ? rawTemp : 0, 0);
+79612:  const tempmax = Number.isFinite(rawTempMax) ? rawTempMax : 0;
+79613:  const effectiveMax = Math.max(max + temp + tempmax, 0);
+79614:  const value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, effectiveMax);
+79615:  const formula = typeof spirituality?.formula === "string" ? spirituality.formula : "";
+79616:
+79617:  if ( (foundry.utils.getType(spirituality) !== "Object") || needsVersionMigration ) {
+79618:    updateData["system.attributes.spirituality"] = { value, max, temp, tempmax, formula };
+79619:    return updateData;
+79620:  }
+79621:
+79622:  if ( spirituality.max !== max ) updateData["system.attributes.spirituality.max"] = max;
+79623:  if ( spirituality.temp !== temp ) updateData["system.attributes.spirituality.temp"] = temp;
+79624:  if ( spirituality.tempmax !== tempmax ) updateData["system.attributes.spirituality.tempmax"] = tempmax;
+79625:  if ( spirituality.value !== value ) updateData["system.attributes.spirituality.value"] = value;
+79626:  if ( typeof spirituality.formula !== "string" ) updateData["system.attributes.spirituality.formula"] = formula;
+79627:
+79628:  return updateData;
+79629:}
+79630:
+79631:/* -------------------------------------------- */
+79632:
+79633:/**
+79634: * Migrate character corruption data to the expected object shape.
+79635: * @param {object} actorData   Actor data being migrated.
+79636: * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
+79637: * @returns {object}           Modified version of update data.
+79638: * @private
+79639: */
+79640:function _migrateActorCorruption(actorData, updateData) {

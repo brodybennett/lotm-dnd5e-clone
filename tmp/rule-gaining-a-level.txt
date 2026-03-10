@@ -1,0 +1,5 @@
+JOURNAL:phbCreatingAChar
+PAGE:Gaining a Level (iHbj5aJvc1T7i5YI)
+TYPE:text
+
+Advancing Sequence When your character advances, they do not gain a normal class level in the standard flow. They promote to the next sequence in their pathway (for example, Sequence 7 to Sequence 6). Promotion Steps Confirm promotion prerequisites (story gate, ritual requirement, and GM approval as applicable). Update sequence and tier values on the sheet. Apply sequence-derived stat recalculations (Sequence Bonus, Potency, Resistance, HP base, Spirituality base). Apply promotion-point ability increase if the new sequence grants one. Grant pathway feature package for that sequence and resolve resource/corruption hooks. Promotion should always feel like a meaningful step in authority and capability, not only a numerical bump.

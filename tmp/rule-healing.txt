@@ -1,0 +1,5 @@
+JOURNAL:phbDamageAndHeal
+PAGE:Healing (jLAG02U8x7MGm3u0)
+TYPE:text
+
+Healing and Spiritual Recovery Healing effects restore HP normally, but pathway pacing adds sequence-linked Spirituality recovery. Long rest: restore Spirituality to full by default. Short rest: recover ceil(SP_max * (0.15 + 0.05 * Tier index)). SP_max is sequence-based: SP_base(Q) = round(6 + 1.0 * B(Q)) SP_max = SP_base + SPI_mod * (2 + Tier index) + PathwaySpiritualAdj PathwaySpiritualAdj is constrained to -10% to +20% of SP_base. Corruption and Instability Corruption is tracked on a 0-100 scale. Standard thresholds: 25: minor signs and narrative tells, 50: instability checks begin under stress, 75: major ability use carries significant loss-of-control risk, 100: loss-of-control event. Instability checks use: d20 + SPI_mod + Resistance versus a GM-set pressure DC based on action risk and context.

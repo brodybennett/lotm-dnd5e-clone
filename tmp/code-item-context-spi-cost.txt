@@ -1,0 +1,121 @@
+55520:    // Activation
+55521:    const cost = item.system.activation?.value ?? "";
+55522:    const abbr = {
+55523:      action: "DND5E.ActionAbbr",
+55524:      bonus: "DND5E.BonusActionAbbr",
+55525:      reaction: "DND5E.ReactionAbbr",
+55526:      minute: "DND5E.TimeMinuteAbbr",
+55527:      hour: "DND5E.TimeHourAbbr",
+55528:      day: "DND5E.TimeDayAbbr"
+55529:    }[item.system.activation.type];
+55530:    ctx.activation = abbr ? `${cost}${game.i18n.localize(abbr)}` : item.labels.activation;
+55531:
+55532:    // Range
+55533:    const units = item.system.range?.units;
+55534:    if ( units && (units !== "none") ) {
+55535:      if ( units in CONFIG.DND5E.movementUnits ) ctx.range = {
+55536:        distance: true,
+55537:        value: item.system.range.value,
+55538:        unit: CONFIG.DND5E.movementUnits[units].abbreviation,
+55539:        parts: formatLength(item.system.range.value, units, { parts: true })
+55540:      };
+55541:      else ctx.range = { distance: false };
+55542:    }
+55543:
+55544:    // Prepared
+55545:    const { method, prepared } = item.system;
+55546:    const config = CONFIG.DND5E.spellcasting[method];
+55547:    if ( config?.prepares && !linked ) {
+55548:      const isAlways = prepared === CONFIG.DND5E.spellPreparationStates.always.value;
+55549:      ctx.preparation = {
+55550:        applicable: true,
+55551:        disabled: !item.isOwner || isAlways,
+55552:        cls: prepared ? "active" : "",
+55553:        icon: `<i class="fa-${prepared ? "solid" : "regular"} fa-${isAlways ? "certificate" : "sun"}" inert></i>`,
+55554:        title: CONFIG.DND5E.spellPreparationStates[isAlways ? "always" : prepared ? "prepared" : "unprepared"].label
+55555:      };
+55556:    }
+55557:    else ctx.preparation = { applicable: false };
+55558:
+55559:    // Spirituality Cost (override or derived)
+55560:    const override = item.system.spiritualityCost;
+55561:    const derived = spiritualityCostFromSpellLevel(item.system.level);
+55562:    ctx.spiritualityCost = Number.isFinite(Number(override)) ? Math.max(Number(override), 0) : derived;
+55563:
+55564:    // Subtitle
+55565:    ctx.subtitle = [
+55566:      linked ? linked.name : item.parent.classes[item.system.sourceClass]?.name,
+55567:      item.labels.components.vsm
+55568:    ].filterJoin(" • ");
+55569:  }
+55570:
+55571:  /* -------------------------------------------- */
+55572:
+55573:  /**
+55574:   * Augment inventory display with attunement indicator.
+55575:   * @param {ApplicationRenderContext} context
+55576:   * @param {ApplicationRenderOptions} options
+55577:   * @protected
+55578:   */
+55579:  _renderAttunement(context, options) {
+55580:    const { attunement } = context.system.attributes;
+55581:    const element = document.createElement("div");
+55582:    element.classList.add("attunement");
+55583:    element.innerHTML = `
+55584:      <i class="fa-solid fa-sun" data-tooltip="DND5E.Attunement"
+55585:         aria-label="${game.i18n.localize("DND5E.Attunement")}"></i>
+55586:      <span class="value"></span>
+55587:      <span class="separator">&sol;</span>
+55588:    `;
+55589:    element.querySelector(".value").append(attunement.value);
+55590:    if ( context.editable ) {
+55591:      const input = document.createElement("input");
+55592:      Object.assign(input, {
+55593:        type: "number", name: "system.attributes.attunement.max", className: "max", min: "0", step: "1",
+55594:        value: context.source.attributes.attunement.max
+55595:      });
+55596:      element.append(input);
+55597:    } else {
+55598:      element.insertAdjacentHTML("beforeend", '<span class="max"></span>');
+55599:      element.querySelector(".max").append(attunement.max);
+55600:    }
+55601:    this.element.querySelector('[data-application-part="inventory"] .middle').append(element);
+55602:  }
+55603:
+55604:  /* -------------------------------------------- */
+55605:
+55606:  /**
+55607:   * Render a button for creating items in the inventory tab.
+55608:   * @protected
+55609:   */
+55610:  _renderCreateInventory() {
+55611:    const button = document.createElement("button");
+55612:    Object.assign(button, {
+55613:      type: "button", className: "create-child gold-button",
+55614:      ariaLabel: game.i18n.format("SIDEBAR.Create", { type: game.i18n.localize("DOCUMENT.Item") })
+55615:    });
+55616:    button.dataset.action = "addDocument";
+55617:    button.insertAdjacentHTML("beforeend", '<i class="fa-solid fa-plus" inert></i>');
+55618:    const bottom = this.element.querySelector('[data-application-part="inventory"] .bottom');
+55619:    bottom.classList.add("with-child");
+55620:    bottom.append(button);
+55621:  }
+55622:
+55623:  /* -------------------------------------------- */
+55624:
+55625:  /**
+55626:   * Augment spellbook display.
+55627:   * @param {ApplicationRenderContext} context
+55628:   * @param {ApplicationRenderOptions} options
+55629:   * @protected
+55630:   */
+55631:  _renderSpellbook(context, options) {
+55632:    if ( this.actor.type === "character" ) return;
+55633:    for ( const { usesSlots, pips, slot, dataset } of Object.values(context.spellbook) ) {
+55634:      if ( !usesSlots ) continue;
+55635:      const query = `[data-application-part="spells"] .items-section[data-level="${
+55636:        dataset.level}"][data-method="${dataset.method}"] .items-header`;
+55637:      const header = this.element.querySelector(query);
+55638:      if ( !header ) continue;
+55639:      if ( context.editable ) {
+55640:        const configLabel = this.actor.type === "character"

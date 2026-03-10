@@ -1,0 +1,371 @@
+7990:     * @param {ActivityUseConfiguration} usageConfig        Configuration data for the activation.
+7991:     * @param {ActivityMessageConfiguration} messageConfig  Configuration data for the chat message.
+7992:     * @param {ActivityUsageResults} results                Final details on the activation.
+7993:     * @protected
+7994:     */
+7995:    _finalizeMessageConfig(usageConfig, messageConfig, results) {
+7996:      messageConfig.data.rolls = (messageConfig.data.rolls ?? []).concat(results.updates.rolls);
+7997:      const effects = this.applicableEffects?.map(e => e.id);
+7998:      if ( effects ) foundry.utils.setProperty(messageConfig.data, "flags.lotm.use.effects", effects);
+7999:    }
+8000:
+8001:    /* -------------------------------------------- */
+8002:
+8003:    /**
+8004:     * Create the buttons that will be displayed in chat.
+8005:     * @param {ActivityMessageConfiguration} message  Configuration info for the created message.
+8006:     * @returns {ActivityUsageChatButton[]}
+8007:     * @protected
+8008:     */
+8009:    _usageChatButtons(message) {
+8010:      const buttons = [];
+8011:
+8012:      if ( this.target?.template?.type ) buttons.push({
+8013:        label: game.i18n.localize("DND5E.TARGET.Action.PlaceTemplate"),
+8014:        icon: '<i class="fas fa-bullseye" inert></i>',
+8015:        dataset: {
+8016:          action: "placeTemplate"
+8017:        }
+8018:      });
+8019:
+8020:      if ( message.hasConsumption ) buttons.push({
+8021:        label: game.i18n.localize("DND5E.CONSUMPTION.Action.ConsumeResource"),
+8022:        icon: '<i class="fa-solid fa-cubes-stacked" inert></i>',
+8023:        dataset: {
+8024:          action: "consumeResource"
+8025:        }
+8026:      }, {
+8027:        label: game.i18n.localize("DND5E.CONSUMPTION.Action.RefundResource"),
+8028:        icon: '<i class="fa-solid fa-clock-rotate-left"></i>',
+8029:        dataset: {
+8030:          action: "refundResource"
+8031:        }
+8032:      });
+8033:
+8034:      return buttons;
+8035:    }
+8036:
+8037:    /* -------------------------------------------- */
+8038:
+8039:    /**
+8040:     * Determine whether the provided button in a chat message should be visible.
+8041:     * @param {HTMLButtonElement} button  The button to check.
+8042:     * @param {ChatMessage5e} message     Chat message containing the button.
+8043:     * @returns {boolean}
+8044:     */
+8045:    shouldHideChatButton(button, message) {
+8046:      const flag = message.getFlag("lotm", "use.consumed");
+8047:      switch ( button.dataset.action ) {
+8048:        case "consumeResource": return !!flag;
+8049:        case "refundResource": return !flag;
+8050:        case "placeTemplate": return !game.user.can("TEMPLATE_CREATE") || !game.canvas.scene;
+8051:      }
+8052:      return false;
+8053:    }
+8054:
+8055:    /* -------------------------------------------- */
+8056:
+8057:    /**
+8058:     * Display a chat message for this usage.
+8059:     * @param {ActivityMessageConfiguration} message  Configuration info for the created message.
+8060:     * @returns {Promise<ChatMessage5e|object>}
+8061:     * @protected
+8062:     */
+8063:    async _createUsageMessage(message) {
+8064:      const context = await this._usageChatContext(message);
+8065:      const messageConfig = foundry.utils.mergeObject({
+8066:        rollMode: game.settings.get("core", "rollMode"),
+8067:        data: {
+8068:          content: await foundry.applications.handlebars.renderTemplate(this.metadata.usage.chatCard, context),
+8069:          speaker: ChatMessage.getSpeaker({ actor: this.item.actor }),
+8070:          title: `${this.item.name} - ${this.name}`
+8071:        }
+8072:      }, message);
+8073:
+8074:      /**
+8075:       * A hook event that fires before an activity usage card is created.
+8076:       * @function dnd5e.preCreateUsageMessage
+8077:       * @memberof hookEvents
+8078:       * @param {Activity} activity                     Activity for which the card will be created.
+8079:       * @param {ActivityMessageConfiguration} message  Configuration info for the created message.
+8080:       */
+8081:      Hooks.callAll("dnd5e.preCreateUsageMessage", this, messageConfig);
+8082:
+8083:      ChatMessage.applyRollMode(messageConfig.data, messageConfig.rollMode);
+8084:      const card = messageConfig.create === false ? messageConfig.data : await ChatMessage.create(messageConfig.data);
+8085:
+8086:      /**
+8087:       * A hook event that fires after an activity usage card is created.
+8088:       * @function dnd5e.postCreateUsageMessage
+8089:       * @memberof hookEvents
+8090:       * @param {Activity} activity          Activity for which the card was created.
+8091:       * @param {ChatMessage5e|object} card  Created card or configuration data if not created.
+8092:       */
+8093:      Hooks.callAll("dnd5e.postCreateUsageMessage", this, card);
+8094:
+8095:      return card;
+8096:    }
+8097:
+8098:    /* -------------------------------------------- */
+8099:
+8100:    /**
+8101:     * Perform any final steps of the activation including creating measured templates.
+8102:     * @param {ActivityUseConfiguration} config  Configuration data for the activation.
+8103:     * @param {ActivityUsageResults} results     Final details on the activation.
+8104:     * @protected
+8105:     */
+8106:    async _finalizeUsage(config, results) {
+8107:      results.templates = config.create?.measuredTemplate ? await this.#placeTemplate() : [];
+8108:    }
+8109:
+8110:    /* -------------------------------------------- */
+8111:
+8112:    /**
+8113:     * Trigger a primary activation action defined by the activity (such as opening the attack dialog for attack rolls).
+8114:     * @param {ActivityUseConfiguration} config  Configuration data for the activation.
+8115:     * @param {ActivityUsageResults} results     Final details on the activation.
+8116:     * @protected
+8117:     */
+8118:    async _triggerSubsequentActions(config, results) {}
+8119:
+8120:    /* -------------------------------------------- */
+8121:    /*  Rolling                                     */
+8122:    /* -------------------------------------------- */
+8123:
+8124:    /**
+8125:     * Perform a damage roll.
+8126:     * @param {Partial<DamageRollProcessConfiguration>} config  Configuration information for the roll.
+8127:     * @param {Partial<BasicRollDialogConfiguration>} dialog    Configuration for the roll dialog.
+8128:     * @param {Partial<BasicRollMessageConfiguration>} message  Configuration for the roll message.
+8129:     * @returns {Promise<DamageRoll[]|void>}
+8130:     */
+8131:    async rollDamage(config={}, dialog={}, message={}) {
+8132:      const rollConfig = this.getDamageConfig(config);
+8133:      rollConfig.hookNames = [...(config.hookNames ?? []), "damage"];
+8134:      rollConfig.subject = this;
+8135:
+8136:      const dialogConfig = foundry.utils.mergeObject({
+8137:        options: {
+8138:          position: {
+8139:            width: 400,
+8140:            top: config.event ? config.event.clientY - 80 : null,
+8141:            left: window.innerWidth - 710
+8142:          },
+8143:          window: {
+8144:            title: this.damageFlavor,
+8145:            subtitle: this.item.name,
+8146:            icon: this.item.img
+8147:          }
+8148:        }
+8149:      }, dialog);
+8150:
+8151:      const messageConfig = foundry.utils.mergeObject({
+8152:        create: true,
+8153:        data: {
+8154:          flavor: `${this.item.name} - ${this.damageFlavor}`,
+8155:          flags: { lotm: {
+8156:              ...this.messageFlags,
+8157:              messageType: "roll",
+8158:              roll: { type: "damage" }
+8159:            }
+8160:          },
+8161:          speaker: ChatMessage.getSpeaker({ actor: this.actor })
+8162:        }
+8163:      }, message);
+8164:
+8165:      const rolls = await CONFIG.Dice.DamageRoll.build(rollConfig, dialogConfig, messageConfig);
+8166:      if ( !rolls?.length ) return;
+8167:
+8168:      const canUpdate = this.item.isOwner && !this.item.inCompendium;
+8169:      const lastDamageTypes = rolls.reduce((obj, roll, index) => {
+8170:        if ( roll.options.type ) obj[index] = roll.options.type;
+8171:        return obj;
+8172:      }, {});
+8173:      if ( canUpdate && !foundry.utils.isEmpty(lastDamageTypes)
+8174:        && (this.actor && this.actor.items.has(this.item.id)) ) {
+8175:        await this.item.setFlag("lotm", `last.${this.id}.damageType`, lastDamageTypes);
+8176:      }
+8177:
+8178:      /**
+8179:       * A hook event that fires after damage has been rolled.
+8180:       * @function dnd5e.rollDamage
+8181:       * @memberof hookEvents
+8182:       * @param {DamageRoll[]} rolls       The resulting rolls.
+8183:       * @param {object} [data]
+8184:       * @param {Activity} [data.subject]  The activity that performed the roll.
+8185:       */
+8186:      Hooks.callAll("dnd5e.rollDamage", rolls, { subject: this });
+8187:      Hooks.callAll("dnd5e.rollDamageV2", rolls, { subject: this });
+8188:
+8189:      return rolls;
+8190:    }
+8191:
+8192:    /* -------------------------------------------- */
+8193:    /*  Event Listeners and Handlers                */
+8194:    /* -------------------------------------------- */
+8195:
+8196:    /**
+8197:     * Activate listeners on a chat message.
+8198:     * @param {ChatMessage} message  Associated chat message.
+8199:     * @param {HTMLElement} html     Element in the chat log.
+8200:     */
+8201:    activateChatListeners(message, html) {
+8202:      html.addEventListener("click", event => {
+8203:        const target = event.target.closest("[data-action]");
+8204:        if ( target ) this.#onChatAction(event, target, message);
+8205:      });
+8206:    }
+8207:
+8208:    /* -------------------------------------------- */
+8209:
+8210:    /**
+8211:     * Construct context menu options for this Activity.
+8212:     * @returns {ContextMenuEntry[]}
+8213:     */
+8214:    getContextMenuOptions() {
+8215:      const entries = [];
+8216:      const compendiumLocked = this.item.collection?.locked;
+8217:
+8218:      if ( this.item.isOwner && !compendiumLocked ) {
+8219:        entries.push({
+8220:          name: "DND5E.ContextMenuActionEdit",
+8221:          icon: '<i class="fas fa-pen-to-square fa-fw"></i>',
+8222:          callback: () => this.sheet.render({ force: true })
+8223:        }, {
+8224:          name: "DND5E.ContextMenuActionDuplicate",
+8225:          icon: '<i class="fas fa-copy fa-fw"></i>',
+8226:          callback: () => {
+8227:            const createData = this.toObject();
+8228:            delete createData._id;
+8229:            this.item.createActivity(createData.type, createData, { renderSheet: false });
+8230:          }
+8231:        }, {
+8232:          name: "DND5E.ContextMenuActionDelete",
+8233:          icon: '<i class="fas fa-trash fa-fw"></i>',
+8234:          callback: () => this.deleteDialog()
+8235:        });
+8236:      } else {
+8237:        entries.push({
+8238:          name: "DND5E.ContextMenuActionView",
+8239:          icon: '<i class="fas fa-eye fa-fw"></i>',
+8240:          callback: () => this.sheet.render({ force: true })
+8241:        });
+8242:      }
+8243:
+8244:      if ( "favorites" in (this.actor?.system ?? {}) ) {
+8245:        const uuid = `${this.item.getRelativeUUID(this.actor)}.Activity.${this.id}`;
+8246:        const isFavorited = this.actor.system.hasFavorite(uuid);
+8247:        entries.push({
+8248:          name: isFavorited ? "DND5E.FavoriteRemove" : "DND5E.Favorite",
+8249:          icon: '<i class="fas fa-bookmark fa-fw"></i>',
+8250:          condition: () => this.item.isOwner && !compendiumLocked,
+8251:          callback: () => {
+8252:            if ( isFavorited ) this.actor.system.removeFavorite(uuid);
+8253:            else this.actor.system.addFavorite({ type: "activity", id: uuid });
+8254:          },
+8255:          group: "state"
+8256:        });
+8257:      }
+8258:
+8259:      return entries;
+8260:    }
+8261:
+8262:    /* -------------------------------------------- */
+8263:
+8264:    /**
+8265:     * Handle an action activated from an activity's chat message.
+8266:     * @param {PointerEvent} event     Triggering click event.
+8267:     * @param {HTMLElement} target     The capturing HTML element which defined a [data-action].
+8268:     * @param {ChatMessage5e} message  Message associated with the activation.
+8269:     */
+8270:    async #onChatAction(event, target, message) {
+8271:      const consumed = this.createConsumedFlag(message.getAssociatedActor(), message.getFlag("lotm", "use.consumed"));
+8272:      const scaling = message.getFlag("lotm", "scaling") ?? 0;
+8273:      const item = (consumed || scaling) ? this.item.clone({
+8274:        "flags.lotm": { consumed, scaling }
+8275:      }, { keepId: true }) : this.item;
+8276:      const activity = item.system.activities.get(this.id);
+8277:
+8278:      const action = target.dataset.action;
+8279:      const handler = this.metadata.usage?.actions?.[action];
+8280:      target.disabled = true;
+8281:      try {
+8282:        if ( handler ) await handler.call(activity, event, target, message);
+8283:        else if ( action === "consumeResource" ) await this.#consumeResource(event, target, message);
+8284:        else if ( action === "refundResource" ) await this.#refundResource(event, target, message);
+8285:        else if ( action === "placeTemplate" ) await this.#placeTemplate();
+8286:        else await activity._onChatAction(event, target, message);
+8287:      } catch(err) {
+8288:        Hooks.onError("Activity#onChatAction", err, { log: "error", notify: "error" });
+8289:      } finally {
+8290:        target.disabled = false;
+8291:      }
+8292:    }
+8293:
+8294:    /* -------------------------------------------- */
+8295:
+8296:    /**
+8297:     * Handle an action activated from an activity's chat message. Action handlers in metadata are called first.
+8298:     * This method is only called for actions which have no defined handler.
+8299:     * @param {PointerEvent} event     Triggering click event.
+8300:     * @param {HTMLElement} target     The capturing HTML element which defined a [data-action].
+8301:     * @param {ChatMessage5e} message  Message associated with the activation.
+8302:     * @protected
+8303:     */
+8304:    async _onChatAction(event, target, message) {}
+8305:
+8306:    /* -------------------------------------------- */
+8307:
+8308:    /**
+8309:     * Handle context menu events on activities.
+8310:     * @param {Item5e} item         The Item the Activity belongs to.
+8311:     * @param {HTMLElement} target  The element the menu was triggered on.
+8312:     */
+8313:    static onContextMenu(item, target) {
+8314:      const { activityId } = target.closest("[data-activity-id]")?.dataset ?? {};
+8315:      const activity = item.system.activities?.get(activityId);
+8316:      if ( !activity ) return;
+8317:      const menuItems = activity.getContextMenuOptions();
+8318:
+8319:      /**
+8320:       * A hook even that fires when the context menu for an Activity is opened.
+8321:       * @function dnd5e.getItemActivityContext
+8322:       * @memberof hookEvents
+8323:       * @param {Activity} activity             The Activity.
+8324:       * @param {HTMLElement} target            The element that menu was triggered on.
+8325:       * @param {ContextMenuEntry[]} menuItems  The context menu entries.
+8326:       */
+8327:      Hooks.callAll("dnd5e.getItemActivityContext", activity, target, menuItems);
+8328:      ui.context.menuItems = menuItems;
+8329:    }
+8330:
+8331:    /* -------------------------------------------- */
+8332:
+8333:    /**
+8334:     * Handle consuming resources from the chat card.
+8335:     * @param {PointerEvent} event     Triggering click event.
+8336:     * @param {HTMLElement} target     The capturing HTML element which defined a [data-action].
+8337:     * @param {ChatMessage5e} message  Message associated with the activation.
+8338:     */
+8339:    async #consumeResource(event, target, message) {
+8340:      const messageConfig = {};
+8341:      const scaling = message.getFlag("lotm", "scaling");
+8342:      const usageConfig = { consume: true, event, scaling };
+8343:      const linkedActivity = this.getLinkedActivity(message.getFlag("lotm", "use.cause"));
+8344:      if ( linkedActivity ) usageConfig.cause = {
+8345:        activity: linkedActivity.relativeUUID, resources: linkedActivity.consumption.targets.length > 0
+8346:      };
+8347:      await this.consume(usageConfig, messageConfig);
+8348:      if ( !foundry.utils.isEmpty(messageConfig.data) ) {
+8349:        const flags = foundry.utils.mergeObject(
+8350:          foundry.utils.deepClone(message.flags),
+8351:          messageConfig.data.flags ?? {},
+8352:          { inplace: false }
+8353:        );
+8354:        const context = await this._usageChatContext({ hasConsumption: true, data: { flags } });
+8355:        messageConfig.data.content = await foundry.applications.handlebars.renderTemplate(
+8356:          this.metadata.usage.chatCard, context
+8357:        );
+8358:        await message.update(messageConfig.data);
+8359:      }
+8360:    }

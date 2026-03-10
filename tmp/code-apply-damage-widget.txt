@@ -1,0 +1,461 @@
+61480:
+61481:    /**
+61482:     * Handle clicking on the target mode buttons.
+61483:     * @param {PointerEvent} event  Triggering click event.
+61484:     */
+61485:    async _onChangeTargetMode(event) {
+61486:      event.preventDefault();
+61487:      this.targetingMode = event.currentTarget.dataset.mode;
+61488:    }
+61489:  };
+61490:}
+61491:
+61492:/**
+61493: * @import { DamageApplicationOptions, DamageDescription } from "../../documents/_types.mjs";
+61494: */
+61495:
+61496:/**
+61497: * List of multiplier options as tuples containing their numeric value and rendered text.
+61498: * @type {[number, string][]}
+61499: */
+61500:const MULTIPLIERS = [[-1, "-1"], [0, "0"], [.25, "¼"], [.5, "½"], [1, "1"], [2, "2"]];
+61501:
+61502:/**
+61503: * Application to handle applying damage from a chat card.
+61504: */
+61505:class DamageApplicationElement extends TargetedApplicationMixin(ChatTrayElement) {
+61506:
+61507:  /* -------------------------------------------- */
+61508:  /*  Properties                                  */
+61509:  /* -------------------------------------------- */
+61510:
+61511:  /**
+61512:   * The HTML tag named used by this element.
+61513:   * @type {string}
+61514:   */
+61515:  static tagName = "damage-application";
+61516:
+61517:  /* -------------------------------------------- */
+61518:
+61519:  /**
+61520:   * The apply damage button within the element.
+61521:   * @type {HTMLButtonElement}
+61522:   */
+61523:  applyButton;
+61524:
+61525:  /* -------------------------------------------- */
+61526:
+61527:  /**
+61528:   * The chat message with which this damage is associated.
+61529:   * @type {ChatMessage5e}
+61530:   */
+61531:  chatMessage;
+61532:
+61533:  /* -------------------------------------------- */
+61534:
+61535:  /**
+61536:   * Damage descriptions that will be applied by this application.
+61537:   * @type {DamageDescription[]}
+61538:   */
+61539:  damages = [];
+61540:
+61541:  /* -------------------------------------------- */
+61542:
+61543:  /** @override */
+61544:  get shouldBuildTargetList() {
+61545:    return super.shouldBuildTargetList && this.open && this.visible;
+61546:  }
+61547:
+61548:  /* -------------------------------------------- */
+61549:
+61550:  /**
+61551:   * Options for each application target.
+61552:   * @type {Map<string, DamageApplicationOptions>}
+61553:   */
+61554:  #targetOptions = new Map();
+61555:
+61556:  /**
+61557:   * Options for a specific target.
+61558:   * @param {string} uuid  UUID of the targeted token.
+61559:   * @returns {DamageApplicationOptions}
+61560:   */
+61561:  getTargetOptions(uuid) {
+61562:    if ( !this.#targetOptions.has(uuid) ) this.#targetOptions.set(uuid, { multiplier: 1 });
+61563:    return this.#targetOptions.get(uuid);
+61564:  }
+61565:
+61566:  /* -------------------------------------------- */
+61567:  /*  Rendering                                   */
+61568:  /* -------------------------------------------- */
+61569:
+61570:  connectedCallback() {
+61571:    // Fetch the associated chat message
+61572:    const messageId = this.closest("[data-message-id]")?.dataset.messageId;
+61573:    this.chatMessage = game.messages.get(messageId);
+61574:    if ( !this.chatMessage ) return;
+61575:
+61576:    // Build the frame HTML only once
+61577:    if ( !this.targetList ) {
+61578:      const div = document.createElement("div");
+61579:      div.classList.add("card-tray", "damage-tray", "collapsible");
+61580:      if ( !this.open ) div.classList.add("collapsed");
+61581:      div.innerHTML = `
+61582:        <label class="roboto-upper">
+61583:          <i class="fa-solid fa-heart-crack"></i>
+61584:          <span>${game.i18n.localize("DND5E.Apply")}</span>
+61585:          <i class="fa-solid fa-caret-down"></i>
+61586:        </label>
+61587:        <div class="collapsible-content">
+61588:          <div class="wrapper">
+61589:            <button class="apply-damage" type="button" data-action="applyDamage">
+61590:              <i class="fa-solid fa-reply-all fa-flip-horizontal" inert></i>
+61591:              ${game.i18n.localize("DND5E.Apply")}
+61592:            </button>
+61593:          </div>
+61594:        </div>
+61595:      `;
+61596:      this.replaceChildren(div);
+61597:      this.applyButton = div.querySelector(".apply-damage");
+61598:      this.applyButton.addEventListener("click", this._onApplyDamage.bind(this));
+61599:      div.querySelector(".wrapper").prepend(...this.buildTargetContainer());
+61600:      div.addEventListener("click", this._handleClickHeader.bind(this));
+61601:    }
+61602:
+61603:    this.targetingMode = this.targetSourceControl.hidden ? "selected" : "targeted";
+61604:  }
+61605:
+61606:  /* -------------------------------------------- */
+61607:
+61608:  /** @override */
+61609:  buildTargetListEntry({ uuid, name }) {
+61610:    const actor = fromUuidSync(uuid);
+61611:    if ( !actor?.isOwner ) return;
+61612:
+61613:    // Calculate damage to apply
+61614:    const targetOptions = this.getTargetOptions(uuid);
+61615:    const { temp, total, active } = this.calculateDamage(actor, targetOptions);
+61616:
+61617:    const types = [];
+61618:    for ( const [change, values] of Object.entries(active) ) {
+61619:      if ( foundry.utils.getType(values) !== "Set" ) continue;
+61620:      for ( const type of values ) {
+61621:        const config = CONFIG.DND5E.damageTypes[type] ?? CONFIG.DND5E.healingTypes[type];
+61622:        if ( !config ) continue;
+61623:        const data = { type, change, icon: config.icon };
+61624:        types.push(data);
+61625:      }
+61626:    }
+61627:    const changeSources = types.reduce((acc, config) => acc + this.getChangeSourceButton(config, targetOptions), "");
+61628:
+61629:    const li = document.createElement("li");
+61630:    li.classList.add("target");
+61631:    li.dataset.targetUuid = uuid;
+61632:    li.innerHTML = `
+61633:      <img class="gold-icon">
+61634:      <div class="name-stacked">
+61635:        <span class="title"></span>
+61636:        <span class="subtitle">${changeSources}</span>
+61637:      </div>
+61638:      <div class="calculated damage">
+61639:        ${total}
+61640:      </div>
+61641:      <div class="calculated temp" data-tooltip="DND5E.HitPointsTemp">
+61642:        ${temp}
+61643:      </div>
+61644:      <menu class="damage-multipliers unlist"></menu>
+61645:    `;
+61646:    Object.assign(li.querySelector(".gold-icon"), { alt: name, src: actor.img });
+61647:    li.querySelector(".name-stacked .title").append(name);
+61648:    const menu = li.querySelector("menu");
+61649:    for ( const [value, display] of MULTIPLIERS ) {
+61650:      const entry = document.createElement("li");
+61651:      entry.innerHTML = `
+61652:        <button class="multiplier-button" type="button" value="${value}">
+61653:          <span>${display}</span>
+61654:        </button>
+61655:      `;
+61656:      menu.append(entry);
+61657:    }
+61658:
+61659:    this.refreshListEntry(actor, li, targetOptions);
+61660:    li.addEventListener("click", this._onChangeOptions.bind(this));
+61661:
+61662:    return li;
+61663:  }
+61664:
+61665:  /* -------------------------------------------- */
+61666:
+61667:  /**
+61668:   * Calculate the total damage that will be applied to an actor.
+61669:   * @param {Actor5e} actor
+61670:   * @param {DamageApplicationOptions} options
+61671:   * @returns {{temp: number, total: number, active: Record<string, Set<string>>}}
+61672:   */
+61673:  calculateDamage(actor, options) {
+61674:    const damages = actor.calculateDamage(this.damages, options);
+61675:    let { amount, temp } = damages;
+61676:
+61677:    let active = {
+61678:      modification: new Set(), resistance: new Set(), vulnerability: new Set(), immunity: new Set(), threshold: false
+61679:    };
+61680:    for ( const damage of damages ) {
+61681:      if ( damage.active.modification ) active.modification.add(damage.type);
+61682:      if ( damage.active.resistance ) active.resistance.add(damage.type);
+61683:      if ( damage.active.vulnerability ) active.vulnerability.add(damage.type);
+61684:      if ( damage.active.immunity ) active.immunity.add(damage.type);
+61685:      if ( damage.active.threshold ) active.threshold = true;
+61686:    }
+61687:    temp = Math.floor(Math.max(0, temp));
+61688:
+61689:    // Add values from options to prevent active changes from being lost when re-rendering target list
+61690:    const union = t => {
+61691:      if ( foundry.utils.getType(options.ignore?.[t]) === "Set" ) active[t] = active[t].union(options.ignore[t]);
+61692:    };
+61693:    union("modification");
+61694:    union("resistance");
+61695:    union("vulnerability");
+61696:    union("immunity");
+61697:    if ( foundry.utils.getType(options.downgrade) === "Set" ) {
+61698:      active.immunity = active.immunity.union(options.downgrade);
+61699:    }
+61700:    active.threshold ||= options.ignore?.threshold;
+61701:
+61702:    return { temp, total: amount, active };
+61703:  }
+61704:
+61705:  /* -------------------------------------------- */
+61706:
+61707:  /**
+61708:   * Create the HTML for a new change source button.
+61709:   * @param {{ change: string, icon: string, type: string }} config
+61710:   * @param {DamageApplicationOptions} targetOptions
+61711:   * @returns {string}
+61712:   */
+61713:  getChangeSourceButton({ change, icon, type }, targetOptions) {
+61714:    const { label, pressed } = this.getChangeSourceOptions(type, change, targetOptions);
+61715:    return `
+61716:      <button class="change-source unbutton" type="button" data-type="${type}" data-change="${change}"
+61717:              data-tooltip aria-label="${label}" aria-pressed="${pressed}">
+61718:        <dnd5e-icon src="${icon}" inert></dnd5e-icon>
+61719:        <i class="fa-solid fa-slash" inert></i>
+61720:        <i class="fa-solid fa-arrow-turn-down" inert></i>
+61721:      </button>
+61722:    `;
+61723:  }
+61724:
+61725:  /* -------------------------------------------- */
+61726:
+61727:  /**
+61728:   * Get the label and pressed value for a specific change source.
+61729:   * @param {string} type                       Damage type represented by this source.
+61730:   * @param {string} change                     Change type (e.g. resistance, immunity, etc.).
+61731:   * @param {DamageApplicationOptions} options  Options object from which to determine final values.
+61732:   * @returns {{label: string, pressed: string}}
+61733:   */
+61734:  getChangeSourceOptions(type, change, options) {
+61735:    let mode = "active";
+61736:    if ( (options.ignore?.[change] === true) || options.ignore?.[change]?.has?.(type) ) mode = "ignore";
+61737:    else if ( (change === "immunity") && options.downgrade?.has(type) ) mode = "downgrade";
+61738:
+61739:    let label = game.i18n.format(`DND5E.DamageApplication.Change.${change.capitalize()}`, {
+61740:      type: CONFIG.DND5E.damageTypes[type]?.label ?? CONFIG.DND5E.healingTypes[type]?.label
+61741:    });
+61742:    if ( mode === "ignore" ) label = game.i18n.format("DND5E.DamageApplication.Ignoring", { source: label });
+61743:    if ( mode === "downgrade" ) label = game.i18n.format("DND5E.DamageApplication.Downgrading", { source: label });
+61744:
+61745:    return { label, pressed: mode === "active" ? "false" : mode === "ignore" ? "true" : "mixed" };
+61746:  }
+61747:
+61748:  /* -------------------------------------------- */
+61749:
+61750:  /**
+61751:   * Refresh the damage total on a list entry based on modified options.
+61752:   * @param {Actor5e} token
+61753:   * @param {HTMLLiElement} entry
+61754:   * @param {DamageApplicationOptions} options
+61755:   */
+61756:  refreshListEntry(token, entry, options) {
+61757:    const { active, temp, total } = this.calculateDamage(token, options);
+61758:    const calculatedDamage = entry.querySelector(".calculated.damage");
+61759:    calculatedDamage.innerText = formatNumber(-total, { signDisplay: "exceptZero" });
+61760:    calculatedDamage.classList.toggle("healing", total < 0);
+61761:    calculatedDamage.dataset.tooltip = `DND5E.${total < 0 ? "Healing" : "Damage"}`;
+61762:    calculatedDamage.hidden = !total && !!temp;
+61763:    const calculatedTemp = entry.querySelector(".calculated.temp");
+61764:    calculatedTemp.innerText = temp;
+61765:    calculatedTemp.hidden = !temp;
+61766:
+61767:    const pressedMultiplier = entry.querySelector('.multiplier-button[aria-pressed="true"]');
+61768:    if ( Number(pressedMultiplier?.dataset.multiplier) !== options.multiplier ) {
+61769:      if ( pressedMultiplier ) pressedMultiplier.ariaPressed = false;
+61770:      const toPress = entry.querySelector(`[value="${options.multiplier}"]`);
+61771:      if ( toPress ) toPress.ariaPressed = true;
+61772:    }
+61773:
+61774:    const thresholdButton = entry.querySelector('[data-change="threshold"]');
+61775:    if ( thresholdButton && !active.threshold ) thresholdButton.remove();
+61776:    else if ( !thresholdButton && active.threshold ) {
+61777:      const button = this.getChangeSourceButton({
+61778:        change: "threshold", icon: "systems/lotm/icons/svg/damage/threshold.svg", type: "threshold"
+61779:      }, this.getTargetOptions(entry.dataset.uuid));
+61780:      entry.querySelector(".subtitle").insertAdjacentHTML("beforeend", button);
+61781:    }
+61782:
+61783:    for ( const element of entry.querySelectorAll(".change-source") ) {
+61784:      const { type, change } = element.dataset;
+61785:      const { label, pressed } = this.getChangeSourceOptions(type, change, options);
+61786:      element.dataset.tooltip = label;
+61787:      element.ariaLabel = label;
+61788:      element.ariaPressed = pressed;
+61789:    }
+61790:  }
+61791:
+61792:  /* -------------------------------------------- */
+61793:  /*  Event Handlers                              */
+61794:  /* -------------------------------------------- */
+61795:
+61796:  /**
+61797:   * Handle clicking the apply damage button.
+61798:   * @param {PointerEvent} event  Triggering click event.
+61799:   */
+61800:  async _onApplyDamage(event) {
+61801:    event.preventDefault();
+61802:    for ( const target of this.targetList.querySelectorAll("[data-target-uuid]") ) {
+61803:      const token = fromUuidSync(target.dataset.targetUuid);
+61804:      const options = this.getTargetOptions(target.dataset.targetUuid);
+61805:      await token?.applyDamage(this.damages, { ...options, isDelta: true });
+61806:    }
+61807:    if ( game.settings.get("lotm", "autoCollapseChatTrays") !== "manual" ) {
+61808:      this.open = false;
+61809:    }
+61810:  }
+61811:
+61812:  /* -------------------------------------------- */
+61813:
+61814:  /**
+61815:   * Handle clicking a multiplier button or resistance toggle.
+61816:   * @param {PointerEvent} event  Triggering click event.
+61817:   */
+61818:  async _onChangeOptions(event) {
+61819:    event.preventDefault();
+61820:    const button = event.target.closest("button");
+61821:    const uuid = event.target.closest("[data-target-uuid]")?.dataset.targetUuid;
+61822:    if ( !uuid || !button ) return;
+61823:
+61824:    const options = this.getTargetOptions(uuid);
+61825:
+61826:    // Set multiplier
+61827:    if ( button.classList.contains("multiplier-button") ) {
+61828:      options.multiplier = Number(button.value);
+61829:    }
+61830:
+61831:    // Set imm/res/vul ignore & downgrade
+61832:    else if ( button.classList.contains("change-source") ) {
+61833:      const { type, change } = button.dataset;
+61834:      if ( change === "immunity" ) {
+61835:        if ( options.ignore?.immunity?.has(type) ) {
+61836:          options.ignore.immunity.delete(type);
+61837:          options.downgrade ??= new Set();
+61838:          options.downgrade.add(type);
+61839:        } else if ( options.downgrade?.has(type) ) {
+61840:          options.downgrade.delete(type);
+61841:        } else {
+61842:          options.ignore ??= {};
+61843:          options.ignore[change] ??= new Set();
+61844:          options.ignore[change].add(type);
+61845:        }
+61846:      }
+61847:      else if ( change === "threshold" ) {
+61848:        options.ignore ??= {};
+61849:        options.ignore.threshold = !options.ignore.threshold;
+61850:      }
+61851:      else if ( options.ignore?.[change]?.has(type) ) options.ignore[change].delete(type);
+61852:      else {
+61853:        options.ignore ??= {};
+61854:        options.ignore[change] ??= new Set();
+61855:        options.ignore[change].add(type);
+61856:      }
+61857:    }
+61858:
+61859:    const token = fromUuidSync(uuid);
+61860:    const entry = this.targetList.querySelector(`[data-target-uuid="${token.uuid}"]`);
+61861:    this.refreshListEntry(token, entry, options);
+61862:  }
+61863:
+61864:  /* -------------------------------------------- */
+61865:
+61866:  /** @override */
+61867:  _onOpen() {
+61868:    this.buildTargetsList();
+61869:  }
+61870:
+61871:  /* -------------------------------------------- */
+61872:
+61873:  /** @override */
+61874:  _onVisible() {
+61875:    this.buildTargetsList();
+61876:  }
+61877:}
+61878:
+61879:/**
+61880: * Application to handle applying active effects from a chat card.
+61881: */
+61882:class EffectApplicationElement extends TargetedApplicationMixin(ChatTrayElement) {
+61883:
+61884:  /* -------------------------------------------- */
+61885:  /*  Properties                                  */
+61886:  /* -------------------------------------------- */
+61887:
+61888:  /**
+61889:   * The HTML tag named used by this element.
+61890:   * @type {string}
+61891:   */
+61892:  static tagName = "effect-application";
+61893:
+61894:  /* -------------------------------------------- */
+61895:
+61896:  /**
+61897:   * The chat message with which this application is associated.
+61898:   * @type {ChatMessage5e}
+61899:   */
+61900:  chatMessage;
+61901:
+61902:  /* -------------------------------------------- */
+61903:
+61904:  /**
+61905:   * Active effects that will be applied by this application.
+61906:   * @type {ActiveEffect5e[]}
+61907:   */
+61908:  effects = [];
+61909:
+61910:  /* -------------------------------------------- */
+61911:
+61912:  /**
+61913:   * The list of active effects.
+61914:   * @type {HTMLUListElement}
+61915:   */
+61916:  effectsList;
+61917:
+61918:  /* -------------------------------------------- */
+61919:
+61920:  /** @override */
+61921:  get shouldBuildTargetList() {
+61922:    return super.shouldBuildTargetList && this.open && this.visible;
+61923:  }
+61924:
+61925:  /* -------------------------------------------- */
+61926:
+61927:  /**
+61928:   * Checked status for application targets.
+61929:   * @type {Map<string, boolean>}
+61930:   */
+61931:  #targetOptions = new Map();
+61932:
+61933:  /**
+61934:   * Options for a specific target.
+61935:   * @param {string} uuid  UUID of the target.
+61936:   * @returns {boolean}    Should this target be checked?
+61937:   */
+61938:  targetChecked(uuid) {
+61939:    if ( this.targetingMode === "selected" ) return true;
+61940:    return this.#targetOptions.get(uuid) ?? true;

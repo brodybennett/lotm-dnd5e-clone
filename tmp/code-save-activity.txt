@@ -1,0 +1,291 @@
+24880:    ];
+24881:
+24882:    return context;
+24883:  }
+24884:}
+24885:
+24886:const { ArrayField: ArrayField$f, BooleanField: BooleanField$y, SchemaField: SchemaField$C, SetField: SetField$t, StringField: StringField$R } = foundry.data.fields;
+24887:
+24888:/**
+24889: * @import { SaveActivityData } from "./_types.mjs";
+24890: */
+24891:
+24892:/**
+24893: * Data model for an save activity.
+24894: * @extends {BaseActivityData<SaveActivityData>}
+24895: * @mixes SaveActivityData
+24896: */
+24897:class BaseSaveActivityData extends BaseActivityData {
+24898:  /** @inheritDoc */
+24899:  static defineSchema() {
+24900:    return {
+24901:      ...super.defineSchema(),
+24902:      damage: new SchemaField$C({
+24903:        onSave: new StringField$R({ required: true, blank: false, initial: "half" }),
+24904:        parts: new ArrayField$f(new DamageField())
+24905:      }),
+24906:      effects: new ArrayField$f(new AppliedEffectField({
+24907:        onSave: new BooleanField$y()
+24908:      })),
+24909:      save: new SchemaField$C({
+24910:        ability: new SetField$t(new StringField$R()),
+24911:        dc: new SchemaField$C({
+24912:          calculation: new StringField$R({ initial: "initial" }),
+24913:          formula: new FormulaField({ deterministic: true })
+24914:        })
+24915:      })
+24916:    };
+24917:  }
+24918:
+24919:  /* -------------------------------------------- */
+24920:  /*  Properties                                  */
+24921:  /* -------------------------------------------- */
+24922:
+24923:  /** @override */
+24924:  get ability() {
+24925:    if ( this.save.dc.calculation in CONFIG.DND5E.abilities ) return this.save.dc.calculation;
+24926:    if ( this.save.dc.calculation === "spellcasting" ) return this.spellcastingAbility;
+24927:    return this.save.ability.first() ?? null;
+24928:  }
+24929:
+24930:  /* -------------------------------------------- */
+24931:  /*  Data Migration                              */
+24932:  /* -------------------------------------------- */
+24933:
+24934:  /** @override */
+24935:  static migrateData(source) {
+24936:    if ( foundry.utils.getType(source.save?.ability) === "string" ) {
+24937:      if ( source.save.ability ) source.save.ability = [source.save.ability];
+24938:      else source.save.ability = [];
+24939:    }
+24940:  }
+24941:
+24942:  /* -------------------------------------------- */
+24943:
+24944:  /** @override */
+24945:  static transformTypeData(source, activityData, options) {
+24946:    let calculation = source.system.save?.scaling;
+24947:    if ( calculation === "flat" ) calculation = "";
+24948:    else if ( calculation === "spell" ) calculation = "spellcasting";
+24949:
+24950:    return foundry.utils.mergeObject(activityData, {
+24951:      damage: {
+24952:        onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
+24953:        parts: source.system.damage?.parts?.map(part => this.transformDamagePartData(source, part)) ?? []
+24954:      },
+24955:      save: {
+24956:        ability: [source.system.save?.ability || Object.keys(CONFIG.DND5E.abilities)[0]],
+24957:        dc: {
+24958:          calculation,
+24959:          formula: String(source.system.save?.dc ?? "")
+24960:        }
+24961:      }
+24962:    });
+24963:  }
+24964:
+24965:  /* -------------------------------------------- */
+24966:  /*  Data Preparation                            */
+24967:  /* -------------------------------------------- */
+24968:
+24969:  /** @inheritDoc */
+24970:  prepareData() {
+24971:    super.prepareData();
+24972:    if ( this.save.dc.calculation === "initial" ) this.save.dc.calculation = this.isSpell ? "spellcasting" : "";
+24973:    this.save.dc.bonus = "";
+24974:  }
+24975:
+24976:  /* -------------------------------------------- */
+24977:
+24978:  /** @inheritDoc */
+24979:  prepareFinalData(rollData) {
+24980:    rollData ??= this.getRollData({ deterministic: true });
+24981:    super.prepareFinalData(rollData);
+24982:    this.prepareDamageLabel(rollData);
+24983:
+24984:    const bonus = this.save.dc.bonus ? simplifyBonus(this.save.dc.bonus, rollData) : 0;
+24985:
+24986:    let ability;
+24987:    if ( this.save.dc.calculation ) ability = this.ability;
+24988:    else this.save.dc.value = simplifyBonus(this.save.dc.formula, rollData);
+24989:    this.save.dc.value ??= this.actor?.system.abilities?.[ability]?.dc
+24990:      ?? 8 + (this.actor?.system.attributes?.prof ?? 0);
+24991:    this.save.dc.value += bonus;
+24992:
+24993:    if ( this.save.dc.value ) this.labels.save = game.i18n.format("DND5E.SaveDC", {
+24994:      dc: this.save.dc.value,
+24995:      ability: CONFIG.DND5E.abilities[ability]?.label ?? ""
+24996:    });
+24997:  }
+24998:
+24999:  /* -------------------------------------------- */
+25000:  /*  Socket Event Handlers                       */
+25001:  /* -------------------------------------------- */
+25002:
+25003:  /** @inheritDoc */
+25004:  _preCreate(data) {
+25005:    super._preCreate(data);
+25006:    if ( !("onSave" in (data.damage ?? {})) && this.isSpell && (this.item.system.level === 0) ) {
+25007:      this.updateSource({ "damage.onSave": "none" });
+25008:    }
+25009:  }
+25010:
+25011:  /* -------------------------------------------- */
+25012:  /*  Helpers                                     */
+25013:  /* -------------------------------------------- */
+25014:
+25015:  /** @inheritDoc */
+25016:  getDamageConfig(config={}) {
+25017:    const rollConfig = super.getDamageConfig(config);
+25018:
+25019:    rollConfig.critical ??= {};
+25020:    rollConfig.critical.allow ??= false;
+25021:
+25022:    return rollConfig;
+25023:  }
+25024:}
+25025:
+25026:/**
+25027: * Activity for making saving throws and rolling damage.
+25028: */
+25029:class SaveActivity extends ActivityMixin(BaseSaveActivityData) {
+25030:  /* -------------------------------------------- */
+25031:  /*  Model Configuration                         */
+25032:  /* -------------------------------------------- */
+25033:
+25034:  /** @inheritDoc */
+25035:  static LOCALIZATION_PREFIXES = [...super.LOCALIZATION_PREFIXES, "DND5E.SAVE"];
+25036:
+25037:  /* -------------------------------------------- */
+25038:
+25039:  /** @inheritDoc */
+25040:  static metadata = Object.freeze(
+25041:    foundry.utils.mergeObject(super.metadata, {
+25042:      type: "save",
+25043:      img: "systems/lotm/icons/svg/activity/save.svg",
+25044:      title: "DND5E.SAVE.Title.one",
+25045:      hint: "DND5E.SAVE.Hint",
+25046:      sheetClass: SaveSheet,
+25047:      usage: {
+25048:        actions: {
+25049:          rollDamage: SaveActivity.#rollDamage,
+25050:          rollSave: SaveActivity.#rollSave
+25051:        }
+25052:      }
+25053:    }, { inplace: false })
+25054:  );
+25055:
+25056:  /* -------------------------------------------- */
+25057:  /*  Activation                                  */
+25058:  /* -------------------------------------------- */
+25059:
+25060:  /** @override */
+25061:  _usageChatButtons(message) {
+25062:    const buttons = [];
+25063:    const dc = this.save.dc.value;
+25064:
+25065:    for ( const abilityId of this.save.ability ) {
+25066:      const ability = CONFIG.DND5E.abilities[abilityId]?.label ?? "";
+25067:      buttons.push({
+25068:        label: `
+25069:          <span class="visible-dc">${game.i18n.format("DND5E.SavingThrowDC", { dc, ability })}</span>
+25070:          <span class="hidden-dc">${game.i18n.format("DND5E.SavePromptTitle", { ability })}</span>
+25071:        `,
+25072:        icon: '<i class="fa-solid fa-shield-heart" inert></i>',
+25073:        dataset: {
+25074:          dc,
+25075:          ability: abilityId,
+25076:          action: "rollSave",
+25077:          visibility: "all"
+25078:        }
+25079:      });
+25080:    }
+25081:
+25082:    if ( this.damage.parts.length ) buttons.push({
+25083:      label: game.i18n.localize("DND5E.Damage"),
+25084:      icon: '<i class="fas fa-burst" inert></i>',
+25085:      dataset: {
+25086:        action: "rollDamage"
+25087:      }
+25088:    });
+25089:    return buttons.concat(super._usageChatButtons(message));
+25090:  }
+25091:
+25092:  /* -------------------------------------------- */
+25093:  /*  Rolling                                     */
+25094:  /* -------------------------------------------- */
+25095:
+25096:  /** @inheritDoc */
+25097:  async rollDamage(config={}, dialog={}, message={}) {
+25098:    message = foundry.utils.mergeObject({
+25099:      "data.flags.lotm.roll": {
+25100:        damageOnSave: this.damage.onSave
+25101:      }
+25102:    }, message);
+25103:    return super.rollDamage(config, dialog, message);
+25104:  }
+25105:
+25106:  /* -------------------------------------------- */
+25107:  /*  Event Listeners and Handlers                */
+25108:  /* -------------------------------------------- */
+25109:
+25110:  /**
+25111:   * Handle performing a damage roll.
+25112:   * @this {SaveActivity}
+25113:   * @param {PointerEvent} event     Triggering click event.
+25114:   * @param {HTMLElement} target     The capturing HTML element which defined a [data-action].
+25115:   * @param {ChatMessage5e} message  Message associated with the activation.
+25116:   */
+25117:  static #rollDamage(event, target, message) {
+25118:    this.rollDamage({ event });
+25119:  }
+25120:
+25121:  /* -------------------------------------------- */
+25122:
+25123:  /**
+25124:   * Handle performing a saving throw.
+25125:   * @this {SaveActivity}
+25126:   * @param {PointerEvent} event     Triggering click event.
+25127:   * @param {HTMLElement} target     The capturing HTML element which defined a [data-action].
+25128:   * @param {ChatMessage5e} message  Message associated with the activation.
+25129:   */
+25130:  static async #rollSave(event, target, message) {
+25131:    const targets = getSceneTargets();
+25132:    if ( !targets.length && game.user.character ) targets.push(game.user.character);
+25133:    if ( !targets.length ) ui.notifications.warn("DND5E.ActionWarningNoToken", { localize: true });
+25134:    const dc = parseInt(target.dataset.dc);
+25135:    for ( const token of targets ) {
+25136:      const actor = token instanceof Actor ? token : token.actor;
+25137:      const speaker = ChatMessage.getSpeaker({ actor, scene: canvas.scene, token: token.document });
+25138:      await actor.rollSavingThrow({
+25139:        event,
+25140:        ability: target.dataset.ability ?? this.save.ability.first(),
+25141:        target: Number.isFinite(dc) ? dc : this.save.dc.value
+25142:      }, {}, { data: { speaker } });
+25143:    }
+25144:  }
+25145:
+25146:  /* -------------------------------------------- */
+25147:  /*  Helpers                                     */
+25148:  /* -------------------------------------------- */
+25149:
+25150:  /** @inheritDoc */
+25151:  async getFavoriteData() {
+25152:    return foundry.utils.mergeObject(await super.getFavoriteData(), { save: this.save });
+25153:  }
+25154:}
+25155:
+25156:/**
+25157: * Sheet for the summon activity.
+25158: */
+25159:class SummonSheet extends ActivitySheet {
+25160:
+25161:  /** @inheritDoc */
+25162:  static DEFAULT_OPTIONS = {
+25163:    classes: ["summon-activity"],
+25164:    actions: {
+25165:      addProfile: SummonSheet.#addProfile,
+25166:      deleteProfile: SummonSheet.#deleteProfile
+25167:    }
+25168:  };
+25169:
+25170:  /* -------------------------------------------- */

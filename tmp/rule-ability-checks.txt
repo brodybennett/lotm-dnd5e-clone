@@ -1,0 +1,5 @@
+JOURNAL:phbD20Tests00000
+PAGE:Ability Checks (EbGnSXpG5SdKusf9)
+TYPE:text
+
+Ability Checks and Skill Checks Checks still use d20 + modifiers, but sequence progression adds a pathway edge so higher-tier characters gain broad competence without erasing specialization. Skill Check Scaling Skill Total = ability mod + skill bonuses + proficiency (if trained) + Sequence Check Edge Sequence Check Edge: if the check includes proficiency: add full Tier index, if untrained: add floor(Tier / 2). Tier Proficient Edge Untrained Edge 0 +0 +0 1 +1 +0 2 +2 +1 3 +3 +1 4 +4 +2 Passive scores also include this same sequence check edge. Raw Ability Checks Raw ability checks (non-skill) use the untrained check edge by default.

@@ -1,0 +1,5 @@
+JOURNAL:phbD20Tests00000
+PAGE:Saving Throws (6zGMb84U7IQkPCmn)
+TYPE:text
+
+Saving Throws Saving throws continue to use the normal d20 flow, but in sequence play they gain a tier-based resistance edge. Save Total = ability mod + proficiency (if proficient) + save bonuses + Sequence Save Edge Sequence Save Edge = Tier index Tier Sequences Save Edge Low 9-7 +0 Mid 6-5 +1 High/Saint 4-3 +2 Angel 2-1 +3 God 0 +4 Save DCs are still sequence-potency based: Save DC = 8 + relevant ability mod + Potency + feature DC bonus

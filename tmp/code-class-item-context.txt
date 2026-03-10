@@ -1,0 +1,161 @@
+18360:    if ( needsMigration ) foundry.utils.setProperty(source, "flags.lotm.persistSourceMigration", true);
+18361:  }
+18362:
+18363:  /* -------------------------------------------- */
+18364:  /*  Data Preparation                            */
+18365:  /* -------------------------------------------- */
+18366:
+18367:  /** @inheritDoc */
+18368:  prepareBaseData() {
+18369:    super.prepareBaseData();
+18370:    this.spellcasting.preparation.value = 0;
+18371:  }
+18372:
+18373:  /* -------------------------------------------- */
+18374:
+18375:  /** @inheritDoc */
+18376:  prepareDerivedData() {
+18377:    super.prepareDerivedData();
+18378:    this.prepareDescriptionData();
+18379:  }
+18380:
+18381:  /* -------------------------------------------- */
+18382:
+18383:  /** @inheritDoc */
+18384:  prepareFinalData() {
+18385:    this.isOriginalClass = this.parent.isOriginalClass;
+18386:    const rollData = this.parent.getRollData({ deterministic: true });
+18387:    SpellcastingField.prepareData.call(this, rollData);
+18388:    this.hd.additional = this.hd.additional ? Roll.create(this.hd.additional, rollData).evaluateSync().total : 0;
+18389:    this.hd.max = Math.max(this.levels + this.hd.additional, 0);
+18390:    this.hd.value = Math.max(this.hd.max - this.hd.spent, 0);
+18391:  }
+18392:
+18393:  /* -------------------------------------------- */
+18394:
+18395:  /** @inheritDoc */
+18396:  async getFavoriteData() {
+18397:    const context = await super.getFavoriteData();
+18398:    if ( this.parent.subclass ) context.subtitle = this.parent.subclass.name;
+18399:    context.value = this.levels;
+18400:    return context;
+18401:  }
+18402:
+18403:  /* -------------------------------------------- */
+18404:
+18405:  /** @inheritDoc */
+18406:  async getSheetData(context) {
+18407:    context.subtitles = [{ label: game.i18n.localize(CONFIG.Item.typeLabels.class) }];
+18408:    context.singleDescription = true;
+18409:    context.pathwaySequence = classLevelToPathwaySequence(context.source?.levels ?? this.levels);
+18410:    context.pathwaySequenceLabel = pathwaySequenceLabelFromClassLevel(context.source?.levels ?? this.levels);
+18411:
+18412:    context.parts = ["dnd5e.details-class", "dnd5e.details-spellcasting", "dnd5e.details-starting-equipment"];
+18413:    context.hitDieOptions = CONFIG.DND5E.hitDieTypes.map(d => ({ value: d, label: d }));
+18414:    context.primaryAbilities = Object.entries(CONFIG.DND5E.abilities).map(([value, data]) => ({
+18415:      value, label: data.label, selected: this.primaryAbility.value.has(value)
+18416:    }));
+18417:  }
+18418:
+18419:  /* -------------------------------------------- */
+18420:  /*  Socket Event Handlers                       */
+18421:  /* -------------------------------------------- */
+18422:
+18423:  /** @override */
+18424:  _advancementToCreate(options) {
+18425:    return [
+18426:      { type: "HitPoints" },
+18427:      { type: "Subclass", level: 3 },
+18428:      { type: "AbilityScoreImprovement", level: 4 },
+18429:      { type: "AbilityScoreImprovement", level: 8 },
+18430:      { type: "AbilityScoreImprovement", level: 12 },
+18431:      { type: "AbilityScoreImprovement", level: 16 },
+18432:      { type: "AbilityScoreImprovement", level: 19 }
+18433:    ];
+18434:  }
+18435:
+18436:  /* -------------------------------------------- */
+18437:
+18438:  /** @inheritDoc */
+18439:  async _preCreate(data, options, user) {
+18440:    if ( (await super._preCreate(data, options, user)) === false ) return false;
+18441:    await this.preCreateAdvancement(data, options);
+18442:  }
+18443:
+18444:  /* -------------------------------------------- */
+18445:
+18446:  /** @inheritDoc */
+18447:  async _onCreate(data, options, userId) {
+18448:    await super._onCreate(data, options, userId);
+18449:    const actor = this.parent.actor;
+18450:    if ( !actor || (userId !== game.user.id) ) return;
+18451:
+18452:    if ( actor.type === "character" ) {
+18453:      const pc = actor.items.get(actor.system.details.originalClass);
+18454:      if ( !pc ) await actor._assignPrimaryClass();
+18455:    }
+18456:
+18457:    if ( !actor.system.attributes?.spellcasting && this.parent.spellcasting?.ability ) {
+18458:      await actor.update({ "system.attributes.spellcasting": this.parent.spellcasting.ability });
+18459:    }
+18460:  }
+18461:
+18462:  /* -------------------------------------------- */
+18463:
+18464:  /** @inheritDoc */
+18465:  async _preUpdate(changed, options, user) {
+18466:    if ( (await super._preUpdate(changed, options, user)) === false ) return false;
+18467:    if ( !("levels" in (changed.system ?? {})) ) return;
+18468:
+18469:    // Check to make sure the updated class level isn't below zero
+18470:    if ( changed.system.levels <= 0 ) {
+18471:      ui.notifications.warn("DND5E.MaxClassLevelMinimumWarn", { localize: true });
+18472:      changed.system.levels = 1;
+18473:    }
+18474:
+18475:    // Check to make sure the updated class level doesn't exceed level cap
+18476:    const classLevelCap = this.parent.actor?.type === "character"
+18477:      ? actorPathwayClassLevelCap(this.parent.actor, this.parent.id)
+18478:      : CONFIG.DND5E.maxLevel;
+18479:    if ( changed.system.levels > classLevelCap ) {
+18480:      ui.notifications.warn(this.parent.actor?.type === "character"
+18481:        ? game.i18n.localize("DND5E.MaxPathwaySequenceExceededWarn")
+18482:        : game.i18n.format("DND5E.MaxClassLevelExceededWarn", { max: classLevelCap }));
+18483:      changed.system.levels = classLevelCap;
+18484:    }
+18485:
+18486:    if ( this.parent.actor?.type !== "character" ) return;
+18487:
+18488:    // Check to ensure the updated character doesn't exceed level cap
+18489:    const newCharacterLevel = this.parent.actor.system.details.level + (changed.system.levels - this.levels);
+18490:    if ( newCharacterLevel > CONFIG.DND5E.maxLevel ) {
+18491:      ui.notifications.warn(game.i18n.format("DND5E.MaxCharacterLevelExceededWarn", { max: CONFIG.DND5E.maxLevel }));
+18492:      changed.system.levels -= newCharacterLevel - CONFIG.DND5E.maxLevel;
+18493:    }
+18494:  }
+18495:
+18496:  /* -------------------------------------------- */
+18497:
+18498:  /** @inheritDoc */
+18499:  _onDelete(options, userId) {
+18500:    super._onDelete(options, userId);
+18501:    if ( userId !== game.user.id ) return;
+18502:    if ( this.parent.id === this.parent.actor?.system.details?.originalClass ) {
+18503:      this.parent.actor._assignPrimaryClass();
+18504:    }
+18505:  }
+18506:}
+18507:
+18508:/**
+18509: * A template for currently held currencies.
+18510: * @mixin
+18511: */
+18512:class CurrencyTemplate extends SystemDataModel$1 {
+18513:  /** @inheritDoc */
+18514:  static defineSchema() {
+18515:    return {
+18516:      currency: new MappingField(new foundry.data.fields.NumberField({
+18517:        required: true, nullable: false, integer: true, min: 0, initial: 0
+18518:      }), {initialKeys: CONFIG.DND5E.currencies, initialKeysOnly: true, label: "DND5E.Currency"})
+18519:    };
+18520:  }

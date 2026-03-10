@@ -1,0 +1,5 @@
+JOURNAL:phbCombat0000000
+PAGE:Initiative (FUH9AHeKlTFzC1L9)
+TYPE:text
+
+Initiative Initiative determines turn order in combat. Everyone rolls initiative at the start of an encounter. Initiative Roll = d20 + Dexterity modifier + initiative bonuses + Sequence Initiative Edge - Instability Penalty Sequence Initiative Edge This term ensures high-sequence characters act faster than low-sequence characters when base attributes are equal. Sequence Initiative Edge = clamp(Tier + floor((Potency - 2) / 3), 0, 6) Low sequences (9-7): typically +0 Mid sequences (6-5): typically +1 to +2 High/Saint (4-3): typically +3 Angel (2-1): typically +5 God (0): typically +6 Instability Penalty (Corruption Pressure) Corruption 0-49: no penalty Corruption 50-74: -1 Corruption 75-99: -2 Corruption 100+: -4 This keeps high-sequence reaction speed meaningful while preserving corruption as a balancing pressure.

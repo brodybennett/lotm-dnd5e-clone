@@ -1,0 +1,191 @@
+69980:
+69981:  /* -------------------------------------------- */
+69982:  /*  Properties                                  */
+69983:  /* -------------------------------------------- */
+69984:
+69985:  /**
+69986:   * Whether this Actor type represents a creature.
+69987:   * @returns {boolean}
+69988:   */
+69989:  get isCreature() {
+69990:    return true;
+69991:  }
+69992:
+69993:  /* -------------------------------------------- */
+69994:  /*  Data Migration                              */
+69995:  /* -------------------------------------------- */
+69996:
+69997:  /** @inheritDoc */
+69998:  static _migrateData(source) {
+69999:    super._migrateData(source);
+70000:    CreatureTemplate.#migrateSensesData(source);
+70001:    CreatureTemplate.#migrateToolData(source);
+70002:  }
+70003:
+70004:  /* -------------------------------------------- */
+70005:
+70006:  /**
+70007:   * Migrate the actor traits.senses string to attributes.senses object.
+70008:   * @param {object} source  The candidate source data from which the model will be constructed.
+70009:   */
+70010:  static #migrateSensesData(source) {
+70011:    const original = source.traits?.senses;
+70012:    if ( (original === undefined) || (typeof original !== "string") ) return;
+70013:    source.attributes ??= {};
+70014:    source.attributes.senses ??= {};
+70015:
+70016:    // Try to match old senses with the format like "Darkvision 60 ft, Blindsight 30 ft"
+70017:    const pattern = /([A-z]+)\s?([0-9]+)\s?([A-z]+)?/;
+70018:    let wasMatched = false;
+70019:
+70020:    // Match each comma-separated term
+70021:    for ( let s of original.split(",") ) {
+70022:      s = s.trim();
+70023:      const match = s.match(pattern);
+70024:      if ( !match ) continue;
+70025:      const type = match[1].toLowerCase();
+70026:      if ( (type in CONFIG.DND5E.senses) && !(type in source.attributes.senses) ) {
+70027:        source.attributes.senses[type] = Number(match[2]).toNearest(0.5);
+70028:        wasMatched = true;
+70029:      }
+70030:    }
+70031:
+70032:    // If nothing was matched, but there was an old string - put the whole thing in "special"
+70033:    if ( !wasMatched && original ) source.attributes.senses.special = original;
+70034:  }
+70035:
+70036:  /* -------------------------------------------- */
+70037:
+70038:  /**
+70039:   * Migrate traits.toolProf to the tools field.
+70040:   * @param {object} source  The candidate source data from which the model will be constructed.
+70041:   */
+70042:  static #migrateToolData(source) {
+70043:    const original = source.traits?.toolProf;
+70044:    if ( !original || foundry.utils.isEmpty(original.value) ) return;
+70045:    source.tools ??= {};
+70046:    for ( const prof of original.value ) {
+70047:      const validProf = (prof in CONFIG.DND5E.toolProficiencies) || (prof in CONFIG.DND5E.tools);
+70048:      if ( !validProf || (prof in source.tools) ) continue;
+70049:      source.tools[prof] = {
+70050:        value: 1,
+70051:        ability: "int",
+70052:        bonuses: {check: ""}
+70053:      };
+70054:    }
+70055:  }
+70056:
+70057:  /* -------------------------------------------- */
+70058:  /*  Data Preparation                            */
+70059:  /* -------------------------------------------- */
+70060:
+70061:  /**
+70062:   * Prepare modifiers and other values for skills.
+70063:   * @param {object} [options={}]
+70064:   * @param {object} [options.rollData={}]     Roll data used to calculate bonuses.
+70065:   * @param {object} [options.originalSkills]  Original skills data for transformed actors.
+70066:   */
+70067:  prepareSkills({ rollData={}, originalSkills }={}) {
+70068:    const globalBonuses = this.bonuses.abilities;
+70069:    const globalCheckBonus = simplifyBonus(globalBonuses.check, rollData);
+70070:    const globalSkillBonus = simplifyBonus(globalBonuses.skill, rollData);
+70071:    for ( const [id, skillData] of Object.entries(this.skills) ) {
+70072:      this.prepareSkill(id, { skillData, rollData, originalSkills, globalBonuses, globalCheckBonus, globalSkillBonus });
+70073:    }
+70074:  }
+70075:
+70076:  /* -------------------------------------------- */
+70077:
+70078:  /**
+70079:   * Prepares data for a specific skill.
+70080:   * @param {string} skillId                     The id of the skill to prepare data for.
+70081:   * @param {object} [options]                   Additional options.
+70082:   * @param {SkillData} [options.skillData]      The base skill data for this skill.
+70083:   *                                             If undefined, `this.system.skill[skillId]` is used.
+70084:   * @param {object} [options.rollData]          RollData for this actor, used to evaluate dice terms in bonuses.
+70085:   *                                             If undefined, `this.getRollData()` is used.
+70086:   * @param {object} [options.originalSkills]    Original skills if actor is polymorphed.
+70087:   *                                             If undefined, the skills of the actor identified by
+70088:   *                                             `this.flags.lotm.originalActor` are used.
+70089:   * @param {object} [options.globalBonuses]     Global ability bonuses for this actor.
+70090:   *                                             If undefined, `this.system.bonuses.abilities` is used.
+70091:   * @param {number} [options.globalCheckBonus]  Global check bonus for this actor.
+70092:   *                                             If undefined, `globalBonuses.check` will be evaluated using `rollData`.
+70093:   * @param {number} [options.globalSkillBonus]  Global skill bonus for this actor.
+70094:   *                                             If undefined, `globalBonuses.skill` will be evaluated using `rollData`.
+70095:   * @param {string} [options.ability]           The ability to compute bonuses based on.
+70096:   *                                             If undefined, skillData.ability is used.
+70097:   * @returns {SkillData}
+70098:   */
+70099:  prepareSkill(skillId, {
+70100:    skillData, rollData, originalSkills, globalBonuses,
+70101:    globalCheckBonus, globalSkillBonus, ability
+70102:  }={}) {
+70103:    const flags = this.parent.flags.lotm ?? {};
+70104:    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
+70105:
+70106:    skillData ??= foundry.utils.deepClone(this.skills[skillId]);
+70107:    rollData ??= this.parent.getRollData();
+70108:    originalSkills ??= flags.originalActor ? game.actors?.get(flags.originalActor)?.system?.skills : null;
+70109:    globalBonuses ??= this.bonuses.abilities ?? {};
+70110:    globalCheckBonus ??= simplifyBonus(globalBonuses.check, rollData);
+70111:    globalSkillBonus ??= simplifyBonus(globalBonuses.skill, rollData);
+70112:    ability ??= skillData.ability;
+70113:    const abilityData = this.abilities[ability];
+70114:    skillData.ability = ability;
+70115:    const baseBonus = simplifyBonus(skillData.bonuses?.check, rollData);
+70116:    const originalSkill = originalSkills?.[skillId];
+70117:    if ( originalSkill?.value >= 1 ) {
+70118:      skillData.merged = true;
+70119:      skillData.value = originalSkill?.value;
+70120:    }
+70121:
+70122:    // Compute modifier
+70123:    const checkBonusAbl = simplifyBonus(abilityData?.bonuses?.check, rollData);
+70124:    skillData.effectValue = skillData.value;
+70125:    skillData.bonus = baseBonus + globalCheckBonus + checkBonusAbl + globalSkillBonus;
+70126:    skillData.mod = abilityData?.mod ?? 0;
+70127:    const calculatedProf = this.calculateAbilityCheckProficiency(
+70128:      skillData.value, skillData.ability, { skill: skillId }
+70129:    );
+70130:    skillData.prof = originalSkill?.prof?.multiplier > calculatedProf.multiplier
+70131:      ? originalSkill.prof.clone() : calculatedProf;
+70132:    skillData.value = skillData.proficient = skillData.prof.multiplier;
+70133:    skillData.pathwayEdge = this.parent?.type === "character"
+70134:      ? pathwayCheckEdgeFromTier(pathwayTier, skillData.prof.hasProficiency)
+70135:      : 0;
+70136:    skillData.total = skillData.mod + skillData.bonus;
+70137:    if ( Number.isNumeric(skillData.prof.term) ) skillData.total += skillData.prof.flat;
+70138:    skillData.total += skillData.pathwayEdge;
+70139:
+70140:    // If we merged skills when transforming, take the highest bonus
+70141:    const difference = (originalSkill?.total ?? 0) - skillData.total;
+70142:    if ( originalSkill && (difference > 0) ) {
+70143:      skillData.bonuses.check = `${skillData.bonuses.check ?? ""} + ${difference}`;
+70144:      skillData.bonus += difference;
+70145:      skillData.total += difference;
+70146:    }
+70147:
+70148:    // Compute passive bonus
+70149:    const passive = flags.observantFeat && CONFIG.DND5E.characterFlags.observantFeat.skills.includes(skillId) ? 5 : 0;
+70150:    const passiveBonus = simplifyBonus(skillData.bonuses?.passive, rollData);
+70151:    const advantageMode = AdvantageModeField.combineFields(this, [
+70152:      `abilities.${ability}.check.roll.mode`, `skills.${skillId}.roll.mode`
+70153:    ])?.mode ?? 0;
+70154:    skillData.passive = CONFIG.DND5E.skillPassive.base + skillData.mod + skillData.bonus + skillData.prof.flat
+70155:      + passive + passiveBonus + skillData.pathwayEdge + (advantageMode * CONFIG.DND5E.skillPassive.modifier);
+70156:
+70157:    return skillData;
+70158:  }
+70159:
+70160:  /* -------------------------------------------- */
+70161:
+70162:  /**
+70163:   * Prepare tool checks. Mutates the values of system.tools.
+70164:   * @param {object} [options={}]
+70165:   * @param {object} [options.rollData={}]     Roll data used to calculate bonuses.
+70166:   */
+70167:  prepareTools({ rollData={} }={}) {
+70168:    const globalCheckBonus = simplifyBonus(this.bonuses.abilities.check, rollData);
+70169:    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
+70170:    for ( const tool of Object.values(this.tools) ) {

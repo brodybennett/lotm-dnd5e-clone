@@ -1,0 +1,66 @@
+41070:
+41071:const { NumberField: NumberField$l, SchemaField: SchemaField$r } = foundry.data.fields;
+41072:
+41073:/**
+41074: * @import { CurrencyTemplateData } from "../../shared/_types.mjs";
+41075: * @import { CommonTemplateData } from "./_types.mjs";
+41076: */
+41077:
+41078:/**
+41079: * A template for all actors that share the common template.
+41080: * @extends {ActorDataModel<CurrencyTemplate & CommonTemplateData>}
+41081: * @mixes CurrencyTemplate
+41082: * @mixes CommonTemplateData
+41083: */
+41084:class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
+41085:
+41086:  /* -------------------------------------------- */
+41087:  /*  Model Configuration                         */
+41088:  /* -------------------------------------------- */
+41089:
+41090:  /** @inheritDoc */
+41091:  static defineSchema() {
+41092:    return this.mergeSchema(super.defineSchema(), {
+41093:      abilities: new MappingField(new SchemaField$r({
+41094:        value: new NumberField$l({
+41095:          required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.AbilityScore"
+41096:        }),
+41097:        proficient: new NumberField$l({
+41098:          required: true, integer: true, min: 0, max: 1, initial: 0, label: "DND5E.ProficiencyLevel"
+41099:        }),
+41100:        max: new NumberField$l({
+41101:          required: true, integer: true, nullable: true, min: 0, initial: null, label: "DND5E.AbilityScoreMax"
+41102:        }),
+41103:        bonuses: new SchemaField$r({
+41104:          check: new FormulaField({ required: true, label: "DND5E.AbilityCheckBonus" }),
+41105:          save: new FormulaField({ required: true, label: "DND5E.SaveBonus" })
+41106:        }, { label: "DND5E.AbilityBonuses" }),
+41107:        check: new RollConfigField({ ability: false }),
+41108:        save: new RollConfigField({ ability: false })
+41109:      }), {
+41110:        initialKeys: CONFIG.DND5E.abilities, initialValue: this._initialAbilityValue.bind(this),
+41111:        initialKeysOnly: true, label: "DND5E.Abilities"
+41112:      })
+41113:    });
+41114:  }
+41115:
+41116:  /* -------------------------------------------- */
+41117:
+41118:  /**
+41119:   * Populate the proper initial value for abilities.
+41120:   * @param {string} key       Key for which the initial data will be created.
+41121:   * @param {object} initial   The initial skill object created by SkillData.
+41122:   * @param {object} existing  Any existing mapping data.
+41123:   * @returns {object}         Initial ability object.
+41124:   * @private
+41125:   */
+41126:  static _initialAbilityValue(key, initial, existing) {
+41127:    const config = CONFIG.DND5E.abilities[key];
+41128:    if ( config ) {
+41129:      let defaultValue = config.defaults?.[this._systemType] ?? initial.value;
+41130:      if ( typeof defaultValue === "string" ) defaultValue = existing?.[defaultValue]?.value ?? initial.value;
+41131:      initial.value = defaultValue;
+41132:    }
+41133:    return initial;
+41134:  }
+41135:

@@ -1,0 +1,471 @@
+34970:     * @memberof hookEvents
+34971:     * @param {Actor5e} actor            Actor for which the hit points are being rolled.
+34972:     * @param {object} rollData
+34973:     * @param {string} rollData.formula  The string formula to parse.
+34974:     * @param {object} rollData.data     The data object against which to parse attributes within the formula.
+34975:     * @param {object} messageData       The data object to use when creating the message.
+34976:     */
+34977:    Hooks.callAll("dnd5e.preRollNPCHitPoints", this, rollData, messageData);
+34978:
+34979:    const roll = new Roll(rollData.formula, rollData.data);
+34980:    await roll.evaluate();
+34981:
+34982:    /**
+34983:     * A hook event that fires after hit points are rolled for an NPC.
+34984:     * @function dnd5e.rollNPCHitPoints
+34985:     * @memberof hookEvents
+34986:     * @param {Actor5e} actor  Actor for which the hit points have been rolled.
+34987:     * @param {Roll} roll      The resulting roll.
+34988:     */
+34989:    Hooks.callAll("dnd5e.rollNPCHitPoints", this, roll);
+34990:
+34991:    if ( rollData.chatMessage ) await roll.toMessage(messageData);
+34992:    return roll;
+34993:  }
+34994:
+34995:  /* -------------------------------------------- */
+34996:  /*  Resting                                     */
+34997:  /* -------------------------------------------- */
+34998:
+34999:  /**
+35000:   * Take a short rest, possibly spending hit dice and recovering resources, item uses, and relevant spell slots.
+35001:   * @param {Partial<RestConfiguration>} [config]  Configuration options for a short rest.
+35002:   * @returns {Promise<RestResult>}                A Promise which resolves once the short rest workflow has completed.
+35003:   */
+35004:  async shortRest(config={}) {
+35005:    if ( this.type === "vehicle" ) return;
+35006:    if ( !game.user.isGM && !game.settings.get("lotm", "allowRests") && !config.request ) {
+35007:      ui.notifications.warn("DND5E.REST.Warning.OnlyByRequest", { localize: true, log: false });
+35008:      return;
+35009:    }
+35010:
+35011:    const clone = this.clone();
+35012:    const restConfig = CONFIG.DND5E.restTypes.short;
+35013:    const shortRestSpiritualityDefaults = getShortRestSpiritualityDefaults();
+35014:    const defaultPathwayRecovery = this.type === "character";
+35015:    config = foundry.utils.mergeObject({
+35016:      type: "short", dialog: true, chat: true, newDay: false, advanceTime: false, autoHD: false, autoHDThreshold: 3,
+35017:      duration: CONFIG.DND5E.restTypes.short.duration[game.settings.get("lotm", "restVariant")],
+35018:      recoverTemp: restConfig.recoverTemp, recoverTempMax: restConfig.recoverTempMax,
+35019:      recoverSpirituality: defaultPathwayRecovery || shortRestSpiritualityDefaults.recoverSpirituality,
+35020:      recoverSpiritualityFraction: defaultPathwayRecovery ? null : shortRestSpiritualityDefaults.recoverSpiritualityFraction,
+35021:      exhaustionDelta: restConfig.exhaustionDelta
+35022:    }, config);
+35023:
+35024:    /**
+35025:     * A hook event that fires before a short rest is started.
+35026:     * @function dnd5e.preShortRest
+35027:     * @memberof hookEvents
+35028:     * @param {Actor5e} actor             The actor that is being rested.
+35029:     * @param {RestConfiguration} config  Configuration options for the rest.
+35030:     * @returns {boolean}                 Explicitly return `false` to prevent the rest from being started.
+35031:     */
+35032:    if ( Hooks.call("dnd5e.preShortRest", this, config) === false ) return;
+35033:
+35034:    // Take note of the initial hit points and number of hit dice the Actor has
+35035:    const hd0 = foundry.utils.getProperty(this, "system.attributes.hd.value");
+35036:    const hp0 = foundry.utils.getProperty(this, "system.attributes.hp.value");
+35037:
+35038:    // Display a Dialog for rolling hit dice
+35039:    if ( config.dialog ) {
+35040:      try {
+35041:        Object.assign(config, await ShortRestDialog.configure(this, config));
+35042:      } catch(err) { return; }
+35043:    }
+35044:
+35045:    /**
+35046:     * A hook event that fires after a short rest has started, after the configuration is complete.
+35047:     * @function dnd5e.shortRest
+35048:     * @memberof hookEvents
+35049:     * @param {Actor5e} actor             The actor that is being rested.
+35050:     * @param {RestConfiguration} config  Configuration options for the rest.
+35051:     * @returns {boolean}                 Explicitly return `false` to prevent the rest from being continued.
+35052:     */
+35053:    if ( Hooks.call("dnd5e.shortRest", this, config) === false ) return;
+35054:
+35055:    // Automatically spend hit dice
+35056:    if ( config.autoHD ) await this.autoSpendHitDice({ threshold: config.autoHDThreshold });
+35057:
+35058:    // Return the rest result
+35059:    const dhd = foundry.utils.getProperty(this, "system.attributes.hd.value") - hd0;
+35060:    const dhp = foundry.utils.getProperty(this, "system.attributes.hp.value") - hp0;
+35061:    return this._rest(config, { clone, dhd, dhp });
+35062:  }
+35063:
+35064:  /* -------------------------------------------- */
+35065:
+35066:  /**
+35067:   * Take a long rest, recovering hit points, hit dice, resources, item uses, and spell slots.
+35068:   * @param {Partial<RestConfiguration>} [config]  Configuration options for a long rest.
+35069:   * @returns {Promise<RestResult>}       A Promise which resolves once the long rest workflow has completed.
+35070:   */
+35071:  async longRest(config={}) {
+35072:    if ( this.type === "vehicle" ) return;
+35073:    if ( !game.user.isGM && !game.settings.get("lotm", "allowRests") && !config.request ) {
+35074:      ui.notifications.warn("DND5E.REST.Warning.OnlyByRequest", { localize: true, log: false });
+35075:      return;
+35076:    }
+35077:
+35078:    const clone = this.clone();
+35079:    const restConfig = CONFIG.DND5E.restTypes.long;
+35080:    config = foundry.utils.mergeObject({
+35081:      type: "long", dialog: true, chat: true, newDay: true, advanceTime: false,
+35082:      duration: restConfig.duration[game.settings.get("lotm", "restVariant")],
+35083:      recoverTemp: restConfig.recoverTemp, recoverTempMax: restConfig.recoverTempMax,
+35084:      recoverSpirituality: true, exhaustionDelta: restConfig.exhaustionDelta
+35085:    }, config);
+35086:
+35087:    /**
+35088:     * A hook event that fires before a long rest is started.
+35089:     * @function dnd5e.preLongRest
+35090:     * @memberof hookEvents
+35091:     * @param {Actor5e} actor             The actor that is being rested.
+35092:     * @param {RestConfiguration} config  Configuration options for the rest.
+35093:     * @returns {boolean}                 Explicitly return `false` to prevent the rest from being started.
+35094:     */
+35095:    if ( Hooks.call("dnd5e.preLongRest", this, config) === false ) return;
+35096:
+35097:    if ( config.dialog ) {
+35098:      try {
+35099:        Object.assign(config, await LongRestDialog.configure(this, config));
+35100:      } catch(err) { return; }
+35101:    }
+35102:
+35103:    /**
+35104:     * A hook event that fires after a long rest has started, after the configuration is complete.
+35105:     * @function dnd5e.longRest
+35106:     * @memberof hookEvents
+35107:     * @param {Actor5e} actor             The actor that is being rested.
+35108:     * @param {RestConfiguration} config  Configuration options for the rest.
+35109:     * @returns {boolean}                 Explicitly return `false` to prevent the rest from being continued.
+35110:     */
+35111:    if ( Hooks.call("dnd5e.longRest", this, config) === false ) return;
+35112:
+35113:    return this._rest(config, { clone });
+35114:  }
+35115:
+35116:  /* -------------------------------------------- */
+35117:
+35118:  /**
+35119:   * Handle resting an actor from a request.
+35120:   * @param {Actor5e} actor                  Actor to rest.
+35121:   * @param {ChatMessage5e} request          Request chat message.
+35122:   * @param {RestConfiguration} config       Configuration data for the rest requested.
+35123:   * @returns {Promise<ChatMessage5e|null>}
+35124:   */
+35125:  static async handleRestRequest(actor, request, config) {
+35126:    const result = await actor[config.type === "short" ? "shortRest" : "longRest"]({
+35127:      ...config, request, advanceBastionTurn: false, advanceTime: false
+35128:    });
+35129:    return result?.message ?? null;
+35130:  }
+35131:
+35132:  /* -------------------------------------------- */
+35133:
+35134:  /**
+35135:   * Perform all of the changes needed for a short or long rest.
+35136:   *
+35137:   * @param {RestConfiguration} config         Configuration data for the rest occurring.
+35138:   * @param {Partial<RestResult>} [result={}]  Results of the rest operation being built.
+35139:   * @returns {Promise<RestResult|void>}       Consolidated results of the rest workflow.
+35140:   * @private
+35141:   */
+35142:  async _rest(config, result={}) {
+35143:    if ( (foundry.utils.getType(this.system.rest) === "function")
+35144:      && (await this.system.rest(config, result) === false) ) return;
+35145:
+35146:    result = foundry.utils.mergeObject({
+35147:      type: config.type,
+35148:      deleteItems: [],
+35149:      deltas: {
+35150:        hitPoints: 0,
+35151:        hitDice: 0
+35152:      },
+35153:      newDay: config.newDay === true,
+35154:      request: config.request,
+35155:      rolls: [],
+35156:      updateData: {},
+35157:      updateItems: []
+35158:    }, result);
+35159:    result.clone ??= this.clone();
+35160:    if ( "dhp" in result ) result.deltas.hitPoints = result.dhp;
+35161:    if ( "dhd" in result ) result.deltas.hitDice = result.dhd;
+35162:
+35163:    this._getRestHitDiceRecovery(config, result);
+35164:    this._getRestHitPointRecovery(config, result);
+35165:    this._getRestSpiritualityRecovery(config, result);
+35166:    this._getRestResourceRecovery(config, result);
+35167:    this._getRestSpellRecovery(config, result);
+35168:    await this._getRestItemUsesRecovery(config, result);
+35169:
+35170:    result.dhp = result.deltas.hitPoints;
+35171:    result.dhd = result.deltas.hitDice;
+35172:    result.longRest = result.type === "long";
+35173:
+35174:    if ( config.exhaustionDelta && !result.clone.hasConditionEffect("malnourished")
+35175:      && !result.clone.hasConditionEffect("dehydrated") ) {
+35176:      const path = "system.attributes.exhaustion";
+35177:      const value = foundry.utils.getProperty(result.clone, path) ?? 0;
+35178:      foundry.utils.mergeObject(result.updateData, { [path]: Math.max(0, value + config.exhaustionDelta) });
+35179:    }
+35180:
+35181:    /**
+35182:     * A hook event that fires after rest result is calculated, but before any updates are performed.
+35183:     * @function dnd5e.preRestCompleted
+35184:     * @memberof hookEvents
+35185:     * @param {Actor5e} actor             The actor that is being rested.
+35186:     * @param {RestResult} result         Details on the rest to be completed.
+35187:     * @param {RestConfiguration} config  Configuration data for the rest occurring.
+35188:     * @returns {boolean}                 Explicitly return `false` to prevent the rest updates from being performed.
+35189:     */
+35190:    if ( Hooks.call("dnd5e.preRestCompleted", this, result, config) === false ) return result;
+35191:
+35192:    // Perform updates
+35193:    await this.update(result.updateData, { isRest: true });
+35194:    await this.deleteEmbeddedDocuments("Item", result.deleteItems, { isRest: true });
+35195:    await this.updateEmbeddedDocuments("Item", result.updateItems, { isRest: true });
+35196:
+35197:    // Advance the game clock
+35198:    if ( config.advanceTime && (config.duration > 0) && game.user.isGM ) await game.time.advance(60 * config.duration);
+35199:
+35200:    // Display a Chat Message summarizing the rest effects
+35201:    if ( config.chat ) result.message = await this._displayRestResultMessage(config, result);
+35202:
+35203:    /**
+35204:     * A hook event that fires when the rest process is completed for an actor.
+35205:     * @function dnd5e.restCompleted
+35206:     * @memberof hookEvents
+35207:     * @param {Actor5e} actor             The actor that just completed resting.
+35208:     * @param {RestResult} result         Details on the rest completed.
+35209:     * @param {RestConfiguration} config  Configuration data for that occurred.
+35210:     */
+35211:    Hooks.callAll("dnd5e.restCompleted", this, result, config);
+35212:
+35213:    if ( config.advanceBastionTurn && game.user.isGM && game.settings.get("lotm", "bastionConfiguration").enabled
+35214:      && this.itemTypes.facility.length ) await dnd5e.bastion.advanceAllFacilities(this);
+35215:
+35216:    // Return data summarizing the rest effects
+35217:    return result;
+35218:  }
+35219:
+35220:  /* -------------------------------------------- */
+35221:
+35222:  /**
+35223:   * Display a chat message with the result of a rest.
+35224:   *
+35225:   * @param {RestConfiguration} config  Rest configuration.
+35226:   * @param {RestResult} result         Result of the rest operation.
+35227:   * @returns {Promise<ChatMessage>}    Chat message that was created.
+35228:   * @protected
+35229:   */
+35230:  async _displayRestResultMessage(config, result) {
+35231:    let { dhd, dhp } = result;
+35232:    if ( config.type === "short" ) dhd *= -1;
+35233:    const diceRestored = dhd !== 0;
+35234:    const healthRestored = dhp !== 0;
+35235:    const longRest = config.type === "long";
+35236:    const length = longRest ? "Long" : "Short";
+35237:    const typeConfig = CONFIG.DND5E.restTypes[config.type] ?? {};
+35238:
+35239:    // Determine the chat message to display
+35240:    let message;
+35241:    if ( diceRestored && healthRestored ) message = `DND5E.REST.${length}.Result.Full`;
+35242:    else if ( longRest && !diceRestored && healthRestored ) message = "DND5E.REST.Long.Result.HitPoints";
+35243:    else if ( longRest && diceRestored && !healthRestored ) message = "DND5E.REST.Long.Result.HitDice";
+35244:    else message = `DND5E.REST.${length}.Result.Short`;
+35245:
+35246:    // Create a chat message
+35247:    const pr = new Intl.PluralRules(game.i18n.lang);
+35248:    let chatData = {
+35249:      content: game.i18n.format(message, {
+35250:        name: this.name,
+35251:        dice: game.i18n.format(`DND5E.HITDICE.Counted.${pr.select(dhd)}`, { number: formatNumber(dhd) }),
+35252:        health: game.i18n.format(`DND5E.HITPOINTS.Counted.${pr.select(dhp)}`, { number: formatNumber(dhp) })
+35253:      }),
+35254:      flavor: this.createRestFlavor(config, result),
+35255:      type: "rest",
+35256:      rolls: result.rolls,
+35257:      speaker: ChatMessage.getSpeaker({ actor: this, alias: this.name }),
+35258:      system: {
+35259:        activations: ActivationsField.getActivations(this, typeConfig?.activationPeriods ?? []),
+35260:        deltas: ActorDeltasField.getDeltas(result.clone, {
+35261:          actor: result.updateData, delete: result.deleteItems, item: result.updateItems
+35262:        }),
+35263:        request: config.request,
+35264:        type: result.type
+35265:      }
+35266:    };
+35267:    if ( config.request ) foundry.utils.setProperty(chatData, "flags.lotm.requestResult", {
+35268:      actorUuid: this.uuid, requestId: config.request.id
+35269:    });
+35270:    ChatMessage.applyRollMode(chatData, game.settings.get("core", "rollMode"));
+35271:    return ChatMessage.create(chatData);
+35272:  }
+35273:
+35274:  /* -------------------------------------------- */
+35275:
+35276:  /**
+35277:   * Generate rest flavor text based on the provided configuration.
+35278:   * @param {RestConfiguration} config  Rest configuration.
+35279:   * @param {RestResult} [result]       Result of the rest operation.
+35280:   * @returns {string}
+35281:   */
+35282:  createRestFlavor(config, result) {
+35283:    const typeConfig = CONFIG.DND5E.restTypes[config.type] ?? {};
+35284:    const duration = convertTime(config.duration, "minute");
+35285:    const parts = [formatTime(duration.value, duration.unit)];
+35286:    if ( result?.newDay ?? config.newDay ) parts.push(game.i18n.localize("DND5E.REST.NewDay.Label").toLowerCase());
+35287:    return `${typeConfig.label} (${game.i18n.getListFormatter({ type: "unit" }).format(parts)})`;
+35288:  }
+35289:
+35290:  /* -------------------------------------------- */
+35291:
+35292:  /**
+35293:   * Automatically spend hit dice to recover hit points up to a certain threshold.
+35294:   * @param {object} [options]
+35295:   * @param {number} [options.threshold=3]  A number of missing hit points which would trigger an automatic HD roll.
+35296:   * @returns {Promise<number>}             Number of hit dice spent.
+35297:   */
+35298:  async autoSpendHitDice({ threshold=3 }={}) {
+35299:    if ( !this.system.attributes.hp ) return;
+35300:    const hp = this.system.attributes.hp;
+35301:    const max = Math.max(0, hp.effectiveMax);
+35302:    let diceRolled = 0;
+35303:    while ( (this.system.attributes.hp.value + threshold) <= max ) {
+35304:      const r = await this.rollHitDie();
+35305:      if ( r === null ) break;
+35306:      diceRolled += 1;
+35307:    }
+35308:    return diceRolled;
+35309:  }
+35310:
+35311:  /* -------------------------------------------- */
+35312:
+35313:  /**
+35314:   * Recovers class hit dice during a long rest.
+35315:   *
+35316:   * @param {RestConfiguration} [config]
+35317:   * @param {number} [config.maxHitDice]  Maximum number of hit dice to recover.
+35318:   * @param {number} [config.fraction]    Fraction of max hit dice to recover. Used for NPC recovery and for PCs if
+35319:   *                                      `maxHitDice` isn't specified.
+35320:   * @param {RestResult} [result={}]      Rest result being constructed.
+35321:   * @protected
+35322:   */
+35323:  _getRestHitDiceRecovery({ maxHitDice, fraction, ...config }={}, result={}) {
+35324:    const restConfig = CONFIG.DND5E.restTypes[config.type];
+35325:    if ( !this.system.attributes.hd || !restConfig?.recoverHitDice ) return;
+35326:    fraction ??= game.settings.get("lotm", "rulesVersion") === "modern" ? 1 : 0.5;
+35327:
+35328:    // Handle simpler HD recovery for NPCs
+35329:    if ( this.type === "npc" ) {
+35330:      const hd = this.system.attributes.hd;
+35331:      const recovered = Math.min(
+35332:        Math.max(1, Math.floor(hd.max * fraction)), hd.spent, maxHitDice ?? Infinity
+35333:      );
+35334:      foundry.utils.mergeObject(result, {
+35335:        deltas: {
+35336:          hitDice: (result.deltas?.hitDice ?? 0) + recovered
+35337:        },
+35338:        updateData: {
+35339:          "system.attributes.hd.spent": hd.spent - recovered
+35340:        }
+35341:      });
+35342:      return;
+35343:    }
+35344:
+35345:    this.system.attributes.hd.createHitDiceUpdates({ maxHitDice, fraction, ...config }, result);
+35346:  }
+35347:
+35348:  /* -------------------------------------------- */
+35349:
+35350:  /**
+35351:   * Recovers actor hit points and eliminates any temp HP.
+35352:   * @param {RestConfiguration} [config={}]
+35353:   * @param {boolean} [config.recoverTemp=true]     Reset temp HP to zero.
+35354:   * @param {boolean} [config.recoverTempMax=true]  Reset temp max HP to zero.
+35355:   * @param {RestResult} [result={}]                Rest result being constructed.
+35356:   * @protected
+35357:   */
+35358:  _getRestHitPointRecovery({ recoverTemp, recoverTempMax, ...config }={}, result={}) {
+35359:    const restConfig = CONFIG.DND5E.restTypes[config.type ?? "long"];
+35360:    const hp = this.system.attributes?.hp;
+35361:    if ( !hp || !restConfig.recoverHitPoints ) return;
+35362:
+35363:    let max = hp.max;
+35364:    result.updateData ??= {};
+35365:    if ( recoverTempMax ) result.updateData["system.attributes.hp.tempmax"] = 0;
+35366:    else max = Math.max(0, hp.effectiveMax);
+35367:    result.updateData["system.attributes.hp.value"] = max;
+35368:    if ( recoverTemp ) result.updateData["system.attributes.hp.temp"] = 0;
+35369:    foundry.utils.setProperty(
+35370:      result, "deltas.hitPoints", (result.deltas?.hitPoints ?? 0) + Math.max(0, max - hp.value)
+35371:    );
+35372:  }
+35373:
+35374:  /* -------------------------------------------- */
+35375:
+35376:  /**
+35377:   * Recovers actor spirituality.
+35378:   * @param {RestConfiguration} [config={}]
+35379:   * @param {boolean} [config.recoverSpirituality]          Recover spirituality during this rest.
+35380:   * @param {number} [config.recoverSpiritualityFraction]   Fraction of maximum spirituality recovered on short rests.
+35381:   * @param {RestResult} [result={}]                        Rest result being constructed.
+35382:   * @protected
+35383:   */
+35384:  _getRestSpiritualityRecovery({ recoverSpirituality, recoverSpiritualityFraction, ...config }={}, result={}) {
+35385:    if ( this.type !== "character" ) return;
+35386:    const spirituality = this.system.attributes?.spirituality;
+35387:    if ( !spirituality ) return;
+35388:
+35389:    const max = Math.max(Number(spirituality.max) || 0, 0);
+35390:    const current = Math.clamp(Number(spirituality.value) || 0, 0, max);
+35391:    const pathwayTier = Math.max(Number(this.system.pathway?.tier) || 0, 0);
+35392:    let recovered = 0;
+35393:
+35394:    if ( (config.type === "long") && (recoverSpirituality !== false) ) {
+35395:      recovered = Math.max(0, max - current);
+35396:    } else if ( (config.type === "short") && recoverSpirituality ) {
+35397:      const defaultFraction = 0.15 + (0.05 * pathwayTier);
+35398:      const fraction = Math.clamp(
+35399:        Number.isFinite(Number(recoverSpiritualityFraction)) ? Number(recoverSpiritualityFraction) : defaultFraction,
+35400:        0,
+35401:        1
+35402:      );
+35403:      const step = Math.ceil(max * fraction);
+35404:      recovered = Math.min(max - current, Math.max(step, max > 0 ? 1 : 0));
+35405:    }
+35406:
+35407:    if ( recovered <= 0 ) return;
+35408:    result.updateData ??= {};
+35409:    result.updateData["system.attributes.spirituality.value"] = current + recovered;
+35410:
+35411:    // Long rests also relieve corruption pressure at higher sequence stability.
+35412:    if ( config.type === "long" ) {
+35413:      const corruption = this.system.attributes?.corruption;
+35414:      const currentCorruption = Math.max(Number(corruption?.value) || 0, 0);
+35415:      if ( currentCorruption > 0 ) {
+35416:        const spiMod = Number(this.system.abilities?.wis?.mod) || 0;
+35417:        const resistance = Number(this.system.attributes?.resistance) || pathwayPotencyFromSequence(this.system.pathway?.sequence);
+35418:        const reduction = Math.max(1, Math.floor((spiMod + resistance + pathwayTier) / 3));
+35419:        result.updateData["system.attributes.corruption.value"] = Math.max(currentCorruption - reduction, 0);
+35420:      }
+35421:    }
+35422:  }
+35423:
+35424:  /* -------------------------------------------- */
+35425:
+35426:  /**
+35427:   * Recovers actor resources.
+35428:   * @param {object} [config={}]
+35429:   * @param {boolean} [config.recoverShortRestResources]  Recover resources that recharge on a short rest.
+35430:   * @param {boolean} [config.recoverLongRestResources]   Recover resources that recharge on a long rest.
+35431:   * @param {RestResult} [result={}]                      Rest result being constructed.
+35432:   * @protected
+35433:   */
+35434:  _getRestResourceRecovery({recoverShortRestResources, recoverLongRestResources, ...config}={}, result={}) {
+35435:    recoverShortRestResources ??= config.type === "short";
+35436:    recoverLongRestResources ??= config.type === "long";
+35437:    for ( let [k, r] of Object.entries(this.system.resources ?? {}) ) {
+35438:      if ( Number.isNumeric(r.max) && ((recoverShortRestResources && r.sr) || (recoverLongRestResources && r.lr)) ) {
+35439:        result.updateData[`system.resources.${k}.value`] = Number(r.max);
+35440:      }

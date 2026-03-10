@@ -1,0 +1,5 @@
+JOURNAL:phbCreatingAChar
+PAGE:Level Advancement (Vz5QcYKA74tWkDqy)
+TYPE:text
+
+Sequence Advancement Table Definitions: Q = sequence number, T = tier index, SB = Sequence Bonus, P = Potency, B = pathway budget. SB(Q) = 2 + floor((9 - Q) / 2) P(Q) = SB + T R(Q) = SB + T HP_base(Q) = round(10 + 1.2 * B(Q)) SP_base(Q) = round(6 + 1.0 * B(Q)) Sequence Budget B Tier T SB Potency P HP_base SP_base 9 2 0 2 2 12 8 8 5 0 2 2 16 11 7 18 0 3 3 32 24 6 27 1 3 4 42 33 5 40 1 4 5 58 46 4 73 2 4 6 98 79 3 93 2 5 7 122 99 2 143 3 5 8 182 149 1 217 3 6 9 270 223 0 331 4 6 10 407 337 Final values: HP_max = HP_base + CON_mod * (3 + T) + PathwayDurabilityAdj SP_max = SP_base + SPI_mod * (2 + T) + PathwaySpiritualAdj Pathway adjustment bounds: DurabilityAdj is limited to -15% to +15% of HP_base. SpiritualAdj is limited to -10% to +20% of SP_base.

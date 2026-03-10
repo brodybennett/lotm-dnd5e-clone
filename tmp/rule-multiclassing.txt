@@ -1,0 +1,5 @@
+JOURNAL:phbCreatingAChar
+PAGE:Multiclassing (vcs4jfEKRxPCsgXm)
+TYPE:text
+
+Multiclassing (Pathway Variant) Default rule: multiclass progression is disabled in standard LoTM pathway flow. Characters advance through one pathway identity so that sequence pacing, corruption pressure, and role asymmetry remain coherent. Optional GM Variant If your table enables multi-pathway play, treat it as an advanced compatibility mode. The GM should define: how budgets are split or combined across pathways, whether sequence advancement can diverge by pathway, how corruption pressure scales for hybrid progression. This variant is intentionally non-default because it can break sequence pacing if not tightly adjudicated.

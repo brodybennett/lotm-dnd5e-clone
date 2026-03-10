@@ -1,0 +1,5 @@
+JOURNAL:phbDamageAndHeal
+PAGE:Hit Points (ndoKj9SzjOvxOI3J)
+TYPE:text
+
+Hit Points in Sequence Play Hit Points represent endurance, durability, and will to persist. In pathway progression, HP is sequence-driven. HP_base(Q) = round(10 + 1.2 * B(Q)) HP_max = HP_base + CON_mod * (3 + Tier index) + PathwayDurabilityAdj PathwayDurabilityAdj is constrained to -15% to +15% of HP_base to preserve same-sequence power bands. Temporary HP, resistance, vulnerability, and normal damage timing still follow the baseline chassis unless a feature overrides them.

@@ -1,0 +1,81 @@
+17050:        required: true,
+17051:        initial: "none",
+17052:        blank: false,
+17053:        label: "DND5E.SpellProgression"
+17054:      }),
+17055:      ability: new StringField$13({ label: "DND5E.SpellAbility" }),
+17056:      preparation: new SchemaField$O({
+17057:        formula: new FormulaField({ label: "DND5E.SpellPreparation.Formula" })
+17058:      }),
+17059:      ...fields
+17060:    };
+17061:    Object.entries(fields).forEach(([k, v]) => !v ? delete fields[k] : null);
+17062:    super(fields, { label: "DND5E.Spellcasting", ...options });
+17063:  }
+17064:
+17065:  /* -------------------------------------------- */
+17066:  /*  Data Preparation                            */
+17067:  /* -------------------------------------------- */
+17068:
+17069:  /**
+17070:   * Prepare data for this field. Should be called during the `prepareFinalData` stage.
+17071:   * @this {ItemDataModel}
+17072:   * @param {object} rollData  Roll data used for formula replacements.
+17073:   */
+17074:  static prepareData(rollData) {
+17075:    this.spellcasting.preparation.max = simplifyBonus(this.spellcasting.preparation.formula, rollData);
+17076:
+17077:    // Temp method for determining spellcasting type until this data is available directly using advancement
+17078:    this.spellcasting.type = CONFIG.DND5E.spellProgression[this.spellcasting.progression]?.type;
+17079:    this.spellcasting.slots = CONFIG.DND5E.spellcasting[this.spellcasting.type]?.slots;
+17080:
+17081:    const actor = this.parent.actor;
+17082:    if ( !actor ) return;
+17083:    this.spellcasting.levels = this.levels ?? this.parent.class?.system.levels;
+17084:
+17085:    // Prepare attack bonus and save DC
+17086:    const ability = actor.system.abilities?.[this.spellcasting.ability];
+17087:    const mod = ability?.mod ?? 0;
+17088:    const pathwayPotency = actor.type === "character"
+17089:      ? (Number(actor.system.attributes?.potency) || Number(actor.system.pathway?.potency) || Number(actor.system.attributes?.prof) || 0)
+17090:      : (actor.system.attributes?.prof ?? 0);
+17091:    const modProf = mod + (actor.system.attributes?.prof ?? 0);
+17092:    const msak = simplifyBonus(actor.system.bonuses?.msak?.attack, rollData);
+17093:    const rsak = simplifyBonus(actor.system.bonuses?.rsak?.attack, rollData);
+17094:    this.spellcasting.attack = modProf + (msak === rsak ? msak : 0);
+17095:    this.spellcasting.save = ability?.dc ?? (8 + mod + pathwayPotency);
+17096:  }
+17097:}
+17098:
+17099:/**
+17100: * Data field that selects the appropriate advancement data model if available, otherwise defaults to generic
+17101: * `ObjectField` to prevent issues with custom advancement types that aren't currently loaded.
+17102: */
+17103:class AdvancementField extends foundry.data.fields.ObjectField {
+17104:
+17105:  /**
+17106:   * Get the BaseAdvancement definition for the specified advancement type.
+17107:   * @param {string} type                    The Advancement type.
+17108:   * @returns {typeof BaseAdvancement|null}  The BaseAdvancement class, or null.
+17109:   */
+17110:  getModelForType(type) {
+17111:    return CONFIG.DND5E.advancementTypes[type]?.documentClass ?? null;
+17112:  }
+17113:
+17114:  /* -------------------------------------------- */
+17115:
+17116:  /** @inheritDoc */
+17117:  _cleanType(value, options) {
+17118:    if ( !(typeof value === "object") ) value = {};
+17119:
+17120:    const cls = this.getModelForType(value.type);
+17121:    if ( cls ) return cls.cleanData(value, options);
+17122:    return value;
+17123:  }
+17124:
+17125:  /* -------------------------------------------- */
+17126:
+17127:  /** @inheritDoc */
+17128:  initialize(value, model, options={}) {
+17129:    const cls = this.getModelForType(value.type);
+17130:    if ( cls ) return new cls(value, {parent: model, ...options});

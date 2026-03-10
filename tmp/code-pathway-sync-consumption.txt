@@ -1,0 +1,231 @@
+45650:
+45651:/**
+45652: * Sync pathway abilities for a specific class to ensure all unlocked sequence abilities are present.
+45653: * @param {Actor5e} actor      Actor receiving abilities.
+45654: * @param {Item5e} classItem   Pathway class item.
+45655: * @returns {Promise<number>}  Number of abilities granted.
+45656: */
+45657:async function syncPathwayAbilitiesForClass(actor, classItem) {
+45658:  if ( (actor?.type !== "character") || (classItem?.type !== "class") ) return 0;
+45659:  const pathwayIdentifier = String(classItem.system?.identifier ?? "").trim();
+45660:  if ( !pathwayIdentifier ) return 0;
+45661:  const maxSpellLevel = pathwayMaxSpellLevelFromClassLevel(classItem.system?.levels);
+45662:  const candidates = await collectPathwayCompendiumAbilities(pathwayIdentifier, maxSpellLevel);
+45663:  if ( !candidates.length ) return 0;
+45664:
+45665:  const existingKeys = new Set((actor.itemTypes?.spell ?? [])
+45666:    .filter(item => String(item.system?.sourceClass ?? "").trim().toLowerCase() === pathwayIdentifier.toLowerCase())
+45667:    .map(pathwayAbilityKey)
+45668:    .filter(_ => _));
+45669:  const toCreate = [];
+45670:  for ( const ability of candidates ) {
+45671:    const key = pathwayAbilityKey(ability);
+45672:    if ( !key || existingKeys.has(key) ) continue;
+45673:    const source = game.items.fromCompendium(ability, { keepId: false });
+45674:    source.folder = null;
+45675:    toCreate.push(source);
+45676:    existingKeys.add(key);
+45677:  }
+45678:  if ( !toCreate.length ) return 0;
+45679:  await actor.createEmbeddedDocuments("Item", toCreate);
+45680:  return toCreate.length;
+45681:}
+45682:
+45683:/* -------------------------------------------- */
+45684:
+45685:/**
+45686: * Sync pathway abilities for all or selected class items on an actor.
+45687: * @param {Actor5e} actor               Actor being synchronized.
+45688: * @param {object} [options]
+45689: * @param {string[]} [options.classIds] Optional class IDs to synchronize.
+45690: * @returns {Promise<number>}           Number of abilities granted.
+45691: */
+45692:async function syncPathwayAbilitiesForActor(actor, { classIds }={}) {
+45693:  if ( actor?.type !== "character" ) return 0;
+45694:  const lockKey = actor.uuid ?? actor.id;
+45695:  if ( LOTM_PATHWAY_SYNC_LOCKS.has(lockKey) ) return 0;
+45696:  LOTM_PATHWAY_SYNC_LOCKS.add(lockKey);
+45697:  const classFilter = classIds?.length ? new Set(classIds) : null;
+45698:  const pathwayClasses = (actor.itemTypes?.class ?? []).filter(cls => !classFilter || classFilter.has(cls.id));
+45699:  let granted = 0;
+45700:  try {
+45701:    for ( const cls of pathwayClasses ) granted += await syncPathwayAbilitiesForClass(actor, cls);
+45702:    return granted;
+45703:  } finally {
+45704:    LOTM_PATHWAY_SYNC_LOCKS.delete(lockKey);
+45705:  }
+45706:}
+45707:
+45708:/* -------------------------------------------- */
+45709:
+45710:/**
+45711: * Should this activity consume spirituality instead of spell slots?
+45712: * @param {Activity|null} activity  Activity being used.
+45713: * @returns {boolean}
+45714: */
+45715:function isSpiritualityConsumptionActivity(activity) {
+45716:  return (activity?.isSpell === true) && (activity.actor?.type === "character");
+45717:}
+45718:
+45719:/* -------------------------------------------- */
+45720:
+45721:/**
+45722: * Get the effective spell level used for an activity usage.
+45723: * @param {Activity} activity                 Activity being used.
+45724: * @param {ActivityUseConfiguration} [config] Usage configuration.
+45725: * @returns {number}
+45726: */
+45727:function spellLevelFromUsageConfig(activity, config={}) {
+45728:  const baseLevel = Math.max(Number(activity?.item?.system?.level) || 0, 0);
+45729:  const sequencePower = clampSequenceToActorPathway(config?.spell?.sequencePower ?? config?.spell?.sequence, activity?.actor);
+45730:  if ( Number.isInteger(sequencePower) ) {
+45731:    const levelFromSequence = sequenceToSpellLevel(sequencePower);
+45732:    if ( levelFromSequence !== null ) return levelFromSequence;
+45733:  }
+45734:  const slotLevel = Number(activity?.actor?.system?.spells?.[config.spell?.slot]?.level);
+45735:  if ( Number.isInteger(slotLevel) && (slotLevel >= 0) ) return slotLevel;
+45736:  const scaling = Number(config.scaling);
+45737:  if ( Number.isInteger(scaling) ) return Math.max(baseLevel + scaling, 0);
+45738:  return baseLevel;
+45739:}
+45740:
+45741:/* -------------------------------------------- */
+45742:
+45743:/**
+45744: * Get the effective sequence power used for an activity usage.
+45745: * @param {Activity} activity                 Activity being used.
+45746: * @param {ActivityUseConfiguration} [config] Usage configuration.
+45747: * @returns {number|null}
+45748: */
+45749:function sequencePowerFromUsageConfig(activity, config={}) {
+45750:  const explicit = clampSequenceToActorPathway(config?.spell?.sequencePower ?? config?.spell?.sequence, activity?.actor);
+45751:  if ( explicit !== null ) return explicit;
+45752:  return spellLevelToSequence(spellLevelFromUsageConfig(activity, config));
+45753:}
+45754:
+45755:/* -------------------------------------------- */
+45756:
+45757:/**
+45758: * Convert a spell level to default spirituality cost.
+45759: * @param {number} spellLevel  Internal spell level.
+45760: * @returns {number}
+45761: */
+45762:function spiritualityCostFromSpellLevel(spellLevel) {
+45763:  const sequence = spellLevelToSequence(spellLevel);
+45764:  if ( sequence === null ) return 0;
+45765:  return Math.max(sequenceToSpellLevel(sequence) ?? 0, 0);
+45766:}
+45767:
+45768:/* -------------------------------------------- */
+45769:
+45770:/**
+45771: * Get default spirituality cost for an activity usage.
+45772: * @param {Activity} activity                 Activity being used.
+45773: * @param {ActivityUseConfiguration} [config] Usage configuration.
+45774: * @returns {number}
+45775: */
+45776:function spiritualityCostFromUsageConfig(activity, config={}) {
+45777:  const override = activity?.item?.system?.spiritualityCost;
+45778:  if ( (override !== null) && (override !== undefined) && (override !== "") ) {
+45779:    const numericOverride = Number(override);
+45780:    if ( Number.isFinite(numericOverride) ) return Math.max(Math.floor(numericOverride), 0);
+45781:  }
+45782:  const sequencePower = sequencePowerFromUsageConfig(activity, config);
+45783:  if ( sequencePower === null ) return 0;
+45784:  return spiritualityCostFromSpellLevel(sequenceToSpellLevel(sequencePower));
+45785:}
+45786:
+45787:/* -------------------------------------------- */
+45788:
+45789:/**
+45790: * Should this activity consume spirituality by default for this usage config?
+45791: * @param {Activity} activity                 Activity being used.
+45792: * @param {ActivityUseConfiguration} [config] Usage configuration.
+45793: * @returns {boolean}
+45794: */
+45795:function hasSpiritualityConsumptionCost(activity, config={}) {
+45796:  return isSpiritualityConsumptionActivity(activity) && (spiritualityCostFromUsageConfig(activity, config) > 0);
+45797:}
+45798:
+45799:/* -------------------------------------------- */
+45800:
+45801:/**
+45802: * Standardized spirituality insufficiency warning text.
+45803: * @param {object} [options]
+45804: * @param {number} [options.cost=0]       Spirituality required.
+45805: * @param {number} [options.available=0]  Spirituality available.
+45806: * @returns {string}
+45807: */
+45808:function formatSpiritualityConsumptionWarning({ cost=0, available=0 }={}) {
+45809:  return game.i18n.format("DND5E.CONSUMPTION.Spirituality.Warning.NotEnough", {
+45810:    cost: formatNumber(cost),
+45811:    available: formatNumber(available)
+45812:  });
+45813:}
+45814:
+45815:/* -------------------------------------------- */
+45816:
+45817:/**
+45818: * Resolve world default spirituality behavior for short rests.
+45819: * @returns {{ recoverSpirituality: boolean, recoverSpiritualityFraction: number }}
+45820: */
+45821:function getShortRestSpiritualityDefaults() {
+45822:  const mode = game.settings.get("lotm", "shortRestSpiritualityMode");
+45823:  const rawFraction = Number(game.settings.get("lotm", "shortRestSpiritualityFraction"));
+45824:  const fraction = Math.clamp(Number.isFinite(rawFraction) ? rawFraction : 0.5, 0, 1);
+45825:  switch ( mode ) {
+45826:    case "full":
+45827:      return { recoverSpirituality: true, recoverSpiritualityFraction: 1 };
+45828:    case "partial":
+45829:      return { recoverSpirituality: true, recoverSpiritualityFraction: fraction };
+45830:    default:
+45831:      return { recoverSpirituality: false, recoverSpiritualityFraction: fraction };
+45832:  }
+45833:}
+45834:
+45835:/* -------------------------------------------- */
+45836:
+45837:/**
+45838: * The available choices for how spell damage scaling may be computed.
+45839: * @enum {string}
+45840: */
+45841:DND5E.spellScalingModes = {
+45842:  none: "DND5E.SpellNone",
+45843:  cantrip: "DND5E.SpellCantrip",
+45844:  level: "DND5E.SpellLevel"
+45845:};
+45846:preLocalize("spellScalingModes", { sort: true });
+45847:
+45848:/* -------------------------------------------- */
+45849:
+45850:/**
+45851: * Schools to which a spell can belong.
+45852: * @enum {SpellSchoolConfiguration}
+45853: */
+45854:DND5E.spellSchools = {
+45855:  abj: {
+45856:    label: "DND5E.SchoolAbj",
+45857:    icon: "systems/lotm/icons/svg/schools/abjuration.svg",
+45858:    fullKey: "abjuration",
+45859:    reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.849AYEWw9FHD6JNz"
+45860:  },
+45861:  con: {
+45862:    label: "DND5E.SchoolCon",
+45863:    icon: "systems/lotm/icons/svg/schools/conjuration.svg",
+45864:    fullKey: "conjuration",
+45865:    reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.TWyKMhZJZGqQ6uls"
+45866:  },
+45867:  div: {
+45868:    label: "DND5E.SchoolDiv",
+45869:    icon: "systems/lotm/icons/svg/schools/divination.svg",
+45870:    fullKey: "divination",
+45871:    reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.HoD2MwzmVbMqj9se"
+45872:  },
+45873:  enc: {
+45874:    label: "DND5E.SchoolEnc",
+45875:    icon: "systems/lotm/icons/svg/schools/enchantment.svg",
+45876:    fullKey: "enchantment",
+45877:    reference: "Compendium.dnd5e.content24.JournalEntry.phbAppendixDRule.JournalEntryPage.SehPXk24ySBVOwCZ"
+45878:  },
+45879:  evo: {
+45880:    label: "DND5E.SchoolEvo",

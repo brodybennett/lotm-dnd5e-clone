@@ -1,0 +1,231 @@
+33380:    for ( const status of this.statuses ) {
+33381:      data.statuses[status] = status === "exhaustion"
+33382:        ? this.system.attributes?.exhaustion ?? 1
+33383:        : status === "concentrating" ? this.concentration.effects.size : 1;
+33384:    }
+33385:    return data;
+33386:  }
+33387:
+33388:  /* -------------------------------------------- */
+33389:
+33390:  /**
+33391:   * Is this actor under the effect of this property from some status or due to its level of exhaustion?
+33392:   * @param {string} key      A key in `DND5E.conditionEffects`.
+33393:   * @returns {boolean}       Whether the actor is affected.
+33394:   */
+33395:  hasConditionEffect(key) {
+33396:    const props = CONFIG.DND5E.conditionEffects[key] ?? new Set();
+33397:    const level = this.system.attributes?.exhaustion ?? null;
+33398:    const imms = this.system.traits?.ci?.value ?? new Set();
+33399:    const applyExhaustion = (level !== null) && !imms.has("exhaustion")
+33400:      && (game.settings.get("lotm", "rulesVersion") === "legacy");
+33401:    const statuses = this.statuses;
+33402:    return props.some(k => {
+33403:      const l = Number(k.split("-").pop());
+33404:      return (statuses.has(k) && !imms.has(k)) || (applyExhaustion && Number.isInteger(l) && (level >= l));
+33405:    });
+33406:  }
+33407:
+33408:  /* -------------------------------------------- */
+33409:  /*  Data Preparation                            */
+33410:  /* -------------------------------------------- */
+33411:
+33412:  /**
+33413:   * Prepares data for a specific skill.
+33414:   * @param {string} skillId    The id of the skill to prepare data for.
+33415:   * @param {object} [options]  Additional options passed to {@link CreatureTemplate#prepareSkill}.
+33416:   * @returns {SkillData}
+33417:   * @internal
+33418:   */
+33419:  _prepareSkill(skillId, options) {
+33420:    return this.system.prepareSkill?.(skillId, options) ?? {};
+33421:  }
+33422:
+33423:  /* -------------------------------------------- */
+33424:  /*  Spellcasting Preparation                    */
+33425:  /* -------------------------------------------- */
+33426:
+33427:  /**
+33428:   * Prepare data related to the spell-casting capabilities of the Actor.
+33429:   * Mutates the value of the system.spells object. Must be called after final item preparation.
+33430:   * @protected
+33431:   */
+33432:  _prepareSpellcasting() {
+33433:    if ( !this.system.spells ) return;
+33434:
+33435:    // Translate the list of classes into spellcasting progression
+33436:    const progression = Object.values(CONFIG.DND5E.spellcasting).reduce((acc, model) => {
+33437:      if ( model.slots ) acc[model.key] = 0;
+33438:      return acc;
+33439:    }, {});
+33440:    const types = {};
+33441:
+33442:    // Grab all classes with spellcasting
+33443:    const classes = this.itemTypes.class.filter(cls => {
+33444:      const type = cls.spellcasting.type;
+33445:      if ( !type ) return false;
+33446:      types[type] = (types[type] ?? 0) + 1;
+33447:      return true;
+33448:    });
+33449:
+33450:    for ( const cls of classes ) {
+33451:      this.constructor.computeClassProgression(progression, cls, { actor: this, count: types[cls.spellcasting.type] });
+33452:    }
+33453:
+33454:    if ( this.type === "npc" ) {
+33455:      const level = Object.values(progression).find(_ => _);
+33456:      if ( level ) this.system.attributes.spell.level = level;
+33457:      else progression.spell = this.system.attributes.spell.level ?? 0;
+33458:    }
+33459:
+33460:    for ( const [type, model] of Object.entries(CONFIG.DND5E.spellcasting) ) {
+33461:      if ( !model.slots ) continue;
+33462:      // Assume spellcasting methods without progression are based on character level rather than class level.
+33463:      if ( foundry.utils.isEmpty(model.progression) ) model.computeProgression(progression, this);
+33464:      this.constructor.prepareSpellcastingSlots(this.system.spells, type, progression, { actor: this });
+33465:    }
+33466:  }
+33467:
+33468:  /* -------------------------------------------- */
+33469:
+33470:  /**
+33471:   * Contribute to the actor's spellcasting progression.
+33472:   * @param {object} progression                             Spellcasting progression data. *Will be mutated.*
+33473:   * @param {Item5e} cls                                     Class for whom this progression is being computed.
+33474:   * @param {object} [config={}]
+33475:   * @param {Actor5e} [config.actor]                         Actor for whom the data is being prepared.
+33476:   * @param {SpellcastingDescription} [config.spellcasting]  Spellcasting descriptive object.
+33477:   * @param {number} [config.count=1]                        Number of classes with this type of spellcasting.
+33478:   */
+33479:  static computeClassProgression(progression, cls, {actor, spellcasting, count=1}={}) {
+33480:    const type = cls.spellcasting.type;
+33481:    spellcasting ??= cls.spellcasting;
+33482:
+33483:    /**
+33484:     * A hook event that fires while computing the spellcasting progression for each class on each actor.
+33485:     * The actual hook names include the spellcasting type (e.g. `dnd5e.computeLeveledProgression`).
+33486:     * @param {object} progression                    Spellcasting progression data. *Will be mutated.*
+33487:     * @param {Actor5e|void} actor                    Actor for whom the data is being prepared.
+33488:     * @param {Item5e} cls                            Class for whom this progression is being computed.
+33489:     * @param {SpellcastingDescription} spellcasting  Spellcasting descriptive object.
+33490:     * @param {number} count                          Number of classes with this type of spellcasting.
+33491:     * @returns {boolean}  Explicitly return false to prevent default progression from being calculated.
+33492:     * @function dnd5e.computeSpellcastingProgression
+33493:     * @memberof hookEvents
+33494:     */
+33495:    const allowed = Hooks.call(
+33496:      `dnd5e.compute${type.capitalize()}Progression`, progression, actor, cls, spellcasting, count
+33497:    );
+33498:    const model = CONFIG.DND5E.spellcasting[type];
+33499:    if ( (allowed === false) || !model.slots ) return;
+33500:
+33501:    // Check for deprecated overrides.
+33502:    if ( model.isSingleLevel ) {
+33503:      if ( foundry.utils.getDefiningClass(this, "computePactProgression") !== Actor5e ) {
+33504:        foundry.utils.logCompatibilityWarning("Actor5e.computePactProgression is deprecated. Please use "
+33505:          + "SpellcastingModel#computeProgression instead.", { since: "DnD5e 5.1", until: "DnD5e 5.4" });
+33506:        this.computePactProgression(progression, actor, cls, spellcasting, count);
+33507:        return;
+33508:      }
+33509:    } else if ( foundry.utils.getDefiningClass(this, "computeLeveledProgression") !== Actor5e ) {
+33510:      foundry.utils.logCompatibilityWarning("Actor5e.computeLeveledProgression is deprecated. Please use "
+33511:        + "SpellcastingModel#computeProgression instead.", { since: "DnD5e 5.1", until: "DnD5e 5.4" });
+33512:      this.computeLeveledProgression(progression, actor, cls, spellcasting, count);
+33513:      return;
+33514:    }
+33515:
+33516:    // Otherwise proceed with calculation.
+33517:    model.computeProgression(progression, actor, cls, spellcasting, count);
+33518:  }
+33519:
+33520:  /* -------------------------------------------- */
+33521:
+33522:  /**
+33523:   * Prepare actor's spell slots using progression data.
+33524:   * @param {object} spells           The `data.spells` object within actor's data. *Will be mutated.*
+33525:   * @param {string} type             Type of spellcasting slots being prepared.
+33526:   * @param {object} progression      Spellcasting progression data.
+33527:   * @param {object} [config]
+33528:   * @param {Actor5e} [config.actor]  Actor for whom the data is being prepared.
+33529:   */
+33530:  static prepareSpellcastingSlots(spells, type, progression, {actor}={}) {
+33531:    /**
+33532:     * A hook event that fires to convert the provided spellcasting progression into spell slots.
+33533:     * The actual hook names include the spellcasting type (e.g. `dnd5e.prepareLeveledSlots`).
+33534:     * @param {object} spells        The `data.spells` object within actor's data. *Will be mutated.*
+33535:     * @param {Actor5e|void} actor   Actor for whom the data is being prepared, if any.
+33536:     * @param {object} progression   Spellcasting progression data.
+33537:     * @returns {boolean}            Explicitly return false to prevent default preparation from being performed.
+33538:     * @function dnd5e.prepareSpellcastingSlots
+33539:     * @memberof hookEvents
+33540:     */
+33541:    const allowed = Hooks.call(`dnd5e.prepare${type.capitalize()}Slots`, spells, actor, progression);
+33542:    if ( allowed === false ) return;
+33543:    const model = CONFIG.DND5E.spellcasting[type];
+33544:
+33545:    // Check for deprecated overrides.
+33546:    if ( model.isSingleLevel ) {
+33547:      if ( foundry.utils.getDefiningClass(this, "preparePactSlots") !== Actor5e ) {
+33548:        foundry.utils.logCompatibilityWarning("Actor5e.preparePactSlots is deprecated. Please use "
+33549:          + "SpellcastingModel#prepareSlots instead.", { since: "DnD5e 5.1", until: "DnD5e 5.4" });
+33550:        this.preparePactSlots(spells, actor, progression);
+33551:        return;
+33552:      }
+33553:    } else if ( foundry.utils.getDefiningClass(this, "prepareLeveledSlots") !== Actor5e ) {
+33554:      foundry.utils.logCompatibilityWarning("Actor5e.prepareLeveledSlots is deprecated. Please use "
+33555:        + "SpellcastingModel#prepareSlots instead.", { since: "DnD5e 5.1", until: "DnD5e 5.4" });
+33556:      this.prepareLeveledSlots(spells, actor, progression);
+33557:      return;
+33558:    }
+33559:
+33560:    // Otherwise proceed with calculation.
+33561:    model.prepareSlots(spells, actor, progression);
+33562:  }
+33563:
+33564:  /* -------------------------------------------- */
+33565:  /*  Event Handlers                              */
+33566:  /* -------------------------------------------- */
+33567:
+33568:  /** @inheritDoc */
+33569:  async _preCreate(data, options, user) {
+33570:    if ( (await super._preCreate(data, options, user)) === false ) return false;
+33571:
+33572:    const sourceId = this._stats?.compendiumSource;
+33573:    if ( sourceId?.startsWith("Compendium.") ) return;
+33574:
+33575:    // Configure prototype token settings
+33576:    const prototypeToken = {};
+33577:    if ( "size" in (this.system.traits || {}) ) {
+33578:      const size = CONFIG.DND5E.actorSizes[this.system.traits.size || "med"].token ?? 1;
+33579:      if ( !foundry.utils.hasProperty(data, "prototypeToken.width") ) prototypeToken.width = size;
+33580:      if ( !foundry.utils.hasProperty(data, "prototypeToken.height") ) prototypeToken.height = size;
+33581:    }
+33582:    if ( this.type === "character" ) Object.assign(prototypeToken, {
+33583:      sight: { enabled: true }, actorLink: true, disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY
+33584:    });
+33585:    if ( this.type === "group" ) prototypeToken.actorLink = true;
+33586:    this.updateSource({ prototypeToken });
+33587:  }
+33588:
+33589:  /* -------------------------------------------- */
+33590:
+33591:  /** @inheritDoc */
+33592:  async _preUpdate(changed, options, user) {
+33593:    if ( (await super._preUpdate(changed, options, user)) === false ) return false;
+33594:
+33595:    // Apply changes in Actor size to Token width/height
+33596:    if ( "size" in (this.system.traits || {}) ) {
+33597:      const newSize = foundry.utils.getProperty(changed, "system.traits.size");
+33598:      if ( newSize && (newSize !== this.system.traits?.size) ) {
+33599:        let size = CONFIG.DND5E.actorSizes[newSize].token ?? 1;
+33600:        if ( !foundry.utils.hasProperty(changed, "prototypeToken.width") ) {
+33601:          changed.prototypeToken ||= {};
+33602:          changed.prototypeToken.height = size;
+33603:          changed.prototypeToken.width = size;
+33604:        }
+33605:      }
+33606:    }
+33607:
+33608:    // Reset death save counters and store hp
+33609:    if ( "hp" in (this.system.attributes || {}) ) {
+33610:      const isDead = this.system.attributes.hp.value <= 0;

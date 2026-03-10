@@ -1,0 +1,106 @@
+5860:    context.buttons = [{
+5861:      action: "use",
+5862:      icon: this.options.button.icon ?? `fa-solid fa-${this.activity.isSpell ? "magic" : "fist-raised"}`,
+5863:      label: this.options.button.label ?? `DND5E.AbilityUse${this.activity.isSpell ? "Cast" : "Use"}`,
+5864:      type: "button"
+5865:    }];
+5866:    return context;
+5867:  }
+5868:
+5869:  /* -------------------------------------------- */
+5870:
+5871:  /**
+5872:   * Prepare rendering context for the scaling section.
+5873:   * @param {ApplicationRenderContext} context  Context being prepared.
+5874:   * @param {HandlebarsRenderOptions} options   Options which configure application rendering behavior.
+5875:   * @returns {Promise<ApplicationRenderContext>}
+5876:   * @protected
+5877:   */
+5878:  async _prepareScalingContext(context, options) {
+5879:    context.hasScaling = true;
+5880:    context.notes = [];
+5881:    if ( !this._shouldDisplay("scaling") ) {
+5882:      context.hasScaling = false;
+5883:      return context;
+5884:    }
+5885:
+5886:    const scale = (context.linkedActivity ?? this.activity).consumption.scaling;
+5887:    const rollData = (context.linkedActivity ?? this.activity).getRollData({ deterministic: true });
+5888:    const useSpirituality = isSpiritualityConsumptionActivity(this.activity);
+5889:
+5890:    if ( this.activity.requiresSpellSlot && context.linkedActivity && (this.config.scaling !== false) ) {
+5891:      const max = simplifyBonus(scale.max, rollData);
+5892:      const minimumLevel = context.linkedActivity.spell?.level ?? this.item.system.level ?? 1;
+5893:      const maximumLevel = scale.allowed ? scale.max ? minimumLevel + max - 1 : Infinity : minimumLevel;
+5894:      const upperLevel = Number.isFinite(maximumLevel) ? maximumLevel : LOTM_MAX_SPELL_LEVEL;
+5895:      if ( useSpirituality ) {
+5896:        const pathwayUpperLevel = actorPathwayMaxSpellLevel(this.actor);
+5897:        const cappedUpperLevel = Math.min(upperLevel, Math.max(minimumLevel, pathwayUpperLevel));
+5898:        const sequenceOptions = [];
+5899:        for ( let level = minimumLevel; level <= cappedUpperLevel; level++ ) {
+5900:          const sequence = spellLevelToSequence(level);
+5901:          if ( sequence === null ) continue;
+5902:          sequenceOptions.push({
+5903:            value: sequence,
+5904:            label: sequenceLabelFromSpellLevel(level) ?? game.i18n.localize(`DND5E.SpellLevel${sequence}`)
+5905:          });
+5906:        }
+5907:        const defaultSequence = sequencePowerFromUsageConfig(this.activity, this.config)
+5908:          ?? spellLevelToSequence(minimumLevel);
+5909:        if ( sequenceOptions.length ) context.spellSlots = {
+5910:          field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
+5911:          name: "spell.sequence",
+5912:          value: defaultSequence,
+5913:          options: sequenceOptions
+5914:        };
+5915:        else context.hasScaling = false;
+5916:      } else {
+5917:        const spellSlotOptions = Object.entries(CONFIG.DND5E.spellLevels).map(([level, label]) => {
+5918:          if ( (Number(level) < minimumLevel) || (Number(level) > upperLevel) ) return null;
+5919:          return { value: `spell${level}`, label };
+5920:        }).filter(_ => _);
+5921:        context.spellSlots = {
+5922:          field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
+5923:          name: "spell.slot",
+5924:          value: this.config.spell?.slot,
+5925:          options: spellSlotOptions
+5926:        };
+5927:      }
+5928:    }
+5929:
+5930:    else if ( this.activity.requiresSpellSlot && (this.config.scaling !== false) ) {
+5931:      const minimumLevel = this.item.system.level ?? 1;
+5932:      if ( useSpirituality ) {
+5933:        const maximumLevel = Math.max(minimumLevel, actorPathwayMaxSpellLevel(this.actor));
+5934:        const sequenceOptions = [];
+5935:        for ( let level = minimumLevel; level <= maximumLevel; level++ ) {
+5936:          const sequence = spellLevelToSequence(level);
+5937:          if ( sequence === null ) continue;
+5938:          sequenceOptions.push({
+5939:            value: sequence,
+5940:            label: sequenceLabelFromSpellLevel(level) ?? game.i18n.localize(`DND5E.SpellLevel${sequence}`)
+5941:          });
+5942:        }
+5943:        const defaultSequence = sequencePowerFromUsageConfig(this.activity, this.config)
+5944:          ?? spellLevelToSequence(minimumLevel);
+5945:        if ( sequenceOptions.length ) context.spellSlots = {
+5946:          field: new StringField$1k({ required: true, blank: false, label: game.i18n.localize("DND5E.SpellCastUpcast") }),
+5947:          name: "spell.sequence",
+5948:          value: defaultSequence,
+5949:          options: sequenceOptions
+5950:        };
+5951:        else context.hasScaling = false;
+5952:      } else {
+5953:        const maximumLevel = Object.values(this.actor.system.spells)
+5954:          .reduce((max, d) => d.max ? Math.max(max, d.level) : max, 0);
+5955:        const spellMethod = CONFIG.DND5E.spellcasting[this.item.system.method];
+5956:
+5957:        const consumeSlot = (this.config.consume === true) || this.config.consume?.spellSlot;
+5958:        let spellSlotValue = this.actor.system.spells[this.config.spell?.slot]?.value || !consumeSlot
+5959:          ? this.config.spell.slot : null;
+5960:        const spellSlotOptions = Object.entries(this.actor.system.spells).map(([value, slot]) => {
+5961:          if ( !slot.max || (slot.level < minimumLevel) || (slot.level > maximumLevel) || !slot.type ) return null;
+5962:          if ( spellMethod?.exclusive.spells && (this.item.system.method !== slot.type) ) return null;
+5963:          const model = CONFIG.DND5E.spellcasting[slot.type];
+5964:          if ( model?.exclusive.slots && (this.item.system.method !== slot.type) ) return null;
+5965:          const label = game.i18n.format(`DND5E.SpellLevel${slot.type.capitalize()}`, {

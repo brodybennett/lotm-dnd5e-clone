@@ -1,0 +1,121 @@
+41140:  /** @inheritDoc */
+41141:  static _migrateData(source) {
+41142:    super._migrateData(source);
+41143:    CommonTemplate.#migrateACData(source);
+41144:    CommonTemplate.#migrateMovementData(source);
+41145:  }
+41146:
+41147:  /* -------------------------------------------- */
+41148:
+41149:  /**
+41150:   * Migrate the actor ac.value to new ac.flat override field.
+41151:   * @param {object} source  The candidate source data from which the model will be constructed.
+41152:   */
+41153:  static #migrateACData(source) {
+41154:    if ( !source.attributes?.ac ) return;
+41155:    const ac = source.attributes.ac;
+41156:
+41157:    // If the actor has a numeric ac.value, then their AC has not been migrated to the auto-calculation schema yet.
+41158:    if ( Number.isNumeric(ac.value) ) {
+41159:      ac.flat = parseInt(ac.value);
+41160:      ac.calc = this._systemType === "npc" ? "natural" : "flat";
+41161:      return;
+41162:    }
+41163:
+41164:    // Migrate ac.base in custom formulas to ac.armor
+41165:    if ( (typeof ac.formula === "string") && ac.formula.includes("@attributes.ac.base") ) {
+41166:      ac.formula = ac.formula.replaceAll("@attributes.ac.base", "@attributes.ac.armor");
+41167:    }
+41168:  }
+41169:
+41170:  /* -------------------------------------------- */
+41171:
+41172:  /**
+41173:   * Migrate the actor speed string to movement object.
+41174:   * @param {object} source  The candidate source data from which the model will be constructed.
+41175:   */
+41176:  static #migrateMovementData(source) {
+41177:    const original = source.attributes?.speed?.value ?? source.attributes?.speed;
+41178:    if ( (typeof original !== "string") || (source.attributes.movement?.walk !== undefined) ) return;
+41179:    source.attributes.movement ??= {};
+41180:    const s = original.split(" ");
+41181:    if ( s.length > 0 ) source.attributes.movement.walk = Number.isNumeric(s[0]) ? parseInt(s[0]) : 0;
+41182:  }
+41183:
+41184:  /* -------------------------------------------- */
+41185:  /*  Data Preparation                            */
+41186:  /* -------------------------------------------- */
+41187:
+41188:  /**
+41189:   * Prepare modifiers and other values for abilities.
+41190:   * @param {object} [options={}]
+41191:   * @param {object} [options.rollData={}]    Roll data used to calculate bonuses.
+41192:   * @param {object} [options.originalSaves]  Original ability data for transformed actors.
+41193:   */
+41194:  prepareAbilities({ rollData={}, originalSaves }={}) {
+41195:    const flags = this.parent.flags.lotm ?? {};
+41196:    const { prof = 0, ac } = this.attributes ?? {};
+41197:    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
+41198:    const pathwayPotency = this.parent?.type === "character"
+41199:      ? (Number(this.attributes?.potency) || Number(this.pathway?.potency) || prof)
+41200:      : prof;
+41201:    const pathwaySaveEdge = this.parent?.type === "character" ? pathwaySaveEdgeFromTier(pathwayTier) : 0;
+41202:    const pathwayCheckEdge = this.parent?.type === "character" ? pathwayCheckEdgeFromTier(pathwayTier, false) : 0;
+41203:    const abilityCap = this.parent?.type === "character"
+41204:      ? pathwayAbilityCapFromTier(this.pathway?.tier ?? 0)
+41205:      : CONFIG.DND5E.maxAbilityScore;
+41206:    Object.values(this.abilities).forEach(a => a.mod = Math.floor((a.value - 10) / 2));
+41207:    const checkBonus = simplifyBonus(this.bonuses?.abilities?.check, rollData);
+41208:    const saveBonus = simplifyBonus(this.bonuses?.abilities?.save, rollData);
+41209:    const dcBonus = simplifyBonus(this.bonuses?.spell?.dc, rollData);
+41210:    for ( const [id, abl] of Object.entries(this.abilities) ) {
+41211:      if ( flags.diamondSoul ) abl.proficient = 1;  // Diamond Soul is proficient in all saves
+41212:      const originalAbility = originalSaves?.[id];
+41213:      if ( originalAbility?.proficient ) {
+41214:        abl.merged = true;
+41215:        abl.proficient = originalAbility?.proficient;
+41216:      }
+41217:
+41218:      const calculatedProf = this.calculateAbilityCheckProficiency(0, id);
+41219:      abl.checkProf = originalAbility?.checkProf?.multiplier > calculatedProf.multiplier
+41220:        ? originalAbility.checkProf.clone() : calculatedProf;
+41221:      const saveBonusAbl = simplifyBonus(abl.bonuses?.save, rollData);
+41222:
+41223:      const cover = id === "dex" ? Math.max(ac?.cover ?? 0, this.parent.coverBonus) : 0;
+41224:      abl.saveBonus = saveBonusAbl + saveBonus + cover + pathwaySaveEdge;
+41225:
+41226:      abl.saveProf = abl.merged ? originalAbility.saveProf.clone() : new Proficiency(prof, abl.proficient);
+41227:      const checkBonusAbl = simplifyBonus(abl.bonuses?.check, rollData);
+41228:      abl.checkBonus = checkBonusAbl + checkBonus + pathwayCheckEdge;
+41229:
+41230:      abl.save.value = abl.mod + abl.saveBonus;
+41231:      if ( Number.isNumeric(abl.saveProf.term) ) abl.save.value += abl.saveProf.flat;
+41232:      abl.attack = abl.mod + prof;
+41233:      abl.dc = 8 + abl.mod + pathwayPotency + dcBonus;
+41234:
+41235:      if ( !Number.isFinite(abl.max) ) abl.max = abilityCap;
+41236:
+41237:      // Adjust rolling mode
+41238:      if ( this.parent.hasConditionEffect("abilityCheckDisadvantage") ) {
+41239:        AdvantageModeField.setMode(this, `abilities.${id}.check.roll.mode`, -1);
+41240:      }
+41241:      if ( this.parent.hasConditionEffect("abilitySaveDisadvantage")
+41242:        || ((id === "dex") && this.parent.hasConditionEffect("dexteritySaveDisadvantage")) ) {
+41243:        AdvantageModeField.setMode(this, `abilities.${id}.save.roll.mode`, -1);
+41244:      }
+41245:    }
+41246:  }
+41247:
+41248:  /* -------------------------------------------- */
+41249:  /*  Helpers                                     */
+41250:  /* -------------------------------------------- */
+41251:
+41252:  /**
+41253:   * Create the proficiency object for an ability, skill, or tool, taking remarkable athlete and Jack of All Trades
+41254:   * into account.
+41255:   * @param {number} multiplier       Multiplier stored on the actor.
+41256:   * @param {string} ability          Ability associated with this proficiency.
+41257:   * @param {object} [options={}]
+41258:   * @param {string} [options.skill]  Skill associated with this proficiency.
+41259:   * @param {string} [options.tool]   Tool associated with this proficiency.
+41260:   * @returns {Proficiency}

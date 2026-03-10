@@ -1,0 +1,61 @@
+20410: * @import { SpellItemSystemData } from "./_types.mjs";
+20411: * @import { ActivitiesTemplateData ItemDescriptionTemplateData } from "./templates/_types.mjs";
+20412: */
+20413:
+20414:/**
+20415: * Data definition for Spell items.
+20416: * @extends {ItemDataModel<ActivitiesTemplate & ItemDescriptionTemplate & SpellItemSystemData>}
+20417: * @mixes ActivitiesTemplateData
+20418: * @mixes ItemDescriptionTemplateData
+20419: * @mixes SpellItemSystemData
+20420: */
+20421:class SpellData extends ItemDataModel$1.mixin(ActivitiesTemplate, ItemDescriptionTemplate) {
+20422:
+20423:  /* -------------------------------------------- */
+20424:  /*  Model Configuration                         */
+20425:  /* -------------------------------------------- */
+20426:
+20427:  /** @override */
+20428:  static LOCALIZATION_PREFIXES = [
+20429:    "DND5E.ACTIVATION", "DND5E.DURATION", "DND5E.RANGE", "DND5E.SOURCE", "DND5E.TARGET"
+20430:  ];
+20431:
+20432:  /* -------------------------------------------- */
+20433:
+20434:  /** @inheritDoc */
+20435:  static defineSchema() {
+20436:    return this.mergeSchema(super.defineSchema(), {
+20437:      ability: new StringField$U({ label: "DND5E.SpellAbility" }),
+20438:      activation: new ActivationField(),
+20439:      duration: new DurationField(),
+20440:      level: new NumberField$x({ required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel" }),
+20441:      spiritualityCost: new NumberField$x({
+20442:        nullable: true, integer: true, initial: null, min: 0, label: "DND5E.SpiritualityCost",
+20443:        hint: "DND5E.SpiritualityCostHint"
+20444:      }),
+20445:      materials: new SchemaField$E({
+20446:        value: new StringField$U({ required: true, label: "DND5E.SpellMaterialsDescription" }),
+20447:        consumed: new BooleanField$A({ required: true, label: "DND5E.SpellMaterialsConsumed" }),
+20448:        cost: new NumberField$x({ required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsCost" }),
+20449:        supply: new NumberField$x({ required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsSupply" })
+20450:      }, { label: "DND5E.SpellMaterials" }),
+20451:      method: new StringField$U({ required: true, initial: "", label: "DND5E.SpellPreparation.Method" }),
+20452:      prepared: new NumberField$x({ required: true, nullable: false, integer: true, min: 0, initial: 0 }),
+20453:      properties: new SetField$u(new StringField$U(), { label: "DND5E.SpellComponents" }),
+20454:      range: new RangeField(),
+20455:      school: new StringField$U({ required: true, label: "DND5E.SpellSchool" }),
+20456:      sourceClass: new StringField$U({ label: "DND5E.SpellSourceClass" }),
+20457:      target: new TargetField()
+20458:    });
+20459:  }
+20460:
+20461:  /* -------------------------------------------- */
+20462:
+20463:  /** @inheritDoc */
+20464:  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+20465:    enchantable: true,
+20466:    hasEffects: true
+20467:  }, { inplace: false }));
+20468:
+20469:  /* -------------------------------------------- */
+20470:

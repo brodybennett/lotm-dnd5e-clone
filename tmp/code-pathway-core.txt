@@ -1,0 +1,561 @@
+45100: * @enum {string}
+45101: */
+45102:DND5E.spellLevels = {
+45103:  0: "DND5E.SpellLevel0",
+45104:  1: "DND5E.SpellLevel1",
+45105:  2: "DND5E.SpellLevel2",
+45106:  3: "DND5E.SpellLevel3",
+45107:  4: "DND5E.SpellLevel4",
+45108:  5: "DND5E.SpellLevel5",
+45109:  6: "DND5E.SpellLevel6",
+45110:  7: "DND5E.SpellLevel7",
+45111:  8: "DND5E.SpellLevel8",
+45112:  9: "DND5E.SpellLevel9"
+45113:};
+45114:preLocalize("spellLevels");
+45115:
+45116:/* -------------------------------------------- */
+45117:
+45118:const LOTM_MAX_SPELL_LEVEL = 9;
+45119:const LOTM_MAX_SEQUENCE = 9;
+45120:const LOTM_MIN_SEQUENCE = 0;
+45121:const LOTM_PATHWAY_MIN_CLASS_LEVEL = 1;
+45122:const LOTM_PATHWAY_MAX_CLASS_LEVEL = LOTM_MAX_SEQUENCE + 1;
+45123:const LOTM_SEQUENCE_BUDGETS = Object.freeze({
+45124:  9: 2,
+45125:  8: 5,
+45126:  7: 18,
+45127:  6: 27,
+45128:  5: 40,
+45129:  4: 73,
+45130:  3: 93,
+45131:  2: 143,
+45132:  1: 217,
+45133:  0: 331
+45134:});
+45135:const LOTM_ABILITY_CAP_BY_TIER = Object.freeze([20, 22, 24, 26, 30]);
+45136:const LOTM_CORRUPTION_DEFAULT_MAX = 100;
+45137:const LOTM_CORRUPTION_THRESHOLDS = Object.freeze([25, 50, 75, 100]);
+45138:const LOTM_ABILITY_PACK_NAMES = ["lotm_pilot_abilities", "lotm_abilities"];
+45139:const LOTM_PATHWAY_SYNC_LOCKS = new Set();
+45140:
+45141:/**
+45142: * Normalize a LoTM sequence to a valid integer in range.
+45143: * @param {number} sequence  Candidate sequence number.
+45144: * @returns {number}
+45145: */
+45146:function normalizePathwaySequence(sequence) {
+45147:  const numericSequence = Number(sequence);
+45148:  if ( !Number.isFinite(numericSequence) ) return LOTM_MAX_SEQUENCE;
+45149:  return Math.clamp(Math.floor(numericSequence), LOTM_MIN_SEQUENCE, LOTM_MAX_SEQUENCE);
+45150:}
+45151:
+45152:/* -------------------------------------------- */
+45153:
+45154:/**
+45155: * Determine tier index from pathway sequence.
+45156: * @param {number} sequence  Pathway sequence.
+45157: * @returns {number}
+45158: */
+45159:function pathwayTierFromSequence(sequence) {
+45160:  const normalized = normalizePathwaySequence(sequence);
+45161:  if ( normalized >= 7 ) return 0;
+45162:  if ( normalized >= 5 ) return 1;
+45163:  if ( normalized >= 3 ) return 2;
+45164:  if ( normalized >= 1 ) return 3;
+45165:  return 4;
+45166:}
+45167:
+45168:/* -------------------------------------------- */
+45169:
+45170:/**
+45171: * Determine guide budget from pathway sequence.
+45172: * @param {number} sequence  Pathway sequence.
+45173: * @returns {number}
+45174: */
+45175:function pathwayBudgetFromSequence(sequence) {
+45176:  const normalized = normalizePathwaySequence(sequence);
+45177:  return Number(LOTM_SEQUENCE_BUDGETS[normalized]) || 0;
+45178:}
+45179:
+45180:/* -------------------------------------------- */
+45181:
+45182:/**
+45183: * Determine sequence bonus from pathway sequence.
+45184: * @param {number} sequence  Pathway sequence.
+45185: * @returns {number}
+45186: */
+45187:function pathwaySequenceBonus(sequence) {
+45188:  const normalized = normalizePathwaySequence(sequence);
+45189:  return 2 + Math.floor((LOTM_MAX_SEQUENCE - normalized) / 2);
+45190:}
+45191:
+45192:/* -------------------------------------------- */
+45193:
+45194:/**
+45195: * Determine potency from pathway sequence.
+45196: * @param {number} sequence  Pathway sequence.
+45197: * @returns {number}
+45198: */
+45199:function pathwayPotencyFromSequence(sequence) {
+45200:  const tier = pathwayTierFromSequence(sequence);
+45201:  return pathwaySequenceBonus(sequence) + tier;
+45202:}
+45203:
+45204:/* -------------------------------------------- */
+45205:
+45206:/**
+45207: * Determine resistance from pathway sequence.
+45208: * @param {number} sequence  Pathway sequence.
+45209: * @returns {number}
+45210: */
+45211:function pathwayResistanceFromSequence(sequence) {
+45212:  return pathwayPotencyFromSequence(sequence);
+45213:}
+45214:
+45215:/* -------------------------------------------- */
+45216:
+45217:/**
+45218: * Determine base HP from pathway sequence.
+45219: * @param {number} sequence  Pathway sequence.
+45220: * @returns {number}
+45221: */
+45222:function pathwayHpBaseFromSequence(sequence) {
+45223:  return Math.round(10 + (1.2 * pathwayBudgetFromSequence(sequence)));
+45224:}
+45225:
+45226:/* -------------------------------------------- */
+45227:
+45228:/**
+45229: * Determine base spirituality from pathway sequence.
+45230: * @param {number} sequence  Pathway sequence.
+45231: * @returns {number}
+45232: */
+45233:function pathwaySpiritualityBaseFromSequence(sequence) {
+45234:  return Math.round(6 + pathwayBudgetFromSequence(sequence));
+45235:}
+45236:
+45237:/* -------------------------------------------- */
+45238:
+45239:/**
+45240: * Determine default ability score cap from tier index.
+45241: * @param {number} tier  Pathway tier index.
+45242: * @returns {number}
+45243: */
+45244:function pathwayAbilityCapFromTier(tier) {
+45245:  const normalizedTier = Math.clamp(Math.floor(Number(tier) || 0), 0, LOTM_ABILITY_CAP_BY_TIER.length - 1);
+45246:  return LOTM_ABILITY_CAP_BY_TIER[normalizedTier];
+45247:}
+45248:
+45249:/* -------------------------------------------- */
+45250:
+45251:/**
+45252: * Determine promotion points earned based on sequence.
+45253: * @param {number} sequence  Pathway sequence.
+45254: * @returns {number}
+45255: */
+45256:function pathwayPromotionPointsForSequence(sequence) {
+45257:  const normalized = normalizePathwaySequence(sequence);
+45258:  return [8, 6, 4, 2, 1].filter(pointSequence => normalized <= pointSequence).length;
+45259:}
+45260:
+45261:/* -------------------------------------------- */
+45262:
+45263:/**
+45264: * Determine bonus applied to all saving throws from pathway tier.
+45265: * @param {number} tier  Pathway tier index.
+45266: * @returns {number}
+45267: */
+45268:function pathwaySaveEdgeFromTier(tier) {
+45269:  return Math.clamp(Math.floor(Number(tier) || 0), 0, 4);
+45270:}
+45271:
+45272:/* -------------------------------------------- */
+45273:
+45274:/**
+45275: * Determine bonus applied to ability/skill/tool checks from pathway tier.
+45276: * @param {number} tier               Pathway tier index.
+45277: * @param {boolean} hasProficiency    Whether the check includes proficiency.
+45278: * @returns {number}
+45279: */
+45280:function pathwayCheckEdgeFromTier(tier, hasProficiency) {
+45281:  const normalizedTier = Math.clamp(Math.floor(Number(tier) || 0), 0, 4);
+45282:  if ( hasProficiency ) return normalizedTier;
+45283:  return Math.floor(normalizedTier / 2);
+45284:}
+45285:
+45286:/* -------------------------------------------- */
+45287:
+45288:/**
+45289: * Determine movement edge in feet from pathway progression.
+45290: * @param {number} sequence  Pathway sequence.
+45291: * @returns {number}
+45292: */
+45293:function pathwayMovementEdgeFeetFromSequence(sequence) {
+45294:  const tier = pathwayTierFromSequence(sequence);
+45295:  const potency = pathwayPotencyFromSequence(sequence);
+45296:  const steps = Math.clamp(tier + Math.floor(Math.max(potency - 2, 0) / 3), 0, 6);
+45297:  return steps * 5;
+45298:}
+45299:
+45300:/* -------------------------------------------- */
+45301:
+45302:/**
+45303: * Determine instability movement penalty in feet from corruption.
+45304: * @param {number} corruption  Current corruption value.
+45305: * @returns {number}
+45306: */
+45307:function corruptionMovementPenaltyFeet(corruption) {
+45308:  const value = Math.max(Number(corruption) || 0, 0);
+45309:  if ( value >= 100 ) return 15;
+45310:  if ( value >= 75 ) return 10;
+45311:  if ( value >= 50 ) return 5;
+45312:  return 0;
+45313:}
+45314:
+45315:/* -------------------------------------------- */
+45316:
+45317:/**
+45318: * Clamp a pathway adjustment by percentage bounds of a base value.
+45319: * @param {number} value     Candidate adjustment.
+45320: * @param {number} base      Base value for relative percentage limits.
+45321: * @param {number} minPct    Minimum allowed percentage (negative for reduction).
+45322: * @param {number} maxPct    Maximum allowed percentage.
+45323: * @returns {number}
+45324: */
+45325:function clampPathwayAdjustment(value, base, minPct, maxPct) {
+45326:  const numericValue = Number(value);
+45327:  if ( !Number.isFinite(numericValue) ) return 0;
+45328:  const numericBase = Math.max(Number(base) || 0, 0);
+45329:  const min = Math.floor(numericBase * minPct);
+45330:  const max = Math.ceil(numericBase * maxPct);
+45331:  return Math.clamp(Math.floor(numericValue), min, max);
+45332:}
+45333:
+45334:/* -------------------------------------------- */
+45335:
+45336:/**
+45337: * Build normalized pathway stats for an actor from sequence.
+45338: * @param {number} sequence  Pathway sequence.
+45339: * @param {object} [options={}]
+45340: * @param {number} [options.durabilityAdj=0]   Pathway durability adjustment.
+45341: * @param {number} [options.spiritualityAdj=0] Pathway spirituality adjustment.
+45342: * @returns {{
+45343: *   sequence: number,
+45344: *   tier: number,
+45345: *   budget: number,
+45346: *   sequenceBonus: number,
+45347: *   potency: number,
+45348: *   resistance: number,
+45349: *   hpBase: number,
+45350: *   spiritualityBase: number,
+45351: *   promotionPoints: number
+45352: * }}
+45353: */
+45354:function pathwayStatsForSequence(sequence, { durabilityAdj=0, spiritualityAdj=0 }={}) {
+45355:  const normalized = normalizePathwaySequence(sequence);
+45356:  const tier = pathwayTierFromSequence(normalized);
+45357:  const budget = pathwayBudgetFromSequence(normalized);
+45358:  const sequenceBonus = pathwaySequenceBonus(normalized);
+45359:  const potency = pathwayPotencyFromSequence(normalized);
+45360:  const resistance = pathwayResistanceFromSequence(normalized);
+45361:  const hpBase = pathwayHpBaseFromSequence(normalized);
+45362:  const spiritualityBase = pathwaySpiritualityBaseFromSequence(normalized);
+45363:  return {
+45364:    sequence: normalized,
+45365:    tier,
+45366:    budget,
+45367:    sequenceBonus,
+45368:    potency,
+45369:    resistance,
+45370:    hpBase: hpBase + clampPathwayAdjustment(durabilityAdj, hpBase, -0.15, 0.15),
+45371:    spiritualityBase: spiritualityBase + clampPathwayAdjustment(spiritualityAdj, spiritualityBase, -0.10, 0.20),
+45372:    promotionPoints: pathwayPromotionPointsForSequence(normalized)
+45373:  };
+45374:}
+45375:
+45376:/**
+45377: * Convert an internal spell level to a LoTM sequence.
+45378: * @param {number} level  Internal spell level.
+45379: * @returns {number|null}
+45380: */
+45381:function spellLevelToSequence(level) {
+45382:  const numericLevel = Number(level);
+45383:  if ( !Number.isInteger(numericLevel) || (numericLevel < 0) || (numericLevel > LOTM_MAX_SPELL_LEVEL) ) return null;
+45384:  return LOTM_MAX_SPELL_LEVEL - numericLevel;
+45385:}
+45386:
+45387:/* -------------------------------------------- */
+45388:
+45389:/**
+45390: * Convert a LoTM sequence to an internal spell level.
+45391: * @param {number} sequence  LoTM sequence.
+45392: * @returns {number|null}
+45393: */
+45394:function sequenceToSpellLevel(sequence) {
+45395:  const numericSequence = Number(sequence);
+45396:  if ( !Number.isInteger(numericSequence) || (numericSequence < LOTM_MIN_SEQUENCE)
+45397:    || (numericSequence > LOTM_MAX_SEQUENCE) ) {
+45398:    return null;
+45399:  }
+45400:  return LOTM_MAX_SEQUENCE - numericSequence;
+45401:}
+45402:
+45403:/* -------------------------------------------- */
+45404:
+45405:/**
+45406: * Get a localized sequence label from an internal spell level.
+45407: * @param {number} level  Internal spell level.
+45408: * @returns {string|null}
+45409: */
+45410:function sequenceLabelFromSpellLevel(level) {
+45411:  const sequence = spellLevelToSequence(level);
+45412:  if ( sequence === null ) return null;
+45413:  return game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+45414:}
+45415:
+45416:/* -------------------------------------------- */
+45417:
+45418:/**
+45419: * Normalize class level to LoTM pathway range.
+45420: * @param {number} level  Candidate class level.
+45421: * @returns {number}
+45422: */
+45423:function normalizePathwayClassLevel(level) {
+45424:  const numericLevel = Number(level);
+45425:  if ( !Number.isFinite(numericLevel) ) return LOTM_PATHWAY_MIN_CLASS_LEVEL;
+45426:  return Math.clamp(Math.floor(numericLevel), LOTM_PATHWAY_MIN_CLASS_LEVEL, LOTM_PATHWAY_MAX_CLASS_LEVEL);
+45427:}
+45428:
+45429:/* -------------------------------------------- */
+45430:
+45431:/**
+45432: * Convert an internal class level to LoTM sequence.
+45433: * @param {number} level  Internal class level.
+45434: * @returns {number|null}
+45435: */
+45436:function classLevelToPathwaySequence(level) {
+45437:  const normalized = normalizePathwayClassLevel(level);
+45438:  if ( !Number.isInteger(normalized) ) return null;
+45439:  return LOTM_MAX_SEQUENCE - (normalized - LOTM_PATHWAY_MIN_CLASS_LEVEL);
+45440:}
+45441:
+45442:/* -------------------------------------------- */
+45443:
+45444:/**
+45445: * Convert LoTM sequence to internal class level.
+45446: * @param {number} sequence  Pathway sequence.
+45447: * @returns {number|null}
+45448: */
+45449:function pathwaySequenceToClassLevel(sequence) {
+45450:  const numericSequence = Number(sequence);
+45451:  if ( !Number.isInteger(numericSequence) || (numericSequence < LOTM_MIN_SEQUENCE)
+45452:    || (numericSequence > LOTM_MAX_SEQUENCE) ) {
+45453:    return null;
+45454:  }
+45455:  return LOTM_PATHWAY_MIN_CLASS_LEVEL + (LOTM_MAX_SEQUENCE - numericSequence);
+45456:}
+45457:
+45458:/* -------------------------------------------- */
+45459:
+45460:/**
+45461: * Get localized pathway sequence label from internal class level.
+45462: * @param {number} level  Internal class level.
+45463: * @returns {string|null}
+45464: */
+45465:function pathwaySequenceLabelFromClassLevel(level) {
+45466:  const sequence = classLevelToPathwaySequence(level);
+45467:  if ( sequence === null ) return null;
+45468:  return game.i18n.localize(`DND5E.SpellLevel${sequence}`);
+45469:}
+45470:
+45471:/* -------------------------------------------- */
+45472:
+45473:/**
+45474: * Determine max unlocked internal ability level from class level.
+45475: * @param {number} classLevel  Internal class level.
+45476: * @returns {number}
+45477: */
+45478:function pathwayMaxSpellLevelFromClassLevel(classLevel) {
+45479:  const normalized = normalizePathwayClassLevel(classLevel);
+45480:  return Math.clamp(normalized - LOTM_PATHWAY_MIN_CLASS_LEVEL, 0, LOTM_MAX_SPELL_LEVEL);
+45481:}
+45482:
+45483:/* -------------------------------------------- */
+45484:
+45485:/**
+45486: * Determine max allowed class level for a pathway on an actor.
+45487: * @param {Actor5e} actor              Actor whose levels are being evaluated.
+45488: * @param {string} [excludeClassId]    Class ID to exclude from total calculations.
+45489: * @returns {number}
+45490: */
+45491:function actorPathwayClassLevelCap(actor, excludeClassId) {
+45492:  if ( actor?.type !== "character" ) return LOTM_PATHWAY_MAX_CLASS_LEVEL;
+45493:  const otherClassLevels = (actor.itemTypes?.class ?? []).reduce((total, cls) => {
+45494:    if ( excludeClassId && (cls.id === excludeClassId) ) return total;
+45495:    return total + (Number(cls.system?.levels) || 0);
+45496:  }, 0);
+45497:  const remainingByCharacterCap = Math.max(CONFIG.DND5E.maxLevel - otherClassLevels, LOTM_PATHWAY_MIN_CLASS_LEVEL);
+45498:  return Math.clamp(remainingByCharacterCap, LOTM_PATHWAY_MIN_CLASS_LEVEL, LOTM_PATHWAY_MAX_CLASS_LEVEL);
+45499:}
+45500:
+45501:/* -------------------------------------------- */
+45502:
+45503:/**
+45504: * Determine actor pathway sequence from highest class level.
+45505: * @param {Actor5e} actor  Actor to evaluate.
+45506: * @returns {number}
+45507: */
+45508:function actorPathwaySequence(actor) {
+45509:  if ( actor?.type !== "character" ) return LOTM_MAX_SEQUENCE;
+45510:  const highestPathwayLevel = Math.max(
+45511:    ...(actor.itemTypes?.class ?? []).map(cls => Number(cls.system?.levels) || LOTM_PATHWAY_MIN_CLASS_LEVEL),
+45512:    LOTM_PATHWAY_MIN_CLASS_LEVEL
+45513:  );
+45514:  return classLevelToPathwaySequence(highestPathwayLevel) ?? LOTM_MAX_SEQUENCE;
+45515:}
+45516:
+45517:/* -------------------------------------------- */
+45518:
+45519:/**
+45520: * Determine actor pathway stats.
+45521: * @param {Actor5e} actor  Actor to evaluate.
+45522: * @returns {ReturnType<typeof pathwayStatsForSequence>}
+45523: */
+45524:function actorPathwayStats(actor) {
+45525:  const sequence = actorPathwaySequence(actor);
+45526:  const pathwayData = actor?.system?.pathway ?? {};
+45527:  return pathwayStatsForSequence(sequence, {
+45528:    durabilityAdj: Number(pathwayData?.durabilityAdj) || 0,
+45529:    spiritualityAdj: Number(pathwayData?.spiritualityAdj) || 0
+45530:  });
+45531:}
+45532:
+45533:/* -------------------------------------------- */
+45534:
+45535:/**
+45536: * Determine attacker versus target pathway tier delta.
+45537: * @param {number} attackerTier  Attacker tier.
+45538: * @param {number} targetTier    Target tier.
+45539: * @returns {number}
+45540: */
+45541:function pathwayTierDelta(attackerTier, targetTier) {
+45542:  const aTier = Number(attackerTier);
+45543:  const tTier = Number(targetTier);
+45544:  if ( !Number.isFinite(aTier) || !Number.isFinite(tTier) ) return 0;
+45545:  return Math.floor(aTier) - Math.floor(tTier);
+45546:}
+45547:
+45548:/* -------------------------------------------- */
+45549:
+45550:/**
+45551: * Get a tier-gap modifier bundle for combat scaling.
+45552: * @param {number} deltaTier  Attacker tier minus target tier.
+45553: * @returns {{ attackDc: number, magnitude: number, saveMode: number, suppressControl: boolean, capDamagePct: number|null }}
+45554: */
+45555:function pathwayTierScalingFromDelta(deltaTier) {
+45556:  const delta = Math.floor(Number(deltaTier) || 0);
+45557:  if ( delta >= 2 ) return { attackDc: 5, magnitude: 1.5, saveMode: -1, suppressControl: false, capDamagePct: null };
+45558:  if ( delta === 1 ) return { attackDc: 2, magnitude: 1.25, saveMode: 0, suppressControl: false, capDamagePct: null };
+45559:  if ( delta === -1 ) return { attackDc: -2, magnitude: 0.75, saveMode: 0, suppressControl: false, capDamagePct: null };
+45560:  if ( delta === -2 ) return { attackDc: -5, magnitude: 0.5, saveMode: 1, suppressControl: false, capDamagePct: null };
+45561:  if ( delta <= -3 ) return { attackDc: -5, magnitude: 0.5, saveMode: 1, suppressControl: true, capDamagePct: 0.10 };
+45562:  return { attackDc: 0, magnitude: 1, saveMode: 0, suppressControl: false, capDamagePct: null };
+45563:}
+45564:
+45565:/* -------------------------------------------- */
+45566:
+45567:/**
+45568: * Determine actor max unlocked internal ability level based on pathway level.
+45569: * @param {Actor5e} actor  Actor to evaluate.
+45570: * @returns {number}
+45571: */
+45572:function actorPathwayMaxSpellLevel(actor) {
+45573:  if ( actor?.type !== "character" ) return LOTM_MAX_SPELL_LEVEL;
+45574:  const highestPathwayLevel = pathwaySequenceToClassLevel(actorPathwaySequence(actor)) ?? LOTM_PATHWAY_MIN_CLASS_LEVEL;
+45575:  return pathwayMaxSpellLevelFromClassLevel(highestPathwayLevel);
+45576:}
+45577:
+45578:/* -------------------------------------------- */
+45579:
+45580:/**
+45581: * Clamp selected sequence to the actor's unlocked pathway range.
+45582: * @param {number} sequence  Candidate sequence power.
+45583: * @param {Actor5e} actor    Actor using the ability.
+45584: * @returns {number|null}
+45585: */
+45586:function clampSequenceToActorPathway(sequence, actor) {
+45587:  const numericSequence = Number(sequence);
+45588:  if ( !Number.isInteger(numericSequence) || (numericSequence < LOTM_MIN_SEQUENCE)
+45589:    || (numericSequence > LOTM_MAX_SEQUENCE) ) {
+45590:    return null;
+45591:  }
+45592:  if ( actor?.type !== "character" ) return numericSequence;
+45593:  const minAllowedSequence = spellLevelToSequence(actorPathwayMaxSpellLevel(actor));
+45594:  if ( minAllowedSequence === null ) return numericSequence;
+45595:  return Math.clamp(numericSequence, minAllowedSequence, LOTM_MAX_SEQUENCE);
+45596:}
+45597:
+45598:/* -------------------------------------------- */
+45599:
+45600:/**
+45601: * Get a stable key for pathway ability matching.
+45602: * @param {Item5e|object} item  Candidate ability item/document.
+45603: * @returns {string|null}
+45604: */
+45605:function pathwayAbilityKey(item) {
+45606:  if ( item?.type !== "spell" ) return null;
+45607:  const sourceClass = String(item.system?.sourceClass ?? "").trim().toLowerCase();
+45608:  const identifier = String(item.system?.identifier ?? "").trim().toLowerCase();
+45609:  const level = Number(item.system?.level ?? 0);
+45610:  if ( !sourceClass || !Number.isInteger(level) ) return null;
+45611:  if ( identifier ) return `${sourceClass}|id:${identifier}|lvl:${level}`;
+45612:  const name = String(item.name ?? "").trim().toLowerCase();
+45613:  if ( !name ) return null;
+45614:  return `${sourceClass}|name:${name}|lvl:${level}`;
+45615:}
+45616:
+45617:/* -------------------------------------------- */
+45618:
+45619:/**
+45620: * Collect pathway abilities from LoTM compendium packs up to max level.
+45621: * @param {string} pathwayIdentifier  Pathway identifier slug.
+45622: * @param {number} maxSpellLevel      Highest internal spell level to include.
+45623: * @returns {Promise<Item5e[]>}
+45624: */
+45625:async function collectPathwayCompendiumAbilities(pathwayIdentifier, maxSpellLevel) {
+45626:  const normalizedIdentifier = String(pathwayIdentifier ?? "").trim().toLowerCase();
+45627:  if ( !normalizedIdentifier ) return [];
+45628:  const maxLevel = Math.clamp(Number(maxSpellLevel) || 0, 0, LOTM_MAX_SPELL_LEVEL);
+45629:  const documents = [];
+45630:  const uniqueKeys = new Set();
+45631:  for ( const packName of LOTM_ABILITY_PACK_NAMES ) {
+45632:    const pack = game.packs.get(`${game.system.id}.${packName}`);
+45633:    if ( !pack || (pack.documentName !== "Item") ) continue;
+45634:    const packDocuments = await pack.getDocuments();
+45635:    for ( const document of packDocuments ) {
+45636:      if ( document.type !== "spell" ) continue;
+45637:      if ( String(document.system?.sourceClass ?? "").trim().toLowerCase() !== normalizedIdentifier ) continue;
+45638:      const level = Number(document.system?.level ?? 0);
+45639:      if ( !Number.isInteger(level) || (level < 0) || (level > maxLevel) ) continue;
+45640:      const key = pathwayAbilityKey(document);
+45641:      if ( !key || uniqueKeys.has(key) ) continue;
+45642:      uniqueKeys.add(key);
+45643:      documents.push(document);
+45644:    }
+45645:  }
+45646:  return documents;
+45647:}
+45648:
+45649:/* -------------------------------------------- */
+45650:
+45651:/**
+45652: * Sync pathway abilities for a specific class to ensure all unlocked sequence abilities are present.
+45653: * @param {Actor5e} actor      Actor receiving abilities.
+45654: * @param {Item5e} classItem   Pathway class item.
+45655: * @returns {Promise<number>}  Number of abilities granted.
+45656: */
+45657:async function syncPathwayAbilitiesForClass(actor, classItem) {
+45658:  if ( (actor?.type !== "character") || (classItem?.type !== "class") ) return 0;
+45659:  const pathwayIdentifier = String(classItem.system?.identifier ?? "").trim();
+45660:  if ( !pathwayIdentifier ) return 0;

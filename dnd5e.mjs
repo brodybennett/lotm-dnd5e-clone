@@ -11033,6 +11033,7 @@ class AttackActivity extends ActivityMixin(BaseAttackActivityData) {
    */
   async rollAttack(config={}, dialog={}, message={}) {
     const targets = getTargetDescriptors();
+    const pathwayTierScaling = pathwayTierScalingForTargets(this.actor, targets);
 
     if ( (this.item.type === "weapon") && (this.item.system.quantity === 0) ) {
       ui.notifications.warn("DND5E.ATTACK.Warning.NoQuantity", { localize: true });
@@ -11047,6 +11048,7 @@ class AttackActivity extends ActivityMixin(BaseAttackActivityData) {
         && CONFIG.DND5E.characterFlags.elvenAccuracy.abilities.includes(this.ability),
       halflingLucky: this.actor?.getFlag("lotm", "halflingLucky"),
       mastery: this.item.getFlag("lotm", `last.${this.id}.mastery`),
+      pathwayTierScaling,
       target: targets.length === 1 ? targets[0].ac : undefined
     }, config);
 
@@ -11102,7 +11104,10 @@ class AttackActivity extends ActivityMixin(BaseAttackActivityData) {
         flags: { lotm: {
             ...this.messageFlags,
             messageType: "roll",
-            roll: { type: "attack" }
+            roll: {
+              type: "attack",
+              pathwayTierScaling: rollConfig.pathwayTierScaling
+            }
           }
         },
         speaker: ChatMessage.getSpeaker({ actor: this.actor })
@@ -11198,6 +11203,11 @@ class AttackActivity extends ActivityMixin(BaseAttackActivityData) {
     const mastery = formData?.get("mastery") ?? process.mastery;
 
     let { parts, data } = this.getAttackData({ ammunition, attackMode });
+    const pathwayAttackDc = Number(process.pathwayTierScaling?.attackDc) || 0;
+    if ( pathwayAttackDc !== 0 ) {
+      data.pathwayAttackDc = pathwayAttackDc;
+      parts.push("@pathwayAttackDc");
+    }
     const options = config.options ?? {};
     if ( ammunition !== undefined ) options.ammunition = ammunition;
     if ( attackMode !== undefined ) options.attackMode = attackMode;
@@ -25132,13 +25142,21 @@ class SaveActivity extends ActivityMixin(BaseSaveActivityData) {
     if ( !targets.length && game.user.character ) targets.push(game.user.character);
     if ( !targets.length ) ui.notifications.warn("DND5E.ActionWarningNoToken", { localize: true });
     const dc = parseInt(target.dataset.dc);
+    const sourceActor = this.actor;
     for ( const token of targets ) {
       const actor = token instanceof Actor ? token : token.actor;
-      const speaker = ChatMessage.getSpeaker({ actor, scene: canvas.scene, token: token.document });
+      const speaker = token instanceof Actor
+        ? ChatMessage.getSpeaker({ actor })
+        : ChatMessage.getSpeaker({ actor, scene: canvas.scene, token: token.document });
+      const pathwayTierScaling = pathwayTierScalingForActors(sourceActor, actor);
+      const advantage = pathwayTierScaling.saveMode > 0;
+      const disadvantage = pathwayTierScaling.saveMode < 0;
+      const targetDc = Math.max(1, (Number.isFinite(dc) ? dc : this.save.dc.value) + (pathwayTierScaling.attackDc || 0));
       await actor.rollSavingThrow({
         event,
         ability: target.dataset.ability ?? this.save.ability.first(),
-        target: Number.isFinite(dc) ? dc : this.save.dc.value
+        target: targetDc,
+        rolls: [{ options: { advantage, disadvantage } }]
       }, {}, { data: { speaker } });
     }
   }
@@ -31814,6 +31832,8 @@ function createRequestButton(dataset) {
 async function rollAttack(event) {
   const target = event.target.closest(".roll-link-group");
   const { activityUuid, attackMode, formula, scaling } = target.dataset;
+  const sourceMessage = game.messages.get(target.closest("[data-message-id]")?.dataset.messageId);
+  const sourceActor = sourceMessage?.getAssociatedActor?.() ?? null;
 
   if ( activityUuid ) {
     const activity = await _fetchActivity(activityUuid, Number(scaling ?? 0));
@@ -31821,11 +31841,16 @@ async function rollAttack(event) {
   }
 
   const targets = getTargetDescriptors();
+  const pathwayTierScaling = pathwayTierScalingForTargets(sourceActor, targets);
+  const pathwayAttackDc = Number(pathwayTierScaling.attackDc) || 0;
+  const adjustedFormula = pathwayAttackDc
+    ? `${formula.replace(/^\s*\+\s*/, "")} + ${pathwayAttackDc}`
+    : formula.replace(/^\s*\+\s*/, "");
   const rollConfig = {
     attackMode, event,
     hookNames: ["attack", "d20Test"],
     rolls: [{
-      parts: [formula.replace(/^\s*\+\s*/, "")],
+      parts: [adjustedFormula],
       options: {
         target: targets.length === 1 ? targets[0].ac : undefined
       }
@@ -31840,11 +31865,14 @@ async function rollAttack(event) {
     data: {
       flags: { lotm: {
           messageType: "roll",
-          roll: { type: "attack" }
+          roll: {
+            type: "attack",
+            pathwayTierScaling
+          }
         }
       },
       flavor: game.i18n.localize("DND5E.AttackRoll"),
-      speaker: ChatMessage.implementation.getSpeaker()
+      speaker: ChatMessage.implementation.getSpeaker({ actor: sourceActor ?? undefined })
     }
   };
 
@@ -31866,6 +31894,8 @@ async function rollAttack(event) {
 async function rollDamage(event) {
   const target = event.target.closest(".roll-link-group");
   let { activityUuid, attackMode, formulas, damageTypes, rollType, scaling } = target.dataset;
+  const sourceMessage = game.messages.get(target.closest("[data-message-id]")?.dataset.messageId);
+  const sourceActor = sourceMessage?.getAssociatedActor?.() ?? null;
 
   if ( activityUuid ) {
     const activity = await _fetchActivity(activityUuid, Number(scaling ?? 0));
@@ -31897,7 +31927,7 @@ async function rollDamage(event) {
         }
       },
       flavor: game.i18n.localize(`DND5E.${rollType === "healing" ? "Healing" : "Damage"}Roll`),
-      speaker: ChatMessage.implementation.getSpeaker()
+      speaker: ChatMessage.implementation.getSpeaker({ actor: sourceActor ?? undefined })
     }
   };
 
@@ -33828,6 +33858,24 @@ class Actor5e extends SystemDocumentMixin(Actor) {
         d.active.multiplier = 0;
         d.active.threshold = true;
       });
+    }
+
+    // Apply pathway tier scaling as a final authority adjustment after baseline damage handling.
+    const pathwayTierScaling = options.pathwayTierScaling;
+    if ( damages.amount > 0 ) {
+      const magnitude = Number(pathwayTierScaling?.magnitude);
+      if ( Number.isFinite(magnitude) && (magnitude > 0) && (magnitude !== 1) ) {
+        damages.amount = Math.max(Math.floor(damages.amount * magnitude), 0);
+      }
+
+      const capDamagePct = Number(pathwayTierScaling?.capDamagePct);
+      if ( Number.isFinite(capDamagePct) && (capDamagePct > 0) ) {
+        const hpMax = Math.max(Number(this.system.attributes?.hp?.effectiveMax ?? this.system.attributes?.hp?.max) || 0, 0);
+        if ( hpMax > 0 ) {
+          const cap = Math.max(1, Math.floor(hpMax * Math.clamp(capDamagePct, 0, 1)));
+          damages.amount = Math.min(damages.amount, cap);
+        }
+      }
     }
 
     /**
@@ -45249,18 +45297,6 @@ function pathwayAbilityCapFromTier(tier) {
 /* -------------------------------------------- */
 
 /**
- * Determine promotion points earned based on sequence.
- * @param {number} sequence  Pathway sequence.
- * @returns {number}
- */
-function pathwayPromotionPointsForSequence(sequence) {
-  const normalized = normalizePathwaySequence(sequence);
-  return [8, 6, 4, 2, 1].filter(pointSequence => normalized <= pointSequence).length;
-}
-
-/* -------------------------------------------- */
-
-/**
  * Determine bonus applied to all saving throws from pathway tier.
  * @param {number} tier  Pathway tier index.
  * @returns {number}
@@ -45347,8 +45383,7 @@ function clampPathwayAdjustment(value, base, minPct, maxPct) {
  *   potency: number,
  *   resistance: number,
  *   hpBase: number,
- *   spiritualityBase: number,
- *   promotionPoints: number
+ *   spiritualityBase: number
  * }}
  */
 function pathwayStatsForSequence(sequence, { durabilityAdj=0, spiritualityAdj=0 }={}) {
@@ -45368,8 +45403,7 @@ function pathwayStatsForSequence(sequence, { durabilityAdj=0, spiritualityAdj=0 
     potency,
     resistance,
     hpBase: hpBase + clampPathwayAdjustment(durabilityAdj, hpBase, -0.15, 0.15),
-    spiritualityBase: spiritualityBase + clampPathwayAdjustment(spiritualityAdj, spiritualityBase, -0.10, 0.20),
-    promotionPoints: pathwayPromotionPointsForSequence(normalized)
+    spiritualityBase: spiritualityBase + clampPathwayAdjustment(spiritualityAdj, spiritualityBase, -0.10, 0.20)
   };
 }
 
@@ -45560,6 +45594,128 @@ function pathwayTierScalingFromDelta(deltaTier) {
   if ( delta === -2 ) return { attackDc: -5, magnitude: 0.5, saveMode: 1, suppressControl: false, capDamagePct: null };
   if ( delta <= -3 ) return { attackDc: -5, magnitude: 0.5, saveMode: 1, suppressControl: true, capDamagePct: 0.10 };
   return { attackDc: 0, magnitude: 1, saveMode: 0, suppressControl: false, capDamagePct: null };
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine pathway tier for an actor-like object.
+ * @param {Actor5e|object|null} actor  Actor or actor-like data.
+ * @returns {number|null}
+ */
+function pathwayTierFromActor(actor) {
+  const tier = Number(actor?.system?.pathway?.tier);
+  if ( !Number.isFinite(tier) ) return null;
+  return Math.max(Math.floor(tier), 0);
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine pathway tier scaling bundle for source and target actors.
+ * @param {Actor5e|object|null} sourceActor  Source actor.
+ * @param {Actor5e|object|null} targetActor  Target actor.
+ * @returns {{
+ *   attackerTier: number|null,
+ *   targetTier: number|null,
+ *   deltaTier: number,
+ *   attackDc: number,
+ *   magnitude: number,
+ *   saveMode: number,
+ *   suppressControl: boolean,
+ *   capDamagePct: number|null
+ * }}
+ */
+function pathwayTierScalingForActors(sourceActor, targetActor) {
+  const attackerTier = pathwayTierFromActor(sourceActor);
+  const targetTier = pathwayTierFromActor(targetActor);
+  const deltaTier = (attackerTier === null) || (targetTier === null) ? 0 : pathwayTierDelta(attackerTier, targetTier);
+  return {
+    attackerTier,
+    targetTier,
+    deltaTier,
+    ...pathwayTierScalingFromDelta(deltaTier)
+  };
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine a conservative pathway tier scaling bundle for a source actor against selected targets.
+ * Uses the highest target tier when multiple targets are present.
+ * @param {Actor5e|object|null} sourceActor            Source actor.
+ * @param {{ tier?: number|null }[]} [targets=[]]      Target descriptors.
+ * @returns {ReturnType<typeof pathwayTierScalingForActors>}
+ */
+function pathwayTierScalingForTargets(sourceActor, targets=[]) {
+  const attackerTier = pathwayTierFromActor(sourceActor);
+  const targetTier = targets.reduce((highest, target) => {
+    const tier = Number(target?.tier);
+    if ( !Number.isFinite(tier) ) return highest;
+    const normalized = Math.max(Math.floor(tier), 0);
+    if ( highest === null ) return normalized;
+    return Math.max(highest, normalized);
+  }, null);
+  const deltaTier = (attackerTier === null) || (targetTier === null) ? 0 : pathwayTierDelta(attackerTier, targetTier);
+  return {
+    attackerTier,
+    targetTier,
+    deltaTier,
+    ...pathwayTierScalingFromDelta(deltaTier)
+  };
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Suggest a default instability pressure DC from corruption value.
+ * @param {number} corruptionValue  Current corruption.
+ * @returns {number}
+ */
+function defaultInstabilityPressureDc(corruptionValue) {
+  const corruption = Math.max(Number(corruptionValue) || 0, 0);
+  if ( corruption >= 100 ) return 20;
+  if ( corruption >= 75 ) return 18;
+  if ( corruption >= 50 ) return 15;
+  if ( corruption >= 25 ) return 12;
+  return 10;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Roll an instability check for the provided actor.
+ * @param {Actor5e|null} actor           Actor performing check.
+ * @param {object} [options]
+ * @param {number} [options.dc]          Pressure DC.
+ * @param {number} [options.advantage=0] Advantage mode (-1, 0, 1).
+ * @returns {Promise<Roll|null>}
+ */
+async function rollInstabilityCheck(actor, { dc, advantage=0 }={}) {
+  if ( actor?.type !== "character" ) return null;
+  const spiMod = Number(actor.system.abilities?.wis?.mod) || 0;
+  const resistance = Number(actor.system.attributes?.resistance) || 0;
+  const pressureDc = Number.isFinite(Number(dc))
+    ? Math.max(Math.floor(Number(dc)), 1)
+    : defaultInstabilityPressureDc(actor.system.attributes?.corruption?.value);
+
+  const roll = await (new CONFIG.Dice.D20Roll("1d20 + @spi + @res", {
+    spi: spiMod,
+    res: resistance
+  }, {
+    advantage: advantage > 0,
+    disadvantage: advantage < 0
+  })).evaluate();
+  const success = roll.total >= pressureDc;
+  await roll.toMessage({
+    flavor: game.i18n.format("DND5E.InstabilityCheckFlavor", {
+      dc: pressureDc,
+      result: game.i18n.localize(success ? "DND5E.InstabilityOutcomeSuccess" : "DND5E.InstabilityOutcomeFailure")
+    }),
+    speaker: ChatMessage.getSpeaker({ actor }),
+    flags: { lotm: { messageType: "roll", roll: { type: "instability", dc: pressureDc } } }
+  });
+  return roll;
 }
 
 /* -------------------------------------------- */
@@ -56744,6 +56900,7 @@ class CharacterActorSheet extends BaseActorSheet {
       deleteFavorite: CharacterActorSheet.#deleteFavorite,
       deleteOccupant: CharacterActorSheet.#deleteOccupant,
       findItem: CharacterActorSheet.#findItem,
+      rollInstabilityCheck: CharacterActorSheet.#rollInstabilityCheck,
       setSpellcastingAbility: CharacterActorSheet.#setSpellcastingAbility,
       setSequencePotionProgress: CharacterActorSheet.#setSequencePotionProgress,
       toggleDeathTray: CharacterActorSheet.#toggleDeathTray,
@@ -57269,17 +57426,7 @@ class CharacterActorSheet extends BaseActorSheet {
       ? game.i18n.localize(`DND5E.SpellLevel${pathwaySequence}`)
       : game.i18n.localize("DND5E.PathwayNone");
 
-    // Experience & Epic Boons
-    if ( context.system.details.xp.boonsEarned !== undefined ) {
-      const pluralRules = new Intl.PluralRules(game.i18n.lang);
-      context.epicBoonsEarned = game.i18n.format(
-        `DND5E.ExperiencePoints.Boons.${pluralRules.select(context.system.details.xp.boonsEarned ?? 0)}`,
-        { number: formatNumber(context.system.details.xp.boonsEarned ?? 0, { signDisplay: "always" }) }
-      );
-    }
-
     // Visibility
-    context.showExperience = game.settings.get("lotm", "levelingMode") !== "noxp";
     context.showRests = game.user.isGM || (this.actor.isOwner && game.settings.get("lotm", "allowRests"));
     context.sequencePotionProgress = CharacterActorSheet.#sanitizeSequencePotionProgress(
       this.actor.getFlag("lotm", "sequencePotionProgress")
@@ -57364,6 +57511,9 @@ class CharacterActorSheet extends BaseActorSheet {
       if ( value > obj.value ) Object.assign(obj, { value, label });
       return obj;
     }, { value: 0, label: CONFIG.DND5E.movementTypes.walk?.label });
+    context.instabilityDefaultDc = defaultInstabilityPressureDc(attributes.corruption?.value);
+    context.instabilityBonus = (Number(this.actor.system.abilities?.wis?.mod) || 0)
+      + (Number(attributes.resistance) || 0);
 
     return context;
   }
@@ -57921,6 +58071,50 @@ class CharacterActorSheet extends BaseActorSheet {
           return this.actor.setFlag("lotm", "sequencePotionProgress", value);
         }
       }
+    });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle rolling an instability check.
+   * @this {CharacterActorSheet}
+   * @param {Event} event         Triggering click event.
+   * @param {HTMLElement} target  Button that was clicked.
+   */
+  static async #rollInstabilityCheck(event, target) {
+    if ( !this.actor?.isOwner ) return;
+    const defaultDc = defaultInstabilityPressureDc(this.actor.system.attributes?.corruption?.value);
+    const content = `
+      <div class="form-group">
+        <label>${game.i18n.localize("DND5E.InstabilityCheckDC")}</label>
+        <div class="form-fields">
+          <input type="number" name="dc" min="1" step="1" value="${defaultDc}" autofocus>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>${game.i18n.localize("DND5E.RollMode")}</label>
+        <div class="form-fields">
+          <select name="mode">
+            <option value="0">${game.i18n.localize("DND5E.Normal")}</option>
+            <option value="1">${game.i18n.localize("DND5E.Advantage")}</option>
+            <option value="-1">${game.i18n.localize("DND5E.Disadvantage")}</option>
+          </select>
+        </div>
+      </div>
+    `;
+    const values = await foundry.applications.api.Dialog.prompt({
+      content,
+      window: { title: game.i18n.localize("DND5E.InstabilityCheck") },
+      ok: {
+        label: game.i18n.localize("DND5E.Roll"),
+        callback: (dialogEvent, button) => new foundry.applications.ux.FormDataExtended(button.form).object
+      }
+    }, { rejectClose: false });
+    if ( !values ) return;
+    await rollInstabilityCheck(this.actor, {
+      dc: Number(values.dc),
+      advantage: Number(values.mode)
     });
   }
 
@@ -61564,6 +61758,29 @@ class DamageApplicationElement extends TargetedApplicationMixin(ChatTrayElement)
   }
 
   /* -------------------------------------------- */
+
+  /**
+   * Source actor that originated this damage card.
+   * @returns {Actor5e|null}
+   */
+  get sourceActor() {
+    return this.chatMessage?.getAssociatedActor() ?? null;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Build pathway scaling options for a target actor.
+   * @param {Actor5e} targetActor  Target actor.
+   * @returns {object}
+   */
+  getPathwayDamageOptions(targetActor) {
+    return {
+      pathwayTierScaling: pathwayTierScalingForActors(this.sourceActor, targetActor)
+    };
+  }
+
+  /* -------------------------------------------- */
   /*  Rendering                                   */
   /* -------------------------------------------- */
 
@@ -61671,7 +61888,11 @@ class DamageApplicationElement extends TargetedApplicationMixin(ChatTrayElement)
    * @returns {{temp: number, total: number, active: Record<string, Set<string>>}}
    */
   calculateDamage(actor, options) {
-    const damages = actor.calculateDamage(this.damages, options);
+    const damageOptions = {
+      ...options,
+      ...this.getPathwayDamageOptions(actor)
+    };
+    const damages = actor.calculateDamage(this.damages, damageOptions);
     let { amount, temp } = damages;
 
     let active = {
@@ -61801,8 +62022,13 @@ class DamageApplicationElement extends TargetedApplicationMixin(ChatTrayElement)
     event.preventDefault();
     for ( const target of this.targetList.querySelectorAll("[data-target-uuid]") ) {
       const token = fromUuidSync(target.dataset.targetUuid);
+      const actor = token?.actor ?? token;
       const options = this.getTargetOptions(target.dataset.targetUuid);
-      await token?.applyDamage(this.damages, { ...options, isDelta: true });
+      await token?.applyDamage(this.damages, {
+        ...options,
+        ...this.getPathwayDamageOptions(actor),
+        isDelta: true
+      });
     }
     if ( game.settings.get("lotm", "autoCollapseChatTrays") !== "manual" ) {
       this.open = false;
@@ -62098,9 +62324,15 @@ class EffectApplicationElement extends TargetedApplicationMixin(ChatTrayElement)
     event.preventDefault();
     const effect = this.chatMessage.getAssociatedItem()?.effects.get(event.target.closest("[data-id]")?.dataset.id);
     if ( !effect ) return;
+    const sourceActor = this.chatMessage.getAssociatedActor();
     for ( const target of this.targetList.querySelectorAll("[data-target-uuid]") ) {
       const actor = fromUuidSync(target.dataset.targetUuid);
       if ( !actor || !target.querySelector("dnd5e-checkbox")?.checked ) continue;
+      const pathwayTierScaling = pathwayTierScalingForActors(sourceActor, actor);
+      if ( pathwayTierScaling.suppressControl ) {
+        ui.notifications.info(game.i18n.format("DND5E.PathwayControlSuppressed", { name: actor.name }));
+        continue;
+      }
       try {
         await this._applyEffectToActor(effect, actor);
       } catch(err) {
@@ -70346,9 +70578,6 @@ class CharacterData extends CreatureTemplate {
           required: true, nullable: false, integer: true, min: 0, initial: pathwaySpiritualityBaseFromSequence(LOTM_MAX_SEQUENCE),
           label: "DND5E.PathwaySpiritualityBase"
         }),
-        promotionPoints: new NumberField$e({
-          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.PathwayPromotionPoints"
-        }),
         durabilityAdj: new NumberField$e({
           required: true, nullable: false, integer: true, initial: 0, label: "DND5E.PathwayDurabilityAdj"
         }),
@@ -70439,7 +70668,6 @@ class CharacterData extends CreatureTemplate {
     this.pathway.budget = pathwayStats.budget;
     this.pathway.hpBase = pathwayStats.hpBase;
     this.pathway.spiritualityBase = pathwayStats.spiritualityBase;
-    this.pathway.promotionPoints = pathwayStats.promotionPoints;
     this.attributes.prof = pathwayStats.sequenceBonus;
     this.attributes.potency = pathwayStats.potency;
     this.attributes.resistance = pathwayStats.resistance;
@@ -81724,6 +81952,31 @@ Hooks.on("updateItem", (item, changes, options, userId) => {
   syncPathwayAbilitiesForActor(item.parent, { classIds: [item.id] }).catch(error => {
     console.error("Failed to sync pathway abilities after class update.", error);
   });
+});
+
+Hooks.on("preUpdateActor", (actor, changes, options) => {
+  if ( actor?.type !== "character" ) return;
+  if ( !changes?.system ) return;
+  if ( foundry.utils.hasProperty(changes, "system.attributes.corruption.value")
+    || foundry.utils.hasProperty(changes, "system.attributes.corruption") ) {
+    options.lotmPreviousCorruption = Math.max(Number(actor.system.attributes?.corruption?.value) || 0, 0);
+  }
+});
+
+Hooks.on("updateActor", (actor, changes, options) => {
+  if ( actor?.type !== "character" ) return;
+  if ( !Number.isFinite(options?.lotmPreviousCorruption) ) return;
+  const previous = Math.max(Number(options.lotmPreviousCorruption) || 0, 0);
+  const current = Math.max(Number(actor.system.attributes?.corruption?.value) || 0, 0);
+  if ( current <= previous ) return;
+  const crossed = LOTM_CORRUPTION_THRESHOLDS.filter(value => (previous < value) && (current >= value));
+  if ( !crossed.length ) return;
+  const threshold = crossed[0];
+  if ( !actor.isOwner ) return;
+  ui.notifications.warn(game.i18n.format("DND5E.CorruptionThresholdCrossed", {
+    name: actor.name,
+    threshold
+  }));
 });
 
 Hooks.on("dnd5e.advancementManagerComplete", manager => {

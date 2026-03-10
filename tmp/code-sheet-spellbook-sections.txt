@@ -1,0 +1,151 @@
+55090:   * @protected
+55091:   */
+55092:  _prepareSkillsTools(context, property) {
+55093:    const baseAbility = key => {
+55094:      let src = context.source[property]?.[key]?.ability;
+55095:      if ( src ) return src;
+55096:      if ( property === "skills" ) src = CONFIG.DND5E.skills[key]?.ability;
+55097:      return src ?? "int";
+55098:    };
+55099:    return Object.entries(context.system[property] ?? {}).map(([key, entry]) => ({
+55100:      ...entry, key,
+55101:      abbreviation: CONFIG.DND5E.abilities[entry.ability]?.abbreviation,
+55102:      baseAbility: baseAbility(key),
+55103:      hover: CONFIG.DND5E.proficiencyLevels[entry.value],
+55104:      label: (property === "skills") ? CONFIG.DND5E.skills[key]?.label : keyLabel(key, { trait: "tool" }),
+55105:      source: context.source[property]?.[key]
+55106:    })).sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang));
+55107:  }
+55108:
+55109:  /* -------------------------------------------- */
+55110:
+55111:  /**
+55112:   * Prepare spells sections for display.
+55113:   * @param {ApplicationRenderContext} context  Context being prepared.
+55114:   * @returns {object}
+55115:   * @protected
+55116:   */
+55117:  _prepareSpellbook(context) {
+55118:    const spellbook = {};
+55119:    const columns = customElements.get(this.options.elements.inventory).mapColumns([
+55120:      "school", "time", "range", "target", "roll", { id: "uses", order: 650, priority: 300 },
+55121:      { id: "formula", priority: 200 }, "controls"
+55122:    ]);
+55123:
+55124:    /**
+55125:     * Register a section in the spellbook.
+55126:     * @param {string} key                  The section's unique identifier.
+55127:     * @param {number} [level]              The level of spells in this section. Only relevant for spellcasting methods
+55128:     *                                      that provide multi-level slots.
+55129:     * @param {SpellcastingModel} [config]  The spellcasting model, if any.
+55130:     */
+55131:    const registerSection = (key, level, config) => {
+55132:      level = config?.slots ? level : 1;
+55133:      if ( key in spellbook ) return;
+55134:      const sequenceLabel = config?.slots ? sequenceLabelFromSpellLevel(level) : null;
+55135:      const label = sequenceLabel ?? config?.getLabel({ level }) ?? game.i18n.localize("DND5E.CAST.SECTIONS.Spellbook");
+55136:      const method = config?.key ?? key;
+55137:      const baseOrder = config?.order ?? 1000;
+55138:      const sequence = config?.slots ? spellLevelToSequence(level) : null;
+55139:      const order = config?.slots
+55140:        ? baseOrder + (sequence === null ? LOTM_MAX_SEQUENCE + 1 : sequenceToSpellLevel(sequence))
+55141:        : baseOrder;
+55142:      const usesSlots = config?.slots && level;
+55143:      const section = spellbook[key] = {
+55144:        label, sequenceLabel, columns, order, usesSlots,
+55145:        id: method,
+55146:        slot: key,
+55147:        items: [],
+55148:        minWidth: 220,
+55149:        draggable: true,
+55150:        dataset: { level, sequence: sequence ?? "", method, type: "spell" }
+55151:      };
+55152:      if ( !usesSlots ) return;
+55153:      const spells = foundry.utils.getProperty(this.actor.system.spells, key);
+55154:      const maxSlots = spells.override ?? spells.max ?? 0;
+55155:      section.pips = Array.fromRange(Math.max(maxSlots, spells.value ?? 0), 1).map(n => {
+55156:        const filled = spells.value >= n;
+55157:        const temp = n > maxSlots;
+55158:        const label = temp
+55159:          ? game.i18n.localize("DND5E.SpellSlotTemporary")
+55160:          : filled
+55161:            ? game.i18n.format(`DND5E.SpellSlotN.${getPluralRules({ type: "ordinal" }).select(n)}`, { n })
+55162:            : game.i18n.localize("DND5E.SpellSlotExpended");
+55163:        const classes = ["pip"];
+55164:        if ( filled ) classes.push("filled");
+55165:        if ( temp ) classes.push("tmp");
+55166:        return { n, label, filled, tooltip: label, classes: classes.join(" ") };
+55167:      });
+55168:    };
+55169:
+55170:    // Register sections for available spellcasting methods or LoTM pathway sequence progression.
+55171:    if ( (this.actor.type === "character") && this.actor.itemTypes.class.length ) {
+55172:      const progression = CONFIG.DND5E.spellcasting.spell;
+55173:      const maxPathwaySpellLevel = actorPathwayMaxSpellLevel(this.actor);
+55174:      registerSection("spell0", 0, progression);
+55175:      for ( let level = 1; level <= maxPathwaySpellLevel; level++ ) {
+55176:        registerSection(progression.getSpellSlotKey(level), level, progression);
+55177:      }
+55178:    } else {
+55179:      for ( const spellcasting of Object.values(CONFIG.DND5E.spellcasting) ) {
+55180:        const levels = spellcasting.getAvailableLevels?.(this.actor) ?? [];
+55181:        if ( !levels.length ) continue;
+55182:        if ( spellcasting.cantrips ) registerSection("spell0", 0, CONFIG.DND5E.spellcasting.spell);
+55183:        levels.forEach(l => registerSection(spellcasting.getSpellSlotKey(l), l, spellcasting));
+55184:      }
+55185:    }
+55186:
+55187:    // Iterate over every spell item, adding spells to the spellbook by section
+55188:    (context.itemCategories.spells ?? []).forEach(spell => {
+55189:      let method = spell.system.method;
+55190:      if ( !(method in CONFIG.DND5E.spellcasting) ) method = "innate";
+55191:      const spellcasting = CONFIG.DND5E.spellcasting[method];
+55192:      const level = spell.system.level || 0;
+55193:      method = spellcasting?.getSpellSlotKey?.(level) ?? method;
+55194:
+55195:      // Spells from items
+55196:      if ( spell.getFlag("lotm", "cachedFor") ) {
+55197:        method = "item";
+55198:        if ( !spell.system.linkedActivity?.displayInSpellbook ) return;
+55199:        registerSection(method);
+55200:      }
+55201:
+55202:      // Sections for higher-level spells which the caster does not have any slots for.
+55203:      else registerSection(method, level, spellcasting);
+55204:
+55205:      // Add the spell to the relevant heading
+55206:      spellbook[method].items.push(spell);
+55207:    });
+55208:
+55209:    // Sort the spellbook by section level
+55210:    return spellbook;
+55211:  }
+55212:
+55213:  /* -------------------------------------------- */
+55214:
+55215:  /**
+55216:   * Prepare actor traits for display.
+55217:   * @param {ApplicationRenderContext} context  Context being prepared.
+55218:   * @returns {Record<string, object[]>}
+55219:   * @protected
+55220:   */
+55221:  _prepareTraits(context) {
+55222:    const traits = {};
+55223:    for ( const [trait$1, config] of Object.entries(CONFIG.DND5E.traits) ) {
+55224:      const key = config.actorKeyPath ?? `system.traits.${trait$1}`;
+55225:      const data = foundry.utils.deepClone(foundry.utils.getProperty(this.actor, key));
+55226:      if ( ["dm", "languages"].includes(trait$1) || !data ) continue;
+55227:
+55228:      let values = data.value;
+55229:      if ( !values ) values = [];
+55230:      else if ( values instanceof Set ) values = Array.from(values);
+55231:      else if ( !Array.isArray(values) ) values = [values];
+55232:      values = values.map(key => {
+55233:        const value = { key, label: keyLabel(key, { trait: trait$1 }) ?? key };
+55234:        const icons = value.icons = [];
+55235:        if ( data.bypasses?.size && CONFIG.DND5E.damageTypes[key]?.isPhysical ) icons.push(...data.bypasses.map(p => {
+55236:          const type = CONFIG.DND5E.itemProperties[p]?.label;
+55237:          return { icon: p, label: game.i18n.format("DND5E.DamagePhysicalBypassesShort", { type }) };
+55238:        }));
+55239:        return value;
+55240:      });

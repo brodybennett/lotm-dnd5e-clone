@@ -201,6 +201,11 @@
             <div class="meter-group">
                 <div class="label roboto-condensed-upper">
                     <span>{{ localize "DND5E.Corruption" }}</span>
+                    <button type="button" class="gold-button instability-check-button" data-action="rollInstabilityCheck"
+                            data-tooltip="{{ localize 'DND5E.InstabilityCheckHint' dc=@root.instabilityDefaultDc }}"
+                            aria-label="{{ localize 'DND5E.InstabilityCheck' }}">
+                        {{ dnd5e-numberFormat @root.instabilityBonus signDisplay="always" }}
+                    </button>
                 </div>
                 <div class="meter sectioned corruption">
                     <div class="progress corruption

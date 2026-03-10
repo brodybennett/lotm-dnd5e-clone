@@ -1,0 +1,263 @@
+7628:      if ( !foundry.utils.isEmpty(updates.item) ) await this.actor.updateEmbeddedDocuments("Item", updates.item);
+7629:
+7630:      return consumed;
+7631:    }
+7632:
+7633:    /* -------------------------------------------- */
+7634:
+7635:    /**
+7636:     * Prepare usage configuration with the necessary defaults.
+7637:     * @param {ActivityUseConfiguration} config  Configuration object passed to the `use` method.
+7638:     * @returns {ActivityUseConfiguration}
+7639:     * @protected
+7640:     */
+7641:    _prepareUsageConfig(config) {
+7642:      config = foundry.utils.deepClone(config);
+7643:      const linked = this.getLinkedActivity(config.cause?.activity);
+7644:
+7645:      if ( config.create !== false ) {
+7646:        config.create ??= {};
+7647:        config.create.measuredTemplate ??= !!this.target.template.type && this.target.prompt;
+7648:        // TODO: Handle permissions checks in `ActivityUsageDialog`
+7649:      }
+7650:
+7651:      const ignoreLinkedConsumption = this.isSpell && !this.consumption.spellSlot;
+7652:      const useSpirituality = isSpiritualityConsumptionActivity(this);
+7653:      if ( config.consume !== false ) {
+7654:        const activationConfig = CONFIG.DND5E.activityActivationTypes[this.activation.type] ?? {};
+7655:        const hasActionConsumption = activationConfig.consume
+7656:          && (activationConfig.consume.canConsume?.(this) !== false);
+7657:        const hasResourceConsumption = this.consumption.targets.some(target => {
+7658:          return !useSpirituality || (target.type !== "spellSlots");
+7659:        });
+7660:        const hasLinkedConsumption = (linked?.consumption.targets.length > 0) && !ignoreLinkedConsumption;
+7661:        const hasSpellSlotConsumption = !useSpirituality && this.requiresSpellSlot && this.consumption.spellSlot;
+7662:        const hasSpiritualityConsumption = hasSpiritualityConsumptionCost(this, config);
+7663:        config.consume ??= {};
+7664:        config.consume.action ??= hasActionConsumption;
+7665:        config.consume.resources ??= Array.from(this.consumption.targets.entries())
+7666:          .filter(([, target]) => (!useSpirituality || (target.type !== "spellSlots"))
+7667:            && (!target.combatOnly || this.actor.inCombat))
+7668:          .map(([index]) => index);
+7669:        config.consume.spellSlot ??= !linked && hasSpellSlotConsumption;
+7670:        if ( useSpirituality ) {
+7671:          config.consume.spellSlot = false;
+7672:          config.consume.spirituality ??= hasSpiritualityConsumption;
+7673:        }
+7674:        config.hasConsumption = hasActionConsumption || hasResourceConsumption || hasLinkedConsumption
+7675:          || (!linked && hasSpellSlotConsumption) || hasSpiritualityConsumption;
+7676:      }
+7677:
+7678:      const levelingFlag = this.item.getFlag("lotm", "spellLevel");
+7679:      if ( levelingFlag ) {
+7680:        // Handle fixed scaling from spell scrolls
+7681:        config.scaling = false;
+7682:        config.spell ??= {};
+7683:        config.spell.slot = levelingFlag.value;
+7684:      }
+7685:
+7686:      else {
+7687:        const canScale = linked ? linked.consumption.scaling.allowed : this.canScale;
+7688:        const linkedDelta = (linked?.spell?.level ?? Infinity) - this.item.system.level;
+7689:        if ( !canScale ) config.scaling = false;
+7690:        else if ( Number.isFinite(linkedDelta) ) config.scaling ??= linkedDelta;
+7691:
+7692:        if ( this.requiresSpellSlot ) {
+7693:          const { level, method } = this.item.system;
+7694:          const model = CONFIG.DND5E.spellcasting[method];
+7695:          config.spell ??= {};
+7696:          config.spell.slot ??= linked?.spell?.level
+7697:            ? `spell${linked.spell.level}`
+7698:            : (model?.getSpellSlotKey(level) ?? `spell${level}`);
+7699:          if ( useSpirituality ) {
+7700:            const defaultLevel = this.actor.system.spells?.[config.spell.slot]?.level ?? this.item.system.level;
+7701:            config.spell.sequence ??= spellLevelToSequence(defaultLevel);
+7702:          }
+7703:          const scaling = spellLevelFromUsageConfig(this, config) - this.item.system.level;
+7704:          if ( scaling > 0 ) config.scaling ??= scaling;
+7705:        }
+7706:        config.scaling ??= 0;
+7707:      }
+7708:
+7709:      if ( this.requiresConcentration && !game.settings.get("lotm", "disableConcentration") ) {
+7710:        config.concentration ??= {};
+7711:        config.concentration.begin ??= true;
+7712:        const { effects } = this.actor.concentration;
+7713:        const limit = this.actor.system.attributes?.concentration?.limit ?? 0;
+7714:        if ( limit && (limit <= effects.size) ) config.concentration.end ??= effects.find(e => {
+7715:          const data = e.flags.lotm?.item?.data ?? {};
+7716:          return (data === this.id) || (data._id === this.id);
+7717:        })?.id ?? effects.first()?.id ?? null;
+7718:      }
+7719:
+7720:      if ( linked ) {
+7721:        config.cause ??= {};
+7722:        config.cause.activity ??= linked.relativeUUID;
+7723:        config.cause.resources ??= (linked.consumption.targets.length > 0) && !ignoreLinkedConsumption;
+7724:      }
+7725:
+7726:      return config;
+7727:    }
+7728:
+7729:    /* -------------------------------------------- */
+7730:
+7731:    /**
+7732:     * Determine scaling values and update item clone if necessary.
+7733:     * @param {ActivityUseConfiguration} usageConfig        Configuration data for the activation.
+7734:     * @param {ActivityMessageConfiguration} messageConfig  Configuration data for the chat message.
+7735:     * @param {Item5e} item                                 Clone of the item that contains this activity.
+7736:     * @protected
+7737:     */
+7738:    async _prepareUsageScaling(usageConfig, messageConfig, item) {
+7739:      const levelingFlag = this.item.getFlag("lotm", "spellLevel");
+7740:      if ( levelingFlag ) {
+7741:        usageConfig.scaling = Math.max(0, levelingFlag.value - levelingFlag.base);
+7742:      } else if ( this.isSpell ) {
+7743:        const level = spellLevelFromUsageConfig(this, usageConfig);
+7744:        if ( Number.isInteger(level) && (level >= 0) ) {
+7745:          usageConfig.scaling = Math.max(0, level - item.system.level);
+7746:          foundry.utils.setProperty(messageConfig, "data.flags.lotm.use.spellLevel", level);
+7747:        }
+7748:      }
+7749:
+7750:      if ( usageConfig.scaling ) {
+7751:        foundry.utils.setProperty(messageConfig, "data.flags.lotm.scaling", usageConfig.scaling);
+7752:        if ( usageConfig.scaling !== item.flags.lotm?.scaling ) {
+7753:          item.actor._embeddedPreparation = true;
+7754:          item.updateSource({ "flags.lotm.scaling": usageConfig.scaling });
+7755:          delete item.actor._embeddedPreparation;
+7756:          item.prepareFinalAttributes();
+7757:        }
+7758:      }
+7759:    }
+7760:
+7761:    /* -------------------------------------------- */
+7762:
+7763:    /**
+7764:     * Calculate changes to actor, items, & this activity based on resource consumption.
+7765:     * @param {ActivityUseConfiguration} config                  Usage configuration.
+7766:     * @param {object} [options={}]
+7767:     * @param {boolean} [options.returnErrors=false]             Return array of errors, rather than displaying them.
+7768:     * @returns {ActivityUsageUpdates|ConsumptionError[]|false}  Updates to perform, an array of ConsumptionErrors,
+7769:     *                                                           or `false` if a consumption error occurred.
+7770:     * @protected
+7771:     */
+7772:    async _prepareUsageUpdates(config, { returnErrors=false }={}) {
+7773:      const updates = { activity: {}, actor: {}, create: [], delete: [], item: [], rolls: [] };
+7774:      if ( config.consume === false ) return updates;
+7775:      const errors = [];
+7776:      const useSpirituality = isSpiritualityConsumptionActivity(this);
+7777:
+7778:      // Handle auto consumption.
+7779:      const activationConfig = CONFIG.DND5E.activityActivationTypes[this.activation.type];
+7780:      if ( ((config.consume === true) || config.consume.action) && activationConfig?.consume ) {
+7781:        const { property } = activationConfig.consume;
+7782:        const valueProperty = `${property}.value`;
+7783:        const containsConsumption = this.consumption.targets.find(t => {
+7784:          return (t.type === "attribute") && (t.target === valueProperty);
+7785:        });
+7786:        const count = this.activation.value ?? 1;
+7787:        const current = foundry.utils.getProperty(this.actor.system, property);
+7788:        if ( current && !containsConsumption ) {
+7789:          let message;
+7790:          if ( current.value < 1 ) message = "DND5E.ACTIVATION.Warning.NoActions";
+7791:          else if ( count > current.value ) message = "DND5E.ACTIVATION.Warning.NotEnoughActions";
+7792:          if ( message ) {
+7793:            const err = new ConsumptionError(game.i18n.format(message, {
+7794:              type: activationConfig.label,
+7795:              required: formatNumber(count),
+7796:              available: formatNumber(current.value)
+7797:            }));
+7798:            errors.push(err);
+7799:          } else {
+7800:            updates.actor[`system.${property}.spent`] = current.spent + count;
+7801:          }
+7802:        }
+7803:      }
+7804:
+7805:      // Handle consumption targets
+7806:      if ( (config.consume === true) || config.consume.resources ) {
+7807:        const indexes = (config.consume === true) || (config.consume.resources === true)
+7808:          ? this.consumption.targets.keys() : config.consume.resources;
+7809:        for ( const index of indexes ) {
+7810:          const target = this.consumption.targets[index];
+7811:          if ( useSpirituality && (target?.type === "spellSlots") ) continue;
+7812:          try {
+7813:            await target.consume(config, updates);
+7814:          } catch(err) {
+7815:            if ( err instanceof ConsumptionError ) errors.push(err);
+7816:            else throw err;
+7817:          }
+7818:        }
+7819:      }
+7820:
+7821:      // Handle consumption on a linked activity
+7822:      if ( config.cause ) {
+7823:        const linkedActivity = this.getLinkedActivity(config.cause.activity);
+7824:        if ( linkedActivity ) {
+7825:          const consume = {
+7826:            resources: (config.consume === true) || (config.cause?.resources === true)
+7827:              ? linkedActivity.consumption.targets.keys() : config.cause?.resources,
+7828:            spellSlot: false
+7829:          };
+7830:          const usageConfig = foundry.utils.mergeObject(config, { consume, cause: false }, { inplace: false });
+7831:          const results = await linkedActivity._prepareUsageUpdates(usageConfig, { returnErrors: true });
+7832:          if ( foundry.utils.getType(results) === "Object" ) {
+7833:            linkedActivity._mergeActivityUpdates(results);
+7834:            foundry.utils.mergeObject(updates.actor, results.actor);
+7835:            updates.delete.push(...results.delete);
+7836:            updates.item.push(...results.item);
+7837:            updates.rolls.push(...results.rolls);
+7838:            // Mark this item for deletion if it is linked to a cast activity that will be deleted
+7839:            const otherLinkedActivity = linkedActivity.type === "forward"
+7840:              ? linkedActivity.item.system.activities.get(linkedActivity.activity.id) : linkedActivity;
+7841:            if ( updates.delete.includes(linkedActivity.item.id)
+7842:              && (this.item.getFlag("lotm", "cachedFor") === otherLinkedActivity?.relativeUUID) ) {
+7843:              updates.delete.push(this.item.id);
+7844:            }
+7845:          } else if ( results?.length ) {
+7846:            errors.push(...results);
+7847:          }
+7848:        }
+7849:      }
+7850:
+7851:      // Handle spirituality consumption for character ability usage
+7852:      else if ( useSpirituality ) {
+7853:        const shouldConsumeSpirituality = (config.consume === true) || (config.consume?.spirituality !== false);
+7854:        if ( shouldConsumeSpirituality ) {
+7855:          const cost = spiritualityCostFromUsageConfig(this, config);
+7856:          const current = Math.max(Number(this.actor.system.attributes?.spirituality?.value) || 0, 0);
+7857:          const temp = Math.max(Number(this.actor.system.attributes?.spirituality?.temp) || 0, 0);
+7858:          const available = current + temp;
+7859:          if ( available < cost ) {
+7860:            errors.push(new ConsumptionError(formatSpiritualityConsumptionWarning({
+7861:              cost,
+7862:              available
+7863:            })));
+7864:          } else if ( cost > 0 ) {
+7865:            const tempSpent = Math.min(temp, cost);
+7866:            const valueSpent = cost - tempSpent;
+7867:            updates.actor["system.attributes.spirituality.temp"] = temp - tempSpent;
+7868:            updates.actor["system.attributes.spirituality.value"] = current - valueSpent;
+7869:          }
+7870:        }
+7871:      }
+7872:
+7873:      // Handle spell slot consumption
+7874:      else if ( ((config.consume === true) || config.consume.spellSlot)
+7875:        && !useSpirituality && this.requiresSpellSlot && this.consumption.spellSlot ) {
+7876:        const spellcasting = CONFIG.DND5E.spellcasting[this.item.system.method];
+7877:        const effectiveLevel = this.item.system.level + (config.scaling ?? 0);
+7878:        const slot = config.spell?.slot ?? spellcasting?.getSpellSlotKey(effectiveLevel) ?? this.item.system.method;
+7879:        const slotData = this.actor.system.spells?.[slot];
+7880:        if ( slotData ) {
+7881:          if ( slotData.value ) {
+7882:            const newValue = Math.max(slotData.value - 1, 0);
+7883:            foundry.utils.mergeObject(updates.actor, { [`system.spells.${slot}.value`]: newValue });
+7884:          } else {
+7885:            const err = new ConsumptionError(game.i18n.format("DND5E.SpellCastNoSlots", {
+7886:              name: this.item.name, level: slotData.label
+7887:            }));
+7888:            errors.push(err);
+7889:          }
+7890:        }

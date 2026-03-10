@@ -1,0 +1,391 @@
+70190:  /* -------------------------------------------- */
+70191:
+70192:  /** @inheritDoc */
+70193:  getRollData({ deterministic=false }={}) {
+70194:    const data = super.getRollData({ deterministic });
+70195:    data.classes = {};
+70196:    data.subclasses = {};
+70197:    for ( const [identifier, cls] of Object.entries(this.parent.classes) ) {
+70198:      data.classes[identifier] = {...cls.system};
+70199:      data.classes[identifier].hitDice = cls.system.hd.denomination; // Backwards compatibility
+70200:      if ( cls.subclass ) {
+70201:        data.classes[identifier].subclass = cls.subclass.system;
+70202:        data.subclasses[cls.subclass.identifier] = { levels: cls.system.levels };
+70203:      }
+70204:    }
+70205:    return data;
+70206:  }
+70207:}
+70208:
+70209:/* -------------------------------------------- */
+70210:
+70211:/**
+70212: * Produce the schema field for a simple trait.
+70213: * @param {object} schemaOptions  Options passed to the outer schema.
+70214: * @returns {AttackBonusesData}
+70215: */
+70216:function makeAttackBonuses(schemaOptions={}) {
+70217:  return new SchemaField$k({
+70218:    attack: new FormulaField({required: true}),
+70219:    damage: new FormulaField({required: true})
+70220:  }, schemaOptions);
+70221:}
+70222:
+70223:const {
+70224:  ArrayField: ArrayField$9, BooleanField: BooleanField$c, HTMLField: HTMLField$5, IntegerSortField, NumberField: NumberField$e, SchemaField: SchemaField$j, SetField: SetField$e, StringField: StringField$n
+70225:} = foundry.data.fields;
+70226:
+70227:/**
+70228: * @import { ActorFavorites5e, CharacterActorSystemData, ResourceData } from "./_types.mjs";
+70229: */
+70230:
+70231:/**
+70232: * System data definition for Characters.
+70233: * @extends {CreatureTemplate<CharacterActorSystemData>}
+70234: * @mixes CharacterActorSystemData
+70235: */
+70236:class CharacterData extends CreatureTemplate {
+70237:
+70238:  /* -------------------------------------------- */
+70239:  /*  Model Configuration                         */
+70240:  /* -------------------------------------------- */
+70241:
+70242:  /** @override */
+70243:  static LOCALIZATION_PREFIXES = ["DND5E.BONUSES"];
+70244:
+70245:  /* -------------------------------------------- */
+70246:
+70247:  /** @inheritDoc */
+70248:  static metadata = Object.freeze(foundry.utils.mergeObject(super.metadata, {
+70249:    supportsAdvancement: true
+70250:  }, { inplace: false }));
+70251:
+70252:  /* -------------------------------------------- */
+70253:
+70254:  /** @inheritDoc */
+70255:  static _systemType = "character";
+70256:
+70257:  /* -------------------------------------------- */
+70258:
+70259:  /** @inheritDoc */
+70260:  static defineSchema() {
+70261:    return this.mergeSchema(super.defineSchema(), {
+70262:      attributes: new SchemaField$j({
+70263:        ...AttributesFields.common,
+70264:        ...AttributesFields.creature,
+70265:        hp: new SchemaField$j({
+70266:          ...AttributesFields.hitPoints,
+70267:          max: new NumberField$e({
+70268:            nullable: true, integer: true, min: 0, initial: null, label: "DND5E.HitPointsOverride",
+70269:            hint: "DND5E.HitPointsOverrideHint"
+70270:          }),
+70271:          bonuses: new SchemaField$j({
+70272:            level: new FormulaField({ deterministic: true, label: "DND5E.HitPointsBonusLevel" }),
+70273:            overall: new FormulaField({ deterministic: true, label: "DND5E.HitPointsBonusOverall" })
+70274:          })
+70275:        }, { label: "DND5E.HitPoints" }),
+70276:        spirituality: new SchemaField$j({
+70277:          value: new NumberField$e({
+70278:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpiritualityCurrent"
+70279:          }),
+70280:          max: new NumberField$e({
+70281:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpiritualityMax"
+70282:          }),
+70283:          temp: new NumberField$e({
+70284:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpiritualityTemp"
+70285:          }),
+70286:          tempmax: new NumberField$e({
+70287:            required: true, nullable: false, integer: true, initial: 0, label: "DND5E.SpiritualityTempMax"
+70288:          }),
+70289:          formula: new FormulaField({ deterministic: true, label: "DND5E.SpiritualityFormula" })
+70290:        }, { label: "DND5E.Spirituality" }),
+70291:        potency: new NumberField$e({
+70292:          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.PathwayPotency"
+70293:        }),
+70294:        resistance: new NumberField$e({
+70295:          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.PathwayResistance"
+70296:        }),
+70297:        stability: new NumberField$e({
+70298:          required: true, nullable: false, integer: true, min: 0, initial: LOTM_CORRUPTION_DEFAULT_MAX,
+70299:          label: "DND5E.PathwayStability"
+70300:        }),
+70301:        corruption: new SchemaField$j({
+70302:          value: new NumberField$e({
+70303:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CorruptionCurrent"
+70304:          }),
+70305:          max: new NumberField$e({
+70306:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CorruptionMax"
+70307:          }),
+70308:          temp: new NumberField$e({
+70309:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CorruptionTemp"
+70310:          }),
+70311:          tempmax: new NumberField$e({
+70312:            required: true, nullable: false, integer: true, initial: 0, label: "DND5E.CorruptionTempMax"
+70313:          })
+70314:        }, { label: "DND5E.Corruption" }),
+70315:        death: new RollConfigField({
+70316:          ability: false,
+70317:          success: new NumberField$e({
+70318:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.DeathSaveSuccesses"
+70319:          }),
+70320:          failure: new NumberField$e({
+70321:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.DeathSaveFailures"
+70322:          }),
+70323:          bonuses: new SchemaField$j({
+70324:            save: new FormulaField({ required: true, label: "DND5E.DeathSaveBonus" })
+70325:          })
+70326:        }, { label: "DND5E.DeathSave" }),
+70327:        inspiration: new BooleanField$c({ required: true, label: "DND5E.Inspiration" })
+70328:      }, { label: "DND5E.Attributes" }),
+70329:      pathway: new SchemaField$j({
+70330:        sequence: new NumberField$e({
+70331:          required: true, nullable: false, integer: true, min: LOTM_MIN_SEQUENCE, max: LOTM_MAX_SEQUENCE,
+70332:          initial: LOTM_MAX_SEQUENCE, label: "DND5E.PathwaySequence"
+70333:        }),
+70334:        tier: new NumberField$e({
+70335:          required: true, nullable: false, integer: true, min: 0, max: 4, initial: 0, label: "DND5E.PathwayTier"
+70336:        }),
+70337:        budget: new NumberField$e({
+70338:          required: true, nullable: false, integer: true, min: 0, initial: pathwayBudgetFromSequence(LOTM_MAX_SEQUENCE),
+70339:          label: "DND5E.PathwayBudget"
+70340:        }),
+70341:        hpBase: new NumberField$e({
+70342:          required: true, nullable: false, integer: true, min: 0, initial: pathwayHpBaseFromSequence(LOTM_MAX_SEQUENCE),
+70343:          label: "DND5E.PathwayHPBase"
+70344:        }),
+70345:        spiritualityBase: new NumberField$e({
+70346:          required: true, nullable: false, integer: true, min: 0, initial: pathwaySpiritualityBaseFromSequence(LOTM_MAX_SEQUENCE),
+70347:          label: "DND5E.PathwaySpiritualityBase"
+70348:        }),
+70349:        promotionPoints: new NumberField$e({
+70350:          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.PathwayPromotionPoints"
+70351:        }),
+70352:        durabilityAdj: new NumberField$e({
+70353:          required: true, nullable: false, integer: true, initial: 0, label: "DND5E.PathwayDurabilityAdj"
+70354:        }),
+70355:        spiritualityAdj: new NumberField$e({
+70356:          required: true, nullable: false, integer: true, initial: 0, label: "DND5E.PathwaySpiritualityAdj"
+70357:        })
+70358:      }, { label: "DND5E.Pathway" }),
+70359:      bastion: new SchemaField$j({
+70360:        name: new StringField$n({ required: true }),
+70361:        description: new HTMLField$5()
+70362:      }),
+70363:      details: new SchemaField$j({
+70364:        ...DetailsField.common,
+70365:        ...DetailsField.creature,
+70366:        background: new LocalDocumentField(foundry.documents.BaseItem, {
+70367:          required: true, fallback: true, label: "DND5E.Background"
+70368:        }),
+70369:        originalClass: new StringField$n({ required: true, label: "DND5E.ClassOriginal" }),
+70370:        xp: new SchemaField$j({
+70371:          value: new NumberField$e({
+70372:            required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.ExperiencePoints.Current"
+70373:          })
+70374:        }, { label: "DND5E.ExperiencePoints.Label" }),
+70375:        appearance: new StringField$n({ required: true, label: "DND5E.Appearance" }),
+70376:        trait: new StringField$n({ required: true, label: "DND5E.PersonalityTraits" }),
+70377:        gender: new StringField$n({ label: "DND5E.Gender" }),
+70378:        eyes: new StringField$n({ label: "DND5E.Eyes" }),
+70379:        height: new StringField$n({ label: "DND5E.Height" }),
+70380:        faith: new StringField$n({ label: "DND5E.Faith" }),
+70381:        hair: new StringField$n({ label: "DND5E.Hair" }),
+70382:        skin: new StringField$n({ label: "DND5E.Skin" }),
+70383:        age: new StringField$n({ label: "DND5E.Age" }),
+70384:        weight: new StringField$n({ label: "DND5E.Weight" })
+70385:      }, { label: "DND5E.Details" }),
+70386:      traits: new SchemaField$j({
+70387:        ...TraitsField.common,
+70388:        ...TraitsField.creature,
+70389:        weaponProf: new SimpleTraitField({
+70390:          mastery: new SchemaField$j({
+70391:            value: new SetField$e(new StringField$n()),
+70392:            bonus: new SetField$e(new StringField$n())
+70393:          })
+70394:        }, { label: "DND5E.TraitWeaponProf" }),
+70395:        armorProf: new SimpleTraitField({}, { label: "DND5E.TraitArmorProf" })
+70396:      }, { label: "DND5E.Traits" }),
+70397:      resources: new SchemaField$j({
+70398:        primary: makeResourceField({ label: "DND5E.ResourcePrimary" }),
+70399:        secondary: makeResourceField({ label: "DND5E.ResourceSecondary" }),
+70400:        tertiary: makeResourceField({ label: "DND5E.ResourceTertiary" })
+70401:      }, { label: "DND5E.Resources" }),
+70402:      favorites: new ArrayField$9(new SchemaField$j({
+70403:        type: new StringField$n({ required: true, blank: false }),
+70404:        id: new StringField$n({ required: true, blank: false }),
+70405:        sort: new IntegerSortField()
+70406:      }), { label: "DND5E.Favorites" })
+70407:    });
+70408:  }
+70409:
+70410:  /* -------------------------------------------- */
+70411:  /*  Data Migration                              */
+70412:  /* -------------------------------------------- */
+70413:
+70414:  /** @inheritDoc */
+70415:  static _migrateData(source) {
+70416:    super._migrateData(source);
+70417:    AttributesFields._migrateInitiative(source.attributes);
+70418:  }
+70419:
+70420:  /* -------------------------------------------- */
+70421:  /*  Data Preparation                            */
+70422:  /* -------------------------------------------- */
+70423:
+70424:  /** @inheritDoc */
+70425:  prepareBaseData() {
+70426:    this.attributes.hd = new HitDice(this.parent);
+70427:    this.details.level = 0;
+70428:    this.attributes.attunement.value = 0;
+70429:    this.pathway ??= {};
+70430:
+70431:    for ( const item of this.parent.items ) {
+70432:      if ( item.type === "class" ) this.details.level += item.system.levels;
+70433:    }
+70434:
+70435:    // Character proficiency bonus and pathway progression stats
+70436:    const pathwayStats = actorPathwayStats(this.parent);
+70437:    this.pathway.sequence = pathwayStats.sequence;
+70438:    this.pathway.tier = pathwayStats.tier;
+70439:    this.pathway.budget = pathwayStats.budget;
+70440:    this.pathway.hpBase = pathwayStats.hpBase;
+70441:    this.pathway.spiritualityBase = pathwayStats.spiritualityBase;
+70442:    this.pathway.promotionPoints = pathwayStats.promotionPoints;
+70443:    this.attributes.prof = pathwayStats.sequenceBonus;
+70444:    this.attributes.potency = pathwayStats.potency;
+70445:    this.attributes.resistance = pathwayStats.resistance;
+70446:    this.attributes.stability = LOTM_CORRUPTION_DEFAULT_MAX - (Number(this.attributes?.corruption?.value) || 0);
+70447:
+70448:    // Experience required for next level
+70449:    const { xp, level } = this.details;
+70450:    xp.max = level >= CONFIG.DND5E.maxLevel ? Infinity : this.parent.getLevelExp(level || 1);
+70451:    xp.min = level ? this.parent.getLevelExp(level - 1) : 0;
+70452:    if ( Number.isFinite(xp.max) ) {
+70453:      const required = xp.max - xp.min;
+70454:      const pct = Math.round((xp.value - xp.min) * 100 / required);
+70455:      xp.pct = Math.clamp(pct, 0, 100);
+70456:    } else if ( game.settings.get("lotm", "levelingMode") === "xpBoons" ) {
+70457:      const overflow = xp.value - this.parent.getLevelExp(CONFIG.DND5E.maxLevel);
+70458:      xp.boonsEarned = Math.max(0, Math.floor(overflow / CONFIG.DND5E.epicBoonInterval));
+70459:      const progress = overflow - (CONFIG.DND5E.epicBoonInterval * xp.boonsEarned);
+70460:      xp.pct = Math.clamp(Math.round((progress / CONFIG.DND5E.epicBoonInterval) * 100), 0, 100);
+70461:    } else {
+70462:      xp.pct = 100;
+70463:    }
+70464:
+70465:    AttributesFields.prepareBaseArmorClass.call(this);
+70466:    AttributesFields.prepareBaseEncumbrance.call(this);
+70467:  }
+70468:
+70469:  /* -------------------------------------------- */
+70470:
+70471:  /**
+70472:   * Prepare movement & senses values derived from race item.
+70473:   */
+70474:  prepareEmbeddedData() {
+70475:    super.prepareEmbeddedData();
+70476:    if ( this.details.race instanceof Item ) {
+70477:      AttributesFields.prepareRace.call(this, this.details.race);
+70478:      this.details.type = this.details.race.system.type;
+70479:    } else {
+70480:      this.details.type = new CreatureTypeField({ swarm: false }).initialize({ value: "humanoid" }, this);
+70481:    }
+70482:    for ( const key of Object.keys(CONFIG.DND5E.movementTypes) ) this.attributes.movement[key] ??= 0;
+70483:    for ( const key of Object.keys(CONFIG.DND5E.senses) ) this.attributes.senses[key] ??= 0;
+70484:    this.attributes.movement.units ??= defaultUnits("length");
+70485:    this.attributes.senses.units ??= defaultUnits("length");
+70486:  }
+70487:
+70488:  /* -------------------------------------------- */
+70489:
+70490:  /**
+70491:   * Prepare remaining character data.
+70492:   */
+70493:  prepareDerivedData() {
+70494:    const rollData = this.parent.getRollData({ deterministic: true });
+70495:    const { originalSaves, originalSkills } = this.parent.getOriginalStats();
+70496:
+70497:    AttributesFields.prepareExhaustionLevel.call(this);
+70498:    this.prepareAbilities({ rollData, originalSaves });
+70499:    this.prepareSkills({ rollData, originalSkills });
+70500:    this.prepareTools({ rollData });
+70501:    AttributesFields.prepareArmorClass.call(this, rollData);
+70502:    AttributesFields.prepareConcentration.call(this, rollData);
+70503:    AttributesFields.prepareEncumbrance.call(this, rollData);
+70504:    AttributesFields.prepareInitiative.call(this, rollData);
+70505:    AttributesFields.prepareMovement.call(this, rollData);
+70506:    AttributesFields.prepareSpellcastingAbility.call(this);
+70507:    TraitsField.prepareLanguages.call(this);
+70508:    TraitsField.prepareResistImmune.call(this);
+70509:
+70510:    // Hit Points
+70511:    const hpOptions = {};
+70512:    if ( this.attributes.hp.max === null ) {
+70513:      hpOptions.mod = this.abilities[CONFIG.DND5E.defaultAbilities.hitPoints ?? "con"]?.mod ?? 0;
+70514:      hpOptions.bonus = simplifyBonus(this.attributes.hp.bonuses.overall, rollData);
+70515:      if ( this.parent.type === "character" ) {
+70516:        hpOptions.pathwayBase = Number(this.pathway?.hpBase) || pathwayHpBaseFromSequence(this.pathway?.sequence);
+70517:        hpOptions.pathwayTier = Number(this.pathway?.tier) || 0;
+70518:      } else {
+70519:        hpOptions.advancement = Object.values(this.parent.classes)
+70520:          .map(c => c.advancement.byType.HitPoints?.[0]).filter(a => a);
+70521:        hpOptions.bonus += simplifyBonus(this.attributes.hp.bonuses.level, rollData) * this.details.level;
+70522:      }
+70523:    }
+70524:    AttributesFields.prepareHitPoints.call(this, this.attributes.hp, hpOptions);
+70525:    AttributesFields.prepareSpirituality.call(this);
+70526:    AttributesFields.prepareCorruption.call(this);
+70527:    this.attributes.stability = Math.max((Number(this.attributes.corruption?.effectiveMax) || LOTM_CORRUPTION_DEFAULT_MAX)
+70528:      - (Number(this.attributes.corruption?.value) || 0), 0);
+70529:  }
+70530:
+70531:  /* -------------------------------------------- */
+70532:  /*  Helpers                                     */
+70533:  /* -------------------------------------------- */
+70534:
+70535:  /**
+70536:   * Level used to determine cantrip scaling.
+70537:   * @param {Item5e} spell  Spell for which to fetch the cantrip level.
+70538:   * @returns {number}
+70539:   */
+70540:  cantripLevel(spell) {
+70541:    return this.details.level;
+70542:  }
+70543:
+70544:  /* -------------------------------------------- */
+70545:
+70546:  /**
+70547:   * Checks whether the item with the given relative UUID has been favorited
+70548:   * @param {string} favoriteId  The relative UUID of the item to check.
+70549:   * @returns {boolean}
+70550:   */
+70551:  hasFavorite(favoriteId) {
+70552:    return !!this.favorites.find(f => f.id === favoriteId);
+70553:  }
+70554:
+70555:  /* -------------------------------------------- */
+70556:
+70557:  /**
+70558:   * Add a favorite item to this actor.
+70559:   * If the given item is already favorite, this method has no effect.
+70560:   * @param {ActorFavorites5e} favorite  The favorite to add.
+70561:   * @returns {Promise<Actor5e>}
+70562:   * @throws If the item intended to be favorited does not belong to this actor.
+70563:   */
+70564:  addFavorite(favorite) {
+70565:    if ( this.hasFavorite(favorite.id) ) return Promise.resolve(this.parent);
+70566:
+70567:    if ( favorite.id.startsWith(".") && fromUuidSync(favorite.id, { relative: this.parent }) === null ) {
+70568:      // Assume that an ID starting with a "." is a relative ID.
+70569:      throw new Error(`The item with id ${favorite.id} is not owned by actor ${this.parent.id}`);
+70570:    }
+70571:
+70572:    let maxSort = 0;
+70573:    const favorites = this.favorites.map(f => {
+70574:      if ( f.sort > maxSort ) maxSort = f.sort;
+70575:      return { ...f };
+70576:    });
+70577:    favorites.push({ ...favorite, sort: maxSort + CONST.SORT_INTEGER_DENSITY });
+70578:    return this.parent.update({ "system.favorites": favorites });
+70579:  }
+70580:

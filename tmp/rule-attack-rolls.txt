@@ -1,0 +1,5 @@
+JOURNAL:phbD20Tests00000
+PAGE:Attack Rolls (URxmJwlkoRnD517f)
+TYPE:text
+
+Attack Rolls Pathway attack rolls use the normal d20 flow with sequence-based scaling: Attack = d20 + relevant ability mod + SB + feature attack bonus Cross-Tier Modifiers Let DeltaT = attacker tier - defender tier. DeltaT = +1: attacker gains +2 to attack/DC checks for the effect. DeltaT &gt;= +2: attacker gains +5 to attack/DC checks. DeltaT = -1: attacker suffers -2 to attack/DC checks. DeltaT = -2: attacker suffers -5 to attack/DC checks. At DeltaT &lt;= -3, incapacitating or commanding effects require explicit sequence-piercing support; otherwise they fail to impose hard control.

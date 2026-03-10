@@ -1,0 +1,161 @@
+55780:      icon: "icons/svg/aura.svg"
+55781:    }, { parent: this.actor, renderSheet: true });
+55782:
+55783:    const actor = this.inventorySource;
+55784:    const types = this._addDocumentItemTypes(this.tabGroups.primary)
+55785:      .filter(type => !CONFIG.Item.dataModels[type].metadata?.singleton || !actor.itemTypes[type].length);
+55786:    if ( types.length > 1 ) return Item.implementation.createDialog({}, { types, parent: actor });
+55787:
+55788:    const type = types[0];
+55789:    return Item.implementation.create({
+55790:      type, name: game.i18n.format("DOCUMENT.New", { type: game.i18n.format(CONFIG.Item.typeLabels[type]) })
+55791:    }, { parent: actor, renderSheet: true });
+55792:  }
+55793:
+55794:  /* -------------------------------------------- */
+55795:
+55796:  /**
+55797:   * Determine the types of items that can be added depending on the current tab.
+55798:   * @param {string} tab  Currently viewed tab.
+55799:   * @returns {string[]}  Types of items to allow to create.
+55800:   */
+55801:  _addDocumentItemTypes(tab) {
+55802:    switch ( tab ) {
+55803:      case "features":
+55804:        return this.actor.itemTypes.class.length
+55805:          ? ["feat", "race", "background"]
+55806:          : ["feat", "race", "background", "class"];
+55807:      case "inventory": return Object.entries(CONFIG.Item.dataModels)
+55808:        .filter(([type, model]) => ("inventorySection" in model) && (type !== "backpack"))
+55809:        .map(([type]) => type);
+55810:      case "spells": return ["spell"];
+55811:      default: return [];
+55812:    }
+55813:  }
+55814:
+55815:  /* -------------------------------------------- */
+55816:
+55817:  /**
+55818:   * Respond to a new level being selected from the level selector.
+55819:   * @param {Event} event  The originating change.
+55820:   * @returns {Promise<any>}
+55821:   * @private
+55822:   */
+55823:  async #changeLevel(event) {
+55824:    let delta = Number(event.target.value);
+55825:    const classId = event.target.closest("[data-item-id]")?.dataset.itemId;
+55826:    if ( !delta || !classId ) return;
+55827:    const classItem = this.actor.items.get(classId);
+55828:    if ( !classItem || (classItem.type !== "class") ) return;
+55829:    const currentLevel = normalizePathwayClassLevel(classItem.system.levels);
+55830:    const maxClassLevel = actorPathwayClassLevelCap(this.actor, classItem.id);
+55831:    const targetLevel = Math.clamp(currentLevel + delta, LOTM_PATHWAY_MIN_CLASS_LEVEL, maxClassLevel);
+55832:    if ( targetLevel === currentLevel ) {
+55833:      ui.notifications.warn("DND5E.MaxPathwaySequenceExceededWarn", { localize: true });
+55834:      return;
+55835:    }
+55836:    delta = targetLevel - currentLevel;
+55837:    if ( !game.settings.get("lotm", "disableAdvancements") ) {
+55838:      const manager = AdvancementManager.forLevelChange(this.actor, classId, delta);
+55839:      this._applyPathwayAdvancementGuardrails?.(manager);
+55840:      if ( manager.steps.length ) {
+55841:        if ( delta > 0 ) return manager.render({ force: true });
+55842:        try {
+55843:          const shouldRemoveAdvancements = await AdvancementConfirmationDialog.forLevelDown(classItem);
+55844:          if ( shouldRemoveAdvancements ) return manager.render({ force: true });
+55845:        }
+55846:        catch(err) {
+55847:          return;
+55848:        }
+55849:      }
+55850:    }
+55851:    classItem.update({ "system.levels": targetLevel });
+55852:  }
+55853:
+55854:  /* -------------------------------------------- */
+55855:
+55856:  /** @inheritDoc */
+55857:  changeTab(tab, group, options) {
+55858:    super.changeTab(tab, group, options);
+55859:    if ( group !== "primary" ) return;
+55860:
+55861:    // Adjust create child tooltip
+55862:    const createChild = this.element.querySelector(".create-child");
+55863:    createChild?.setAttribute("aria-label", game.i18n.format("SIDEBAR.Create", {
+55864:      type: game.i18n.localize(`DOCUMENT.${tab === "effects" ? "ActiveEffect" : "Item"}`)
+55865:    }));
+55866:
+55867:    // Toggle sidebar
+55868:    const sidebarCollapsed = game.user.getFlag("lotm", this._sidebarCollapsedKeyPath);
+55869:    if ( sidebarCollapsed !== undefined ) this._toggleSidebar(sidebarCollapsed);
+55870:  }
+55871:
+55872:  /* -------------------------------------------- */
+55873:
+55874:  /**
+55875:   * Handle following a warning link.
+55876:   * @this {BaseActorSheet}
+55877:   * @param {Event} event         Triggering click event.
+55878:   * @param {HTMLElement} target  Button that was clicked.
+55879:   */
+55880:  static async #inspectWarning(event, target) {
+55881:    if ( this._inspectWarning(event, target) === false ) return;
+55882:    switch ( target.dataset.target ) {
+55883:      case "armor":
+55884:        new ArmorClassConfig({ document: this.actor }).render({ force: true });
+55885:        break;
+55886:      default:
+55887:        const item = await fromUuid(target.dataset.target);
+55888:        item?.sheet.render({ force: true });
+55889:        break;
+55890:    }
+55891:  }
+55892:
+55893:  /* -------------------------------------------- */
+55894:
+55895:  /**
+55896:   * Handle following a warning link.
+55897:   * @param {Event} event         Triggering click event.
+55898:   * @param {HTMLElement} target  Button that was clicked.
+55899:   * @returns {any}               Return `false` to prevent default behavior.
+55900:   * @protected
+55901:   */
+55902:  _inspectWarning(event, target) {}
+55903:
+55904:  /* -------------------------------------------- */
+55905:
+55906:  /**
+55907:   * Handle input changes to numeric form fields, allowing them to accept delta-typed inputs.
+55908:   * @param {Event} event  Triggering event.
+55909:   * @protected
+55910:   */
+55911:  _onChangeInputDelta(event) {
+55912:    const input = event.target;
+55913:    const { itemId } = input.closest("[data-item-id]")?.dataset ?? {};
+55914:    const actor = input.closest(".inventory-element") ? this.inventorySource : this.actor;
+55915:    const target = actor.items.get(itemId) ?? actor;
+55916:    const { activityId } = input.closest("[data-activity-id]")?.dataset ?? {};
+55917:    const activity = target?.system.activities?.get(activityId);
+55918:    const result = parseInputDelta(input, activity ?? target);
+55919:    if ( (result !== undefined) && input.dataset.name ) {
+55920:      event.stopPropagation();
+55921:      // Special case handling for Item uses.
+55922:      if ( input.dataset.name === "system.uses.value" ) {
+55923:        target.update({ "system.uses.spent": target.system.uses.max - result });
+55924:      } else if ( activity && (input.dataset.name === "uses.value") ) {
+55925:        target.updateActivity(activityId, { "uses.spent": activity.uses.max - result });
+55926:      }
+55927:      else target.update({ [input.dataset.name]: result });
+55928:    }
+55929:  }
+55930:
+55931:  /* -------------------------------------------- */
+55932:
+55933:  /**
+55934:   * Handle editing an image via the file browser.
+55935:   * @this {BaseActorSheet}
+55936:   * @param {PointerEvent} event  The triggering event.
+55937:   * @param {HTMLElement} target  The action target.
+55938:   * @returns {Promise<void>}
+55939:   */
+55940:  static async #onEditImage(event, target) {

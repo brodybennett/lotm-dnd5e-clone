@@ -1,0 +1,251 @@
+40690:      heavilyEncumbered: Number.isFinite(encumbrance.max)
+40691:        ? Math.clamp((encumbrance.thresholds.heavilyEncumbered * 100) / encumbrance.max, 0, 100)
+40692:        : 0
+40693:    };
+40694:    encumbrance.pct = Math.clamp((encumbrance.value * 100) / encumbrance.max, 0, 100);
+40695:    encumbrance.encumbered = encumbrance.value > encumbrance.heavilyEncumbered;
+40696:  }
+40697:
+40698:  /* -------------------------------------------- */
+40699:
+40700:  /**
+40701:   * Adjust exhaustion level based on Active Effects.
+40702:   * @this {CharacterData|NPCData}
+40703:   */
+40704:  static prepareExhaustionLevel() {
+40705:    const exhaustion = this.parent.effects.get(ActiveEffect5e.ID.EXHAUSTION);
+40706:    const level = exhaustion?.getFlag("lotm", "exhaustionLevel");
+40707:    this.attributes.exhaustion = Number.isFinite(level) ? level : 0;
+40708:  }
+40709:
+40710:  /* -------------------------------------------- */
+40711:
+40712:  /**
+40713:   * Calculate maximum hit points, taking an provided advancement into consideration.
+40714:   * @param {object} hp                 HP object to calculate.
+40715:   * @param {object} [options={}]
+40716:   * @param {HitPointsAdvancement[]} [options.advancement=[]]  Advancement items from which to get hit points per-level.
+40717:   * @param {number} [options.bonus=0]  Additional bonus to add atop the calculated value.
+40718:   * @param {number} [options.mod=0]    Modifier for the ability to add to hit points from advancement.
+40719:   * @param {number} [options.pathwayBase]     Explicit pathway base HP to use.
+40720:   * @param {number} [options.pathwayTier=0]   Pathway tier index.
+40721:   * @this {ActorDataModel}
+40722:   */
+40723:  static prepareHitPoints(hp, { advancement=[], mod=0, bonus=0, pathwayBase, pathwayTier=0 }={}) {
+40724:    const hasPathwayBase = Number.isFinite(Number(pathwayBase));
+40725:    const tier = Math.max(Math.floor(Number(pathwayTier) || 0), 0);
+40726:    const base = hasPathwayBase
+40727:      ? Math.max(Math.floor(Number(pathwayBase)), 0)
+40728:      : advancement.reduce((total, advancement) => total + advancement.getAdjustedTotal(mod), 0);
+40729:    const modBonus = hasPathwayBase ? (mod * (3 + tier)) : 0;
+40730:    hp.max = (hp.max ?? 0) + base + bonus;
+40731:    if ( hasPathwayBase ) hp.max += modBonus;
+40732:    if ( this.parent.hasConditionEffect("halfHealth") ) hp.max = Math.floor(hp.max * 0.5);
+40733:
+40734:    hp.effectiveMax = Math.max(hp.max + (hp.temp ?? 0) + (hp.tempmax ?? 0), 0);
+40735:    hp.value = Math.min(hp.value, hp.effectiveMax);
+40736:    hp.damage = hp.effectiveMax - hp.value;
+40737:    hp.pct = Math.clamp(hp.effectiveMax ? (hp.value / hp.effectiveMax) * 100 : 0, 0, 100);
+40738:  }
+40739:
+40740:  /* -------------------------------------------- */
+40741:
+40742:  /**
+40743:   * Prepare spirituality data for an actor.
+40744:   * @this {CharacterData}
+40745:   */
+40746:  static prepareSpirituality() {
+40747:    const spirituality = this.attributes.spirituality ??= {};
+40748:    const sequence = Number.isFinite(this.pathway?.sequence)
+40749:      ? normalizePathwaySequence(this.pathway.sequence)
+40750:      : LOTM_MAX_SEQUENCE;
+40751:    const tier = Number.isFinite(this.pathway?.tier) ? Math.max(Math.floor(this.pathway.tier), 0) : 0;
+40752:    const spiritualityBase = Number.isFinite(this.pathway?.spiritualityBase)
+40753:      ? Math.max(Math.floor(this.pathway.spiritualityBase), 0)
+40754:      : pathwaySpiritualityBaseFromSequence(sequence);
+40755:    const spiritualityModifier = Number(this.abilities?.wis?.mod) || 0;
+40756:    spirituality.max = Math.max(spiritualityBase + (spiritualityModifier * (2 + tier)), 0);
+40757:    spirituality.temp = Math.max(Number(spirituality.temp) || 0, 0);
+40758:    spirituality.tempmax = Number(spirituality.tempmax) || 0;
+40759:    spirituality.effectiveMax = Math.max(spirituality.max + spirituality.temp + spirituality.tempmax, 0);
+40760:    spirituality.value = Math.clamp(Number(spirituality.value) || 0, 0, spirituality.effectiveMax);
+40761:    spirituality.pct = Math.clamp(
+40762:      spirituality.effectiveMax ? (spirituality.value / spirituality.effectiveMax) * 100 : 0, 0, 100
+40763:    );
+40764:    spirituality.formula = game.i18n.localize("DND5E.SpiritualityDerivedFormulaPathway");
+40765:  }
+40766:
+40767:  /* -------------------------------------------- */
+40768:
+40769:  /**
+40770:   * Prepare corruption data for an actor.
+40771:   * @this {CharacterData}
+40772:   */
+40773:  static prepareCorruption() {
+40774:    const corruption = this.attributes.corruption ??= {};
+40775:    const isCharacter = this.parent?.type === "character";
+40776:    const rawMax = Number(corruption.max);
+40777:    const rawValue = Number(corruption.value);
+40778:    const baseMax = isCharacter
+40779:      ? LOTM_CORRUPTION_DEFAULT_MAX
+40780:      : (Number.isFinite(rawMax) ? rawMax : (Number.isFinite(rawValue) ? rawValue : 0));
+40781:    corruption.max = Math.max(baseMax, 0);
+40782:    corruption.temp = Math.max(Number(corruption.temp) || 0, 0);
+40783:    corruption.tempmax = Number(corruption.tempmax) || 0;
+40784:    corruption.effectiveMax = Math.max(corruption.max + corruption.temp + corruption.tempmax, 0);
+40785:    corruption.value = Math.clamp(Number.isFinite(rawValue) ? rawValue : 0, 0, corruption.effectiveMax);
+40786:    corruption.pct = Math.clamp(corruption.effectiveMax ? (corruption.value / corruption.effectiveMax) * 100 : 0, 0, 100);
+40787:    if ( isCharacter ) {
+40788:      const thresholds = LOTM_CORRUPTION_THRESHOLDS.map(threshold => {
+40789:        return {
+40790:          value: threshold,
+40791:          reached: corruption.value >= threshold
+40792:        };
+40793:      });
+40794:      corruption.thresholds = thresholds;
+40795:      corruption.stability = Math.clamp(corruption.effectiveMax - corruption.value, 0, corruption.effectiveMax);
+40796:    }
+40797:  }
+40798:
+40799:  /* -------------------------------------------- */
+40800:
+40801:  /**
+40802:   * Prepare the initiative data for an actor.
+40803:   * @this {CharacterData|NPCData|VehicleData}
+40804:   * @param {object} rollData  The Actor's roll data.
+40805:   */
+40806:  static prepareInitiative(rollData) {
+40807:    const init = this.attributes.init ??= {};
+40808:    const flags = this.parent.flags.lotm ?? {};
+40809:    const globalCheckBonus = simplifyBonus(this.bonuses?.abilities?.check, rollData);
+40810:
+40811:    // Compute initiative modifier
+40812:    const abilityId = init.ability || CONFIG.DND5E.defaultAbilities.initiative;
+40813:    const ability = this.abilities?.[abilityId] || {};
+40814:    init.mod = ability.mod ?? 0;
+40815:
+40816:    // Initiative proficiency
+40817:    const isLegacy = game.settings.get("lotm", "rulesVersion") === "legacy";
+40818:    const prof = this.attributes.prof ?? 0;
+40819:    const joat = flags.jackOfAllTrades && isLegacy;
+40820:    const ra = this.parent._isRemarkableAthlete(abilityId);
+40821:    const alert = flags.initiativeAlert && !isLegacy;
+40822:    init.prof = new Proficiency(prof, alert ? 1 : (joat || ra) ? 0.5 : 0, !ra);
+40823:
+40824:    // Adjust rolling mode
+40825:    if ( (flags.remarkableAthlete && !isLegacy) || this.parent.hasConditionEffect("initiativeAdvantage") ) {
+40826:      AdvantageModeField.setMode(this, "attributes.init.roll.mode", 1);
+40827:    }
+40828:    if ( this.parent.hasConditionEffect("initiativeDisadvantage") ) {
+40829:      AdvantageModeField.setMode(this, "attributes.init.roll.mode", -1);
+40830:    }
+40831:
+40832:    // Total initiative includes all numeric terms
+40833:    const initBonus = simplifyBonus(init.bonus, rollData);
+40834:    const abilityBonus = simplifyBonus(ability.bonuses?.check, rollData);
+40835:    const quality = this.attributes.quality?.value ?? 0;
+40836:    const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
+40837:    const pathwayPotency = this.parent?.type === "character" ? Math.max(Number(this.attributes?.potency) || 0, 0) : 0;
+40838:
+40839:    // Sequence-based reaction edge:
+40840:    // +0 at low sequence, scaling up to +6 at Sequence 0 for equal-attribute comparisons.
+40841:    const pathwayInitiativeEdge = this.parent?.type === "character"
+40842:      ? Math.clamp(pathwayTier + Math.floor(Math.max(pathwayPotency - 2, 0) / 3), 0, 6)
+40843:      : 0;
+40844:
+40845:    // Instability pressure from corruption offsets some high-tier reaction speed.
+40846:    const corruptionValue = Math.max(Number(this.attributes?.corruption?.value) || 0, 0);
+40847:    let instabilityPenalty = 0;
+40848:    if ( corruptionValue >= 100 ) instabilityPenalty = -4;
+40849:    else if ( corruptionValue >= 75 ) instabilityPenalty = -2;
+40850:    else if ( corruptionValue >= 50 ) instabilityPenalty = -1;
+40851:    init.total = init.mod + initBonus + abilityBonus + globalCheckBonus + quality
+40852:      + (flags.initiativeAlert && isLegacy ? 5 : 0)
+40853:      + (Number.isNumeric(init.prof.term) ? init.prof.flat : 0)
+40854:      + pathwayInitiativeEdge
+40855:      + instabilityPenalty;
+40856:    init.score = CONFIG.DND5E.skillPassive.base + init.total + (init.roll.mode * CONFIG.DND5E.skillPassive.modifier);
+40857:  }
+40858:
+40859:  /* -------------------------------------------- */
+40860:
+40861:  /**
+40862:   * Modify movement speeds taking exhaustion and any other conditions into account.
+40863:   * @this {CharacterData|NPCData}
+40864:   * @param {object} rollData  The Actor's roll data.
+40865:   */
+40866:  static prepareMovement(rollData=this.parent.getRollData()) {
+40867:    const statuses = this.parent.statuses;
+40868:    const noMovement = this.parent.hasConditionEffect("noMovement");
+40869:    const crawl = this.parent.hasConditionEffect("crawl");
+40870:    const units = this.attributes.movement.units ??= defaultUnits("length");
+40871:
+40872:    // Ensure pathway characters always have a functional baseline walk speed
+40873:    // even if no species/race movement has been assigned yet.
+40874:    if ( this.parent?.type === "character" ) {
+40875:      const currentWalk = Number(this.attributes.movement.walk);
+40876:      if ( !Number.isFinite(currentWalk) || (currentWalk <= 0) ) {
+40877:        const defaultWalk = convertLength(30, CONFIG.DND5E.defaultUnits.length.imperial, units);
+40878:        this.attributes.movement.walk = Math.max(defaultWalk, 0);
+40879:      }
+40880:    }
+40881:
+40882:    for ( const type of Object.keys(CONFIG.DND5E.movementTypes) ) {
+40883:      if ( noMovement || (crawl && (type !== "walk")) ) this.attributes.movement[type] = 0;
+40884:      else this.attributes.movement[type] = Math.max(0, simplifyBonus(this.attributes.movement[type], rollData));
+40885:      if ( type === "walk" ) this.attributes.movement.speed = this.attributes.movement.walk;
+40886:    }
+40887:
+40888:    const halfMovement = this.parent.hasConditionEffect("halfMovement");
+40889:    const encumbered = statuses.has("encumbered");
+40890:    const heavilyEncumbered = statuses.has("heavilyEncumbered");
+40891:    const exceedingCarryingCapacity = statuses.has("exceedingCarryingCapacity");
+40892:    const pathwayMobilityEdge = this.parent?.type === "character"
+40893:      ? convertLength(pathwayMovementEdgeFeetFromSequence(this.pathway?.sequence), CONFIG.DND5E.defaultUnits.length.imperial, units)
+40894:      : 0;
+40895:    const instabilityPenalty = this.parent?.type === "character"
+40896:      ? convertLength(
+40897:        corruptionMovementPenaltyFeet(this.attributes?.corruption?.value),
+40898:        CONFIG.DND5E.defaultUnits.length.imperial,
+40899:        units
+40900:      )
+40901:      : 0;
+40902:    let reduction = game.settings.get("lotm", "rulesVersion") === "modern"
+40903:      ? (this.attributes.exhaustion ?? 0) * (CONFIG.DND5E.conditionTypes.exhaustion?.reduction?.speed ?? 0) : 0;
+40904:    reduction = convertLength(reduction, CONFIG.DND5E.defaultUnits.length.imperial, units);
+40905:    const bonus = simplifyBonus(this.attributes.movement.bonus, rollData);
+40906:    this.attributes.movement.pathwayEdge = pathwayMobilityEdge;
+40907:    this.attributes.movement.instabilityPenalty = instabilityPenalty;
+40908:    this.attributes.movement.max = 0;
+40909:    for ( const type of Object.keys(CONFIG.DND5E.movementTypes) ) {
+40910:      let speed = Math.max(0, this.attributes.movement[type] - reduction);
+40911:      if ( speed ) {
+40912:        speed = Math.max(0, speed + bonus + pathwayMobilityEdge - instabilityPenalty);
+40913:        if ( halfMovement ) speed *= 0.5;
+40914:        if ( heavilyEncumbered ) {
+40915:          speed = Math.max(0, speed - (CONFIG.DND5E.encumbrance.speedReduction.heavilyEncumbered[units] ?? 0));
+40916:        } else if ( encumbered ) {
+40917:          speed = Math.max(0, speed - (CONFIG.DND5E.encumbrance.speedReduction.encumbered[units] ?? 0));
+40918:        }
+40919:        if ( exceedingCarryingCapacity ) {
+40920:          speed = Math.min(speed, CONFIG.DND5E.encumbrance.speedReduction.exceedingCarryingCapacity[units] ?? 0);
+40921:        }
+40922:      }
+40923:      this.attributes.movement[type] = speed;
+40924:      this.attributes.movement.max = Math.max(speed, this.attributes.movement.max);
+40925:      if ( type === "walk" ) this.attributes.movement.speed = speed;
+40926:    }
+40927:    const baseSpeed = this._source.attributes.movement.walk || this.attributes.movement.fromSpecies?.walk;
+40928:    this.attributes.movement.slowed = this.attributes.movement.walk <= (simplifyBonus(baseSpeed, rollData) / 2);
+40929:  }
+40930:
+40931:  /* -------------------------------------------- */
+40932:
+40933:  /**
+40934:   * Apply movement and sense changes based on a race item. This method should be called during
+40935:   * the `prepareEmbeddedData` step of data preparation.
+40936:   * @param {Item5e} race                    Race item from which to get the stats.
+40937:   * @param {object} [options={}]
+40938:   * @param {boolean} [options.force=false]  Override any values on the actor.
+40939:   * @this {CharacterData|NPCData}
+40940:   */

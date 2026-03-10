@@ -1,0 +1,401 @@
+57190:      { columns, id: "passive", label: "DND5E.FeaturePassive", order: 200, groups: { activation: "passive" } },
+57191:      ...Object.values(this.actor.classes ?? {})
+57192:        .sort((a, b) => b.system.levels - a.system.levels)
+57193:        .map((cls, i) => {
+57194:          return {
+57195:            columns, id: cls.identifier, order: i * 100, groups: { origin: cls.identifier },
+57196:            label: game.i18n.format("DND5E.FeaturesClass", { class: cls.name })
+57197:          };
+57198:        }),
+57199:      this.actor.system.details.race instanceof Item5e ? {
+57200:        columns, id: "species", label: "DND5E.Species.Features", order: 1000, groups: { origin: "species" }
+57201:      } : null,
+57202:      this.actor.system.details.background instanceof Item5e ? {
+57203:        columns, id: "background", label: "DND5E.FeaturesBackground", order: 2000, groups: { origin: "background" }
+57204:      } : null,
+57205:      { columns, id: "other", label: "DND5E.FeaturesOther", order: 3000, groups: { origin: "other" } }
+57206:    ].filter(_ => _);
+57207:    sections[0].items = [...(context.itemCategories.features ?? []), ...context.subclasses];
+57208:    context.sections = Inventory.prepareSections(sections);
+57209:    context.listControls = {
+57210:      label: "DND5E.FeatureSearch",
+57211:      list: "features",
+57212:      filters: [
+57213:        { key: "action", label: "DND5E.Action" },
+57214:        { key: "bonus", label: "DND5E.BonusAction" },
+57215:        { key: "reaction", label: "DND5E.Reaction" },
+57216:        { key: "sr", label: "DND5E.REST.Short.Label" },
+57217:        { key: "lr", label: "DND5E.REST.Long.Label" },
+57218:        { key: "concentration", label: "DND5E.Concentration" },
+57219:        { key: "mgc", label: "DND5E.ITEM.Property.Magical" }
+57220:      ],
+57221:      sorting: [
+57222:        { key: "m", label: "SIDEBAR.SortModeManual", dataset: { icon: "fa-solid fa-arrow-down-short-wide" } },
+57223:        { key: "a", label: "SIDEBAR.SortModeAlpha", dataset: { icon: "fa-solid fa-arrow-down-a-z" } }
+57224:      ],
+57225:      grouping: [
+57226:        {
+57227:          key: "origin",
+57228:          label: "DND5E.FilterGroupOrigin",
+57229:          dataset: { icon: "fa-solid fa-layer-group", classes: "active" }
+57230:        },
+57231:        { key: "activation", label: "DND5E.FilterGroupOrigin", dataset: { icon: "fa-solid fa-layer-group" } }
+57232:      ]
+57233:    };
+57234:
+57235:    // TODO: Add this warning during data preparation instead
+57236:    // const message = game.i18n.format("DND5E.SubclassMismatchWarn", {
+57237:    //   name: subclass.name, class: subclass.system.classIdentifier
+57238:    // });
+57239:    // context.warnings.push({ message, type: "warning" });
+57240:    context.showClassDrop = !context.classes.length;
+57241:    return context;
+57242:  }
+57243:
+57244:  /* -------------------------------------------- */
+57245:
+57246:  /**
+57247:   * Prepare rendering context for the header.
+57248:   * @param {ApplicationRenderContext} context  Context being prepared.
+57249:   * @param {HandlebarsRenderOptions} options   Options which configure application rendering behavior.
+57250:   * @returns {ApplicationRenderContext}
+57251:   * @protected
+57252:   */
+57253:  async _prepareHeaderContext(context, options) {
+57254:    if ( this.actor.limited ) {
+57255:      context.portrait = await this._preparePortrait(context);
+57256:      return context;
+57257:    }
+57258:
+57259:    // Classes Label
+57260:    const classes = Object.values(this.actor.classes).sort((a, b) => {
+57261:      return b.system.levels - a.system.levels;
+57262:    });
+57263:    const pathways = classes.map(c => `${c.name} ${pathwaySequenceLabelFromClassLevel(c.system.levels) ?? c.system.levels}`);
+57264:    context.labels.class = pathways.join(" / ") || game.i18n.localize("DND5E.PathwayNone");
+57265:    const pathwaySequence = classes.length ? classLevelToPathwaySequence(classes[0].system.levels) : null;
+57266:    context.hasPathwaySequence = Number.isInteger(pathwaySequence);
+57267:    context.pathwaySequence = context.hasPathwaySequence ? pathwaySequence : "";
+57268:    context.pathwaySequenceLabel = context.hasPathwaySequence
+57269:      ? game.i18n.localize(`DND5E.SpellLevel${pathwaySequence}`)
+57270:      : game.i18n.localize("DND5E.PathwayNone");
+57271:
+57272:    // Experience & Epic Boons
+57273:    if ( context.system.details.xp.boonsEarned !== undefined ) {
+57274:      const pluralRules = new Intl.PluralRules(game.i18n.lang);
+57275:      context.epicBoonsEarned = game.i18n.format(
+57276:        `DND5E.ExperiencePoints.Boons.${pluralRules.select(context.system.details.xp.boonsEarned ?? 0)}`,
+57277:        { number: formatNumber(context.system.details.xp.boonsEarned ?? 0, { signDisplay: "always" }) }
+57278:      );
+57279:    }
+57280:
+57281:    // Visibility
+57282:    context.showExperience = game.settings.get("lotm", "levelingMode") !== "noxp";
+57283:    context.showRests = game.user.isGM || (this.actor.isOwner && game.settings.get("lotm", "allowRests"));
+57284:    context.sequencePotionProgress = CharacterActorSheet.#sanitizeSequencePotionProgress(
+57285:      this.actor.getFlag("lotm", "sequencePotionProgress")
+57286:    );
+57287:
+57288:    return context;
+57289:  }
+57290:
+57291:  /* -------------------------------------------- */
+57292:
+57293:  /** @inheritDoc */
+57294:  async _prepareInventoryContext(context, options) {
+57295:    context.itemCategories.inventory = context.itemCategories.inventory?.filter(i => i.type !== "container");
+57296:    context = await super._prepareInventoryContext(context, options);
+57297:    context.size = {
+57298:      label: CONFIG.DND5E.actorSizes[this.actor.system.traits.size]?.label ?? this.actor.system.traits.size,
+57299:      abbr: CONFIG.DND5E.actorSizes[this.actor.system.traits.size]?.abbreviation ?? "—",
+57300:      mod: this.actor.system.attributes.encumbrance.mod
+57301:    };
+57302:    return context;
+57303:  }
+57304:
+57305:  /* -------------------------------------------- */
+57306:
+57307:  /**
+57308:   * Prepare rendering context for the sidebar.
+57309:   * @param {ApplicationRenderContext} context  Context being prepared.
+57310:   * @param {HandlebarsRenderOptions} options   Options which configure application rendering behavior.
+57311:   * @returns {ApplicationRenderContext}
+57312:   * @protected
+57313:   */
+57314:  async _prepareSidebarContext(context, options) {
+57315:    const { attributes } = this.actor.system;
+57316:    context.portrait = await this._preparePortrait(context);
+57317:
+57318:    // Death Saves
+57319:    const plurals = new Intl.PluralRules(game.i18n.lang, { type: "ordinal" });
+57320:    context.death = {
+57321:      open: this._deathTrayOpen
+57322:    };
+57323:    for ( const deathSave of ["success", "failure"] ) {
+57324:      context.death[deathSave] = [];
+57325:      for ( let i = 1; i < 4; i++ ) {
+57326:        const n = deathSave === "failure" ? i : 4 - i;
+57327:        const i18nKey = `DND5E.DeathSave${deathSave.titleCase()}Label`;
+57328:        const filled = attributes.death[deathSave] >= n;
+57329:        const classes = ["pip"];
+57330:        if ( filled ) classes.push("filled");
+57331:        if ( deathSave === "failure" ) classes.push("failure");
+57332:        context.death[deathSave].push({
+57333:          n, filled,
+57334:          tooltip: i18nKey,
+57335:          label: game.i18n.localize(`${i18nKey}N.${plurals.select(n)}`),
+57336:          classes: classes.join(" ")
+57337:        });
+57338:      }
+57339:    }
+57340:
+57341:    // Exhaustion
+57342:    if ( CONFIG.DND5E.conditionTypes.exhaustion ) {
+57343:      const max = CONFIG.DND5E.conditionTypes.exhaustion.levels;
+57344:      context.exhaustion = Array.fromRange(max, 1).reduce((acc, n) => {
+57345:        const label = game.i18n.format("DND5E.ExhaustionLevel", { n });
+57346:        const classes = ["pip"];
+57347:        const filled = attributes.exhaustion >= n;
+57348:        if ( filled ) classes.push("filled");
+57349:        if ( n === max ) classes.push("death");
+57350:        const pip = { n, label, filled, tooltip: label, classes: classes.join(" ") };
+57351:
+57352:        if ( n <= max / 2 ) acc.left.push(pip);
+57353:        else acc.right.push(pip);
+57354:        return acc;
+57355:      }, { left: [], right: [] });
+57356:    }
+57357:
+57358:    // Favorites
+57359:    context.favorites = await this._prepareFavorites();
+57360:
+57361:    // Speed
+57362:    context.speed = Object.entries(CONFIG.DND5E.movementTypes).reduce((obj, [k, { label }]) => {
+57363:      const value = attributes.movement[k];
+57364:      if ( value > obj.value ) Object.assign(obj, { value, label });
+57365:      return obj;
+57366:    }, { value: 0, label: CONFIG.DND5E.movementTypes.walk?.label });
+57367:
+57368:    return context;
+57369:  }
+57370:
+57371:  /* -------------------------------------------- */
+57372:
+57373:  /** @inheritDoc */
+57374:  async _prepareSpellsContext(context, options) {
+57375:    context = await super._prepareSpellsContext(context, options);
+57376:
+57377:    // Spellcasting
+57378:    context.spellcasting = [];
+57379:    const spellcastingClasses = Object.values(this.actor.spellcastingClasses)
+57380:      .sort((lhs, rhs) => rhs.system.levels - lhs.system.levels);
+57381:    for ( const item of spellcastingClasses ) {
+57382:      const sc = item.spellcasting;
+57383:      const ability = this.actor.system.abilities[sc.ability];
+57384:      const mod = ability?.mod ?? 0;
+57385:      const name = item.system.spellcasting.progression === sc.progression ? item.name : item.subclass?.name;
+57386:      context.spellcasting.push({
+57387:        label: game.i18n.format("DND5E.SpellcastingClass", { class: name }),
+57388:        ability: { mod, ability: sc.ability },
+57389:        attack: sc.attack,
+57390:        preparation: sc.preparation,
+57391:        primary: this.actor.system.attributes.spellcasting === sc.ability,
+57392:        save: sc.save
+57393:      });
+57394:      const key = item.system.spellcasting.progression === sc.progression ? item.identifier : item.subclass?.identifier;
+57395:      context.listControls.filters.push({ key, label: name });
+57396:    }
+57397:
+57398:    return context;
+57399:  }
+57400:
+57401:  /* -------------------------------------------- */
+57402:
+57403:  /** @inheritDoc */
+57404:  async _prepareTabsContext(context, options) {
+57405:    const { basic, special } = CONFIG.DND5E.facilities.advancement;
+57406:    const threshold = Math.min(...Object.keys(basic), ...Object.keys(special));
+57407:    const showBastion = game.settings.get("lotm", "bastionConfiguration")?.enabled
+57408:      && (this.actor.system.details.level >= threshold);
+57409:    if ( !showBastion && (this.tabGroups.primary === "bastion") ) this.tabGroups.primary = "details";
+57410:
+57411:    context = await super._prepareTabsContext(context, options);
+57412:
+57413:    if ( !showBastion ) context.tabs.findSplice(t => t.tab === "bastion");
+57414:    return context;
+57415:  }
+57416:
+57417:  /* -------------------------------------------- */
+57418:  /*  Actor Preparation Helpers                   */
+57419:  /* -------------------------------------------- */
+57420:
+57421:  /**
+57422:   * Prepare favorites for display.
+57423:   * @param {ApplicationRenderContext} context  Context being prepared.
+57424:   * @returns {Promise<object>}
+57425:   * @protected
+57426:   */
+57427:  async _prepareFavorites(context) {
+57428:    // Legacy resources
+57429:    const resources = Object.entries(this.actor.system.resources).reduce((arr, [k, r]) => {
+57430:      const { value, max, sr, lr, label } = r;
+57431:      const source = this.actor._source.system.resources[k];
+57432:      if ( label && max ) arr.push({
+57433:        id: `resources.${k}`,
+57434:        type: "resource",
+57435:        img: "icons/svg/upgrade.svg",
+57436:        resource: { value, max, source },
+57437:        css: "uses",
+57438:        title: label,
+57439:        subtitle: [
+57440:          sr ? game.i18n.localize("DND5E.AbbreviationSR") : null,
+57441:          lr ? game.i18n.localize("DND5E.AbbreviationLR") : null
+57442:        ].filterJoin(" &bull; ")
+57443:      });
+57444:      return arr;
+57445:    }, []);
+57446:
+57447:    return resources.concat(await this.actor.system.favorites.reduce(async (arr, f) => {
+57448:      const { id, type, sort } = f;
+57449:      const favorite = await fromUuid(id, { relative: this.actor });
+57450:      if ( !favorite && ((type === "item") || (type === "effect") || (type === "activity")) ) return arr;
+57451:      if ( favorite?.dependentOrigin?.active === false ) return arr;
+57452:      arr = await arr;
+57453:
+57454:      let data;
+57455:      if ( type === "item" ) data = await favorite.system.getFavoriteData();
+57456:      else if ( (type === "effect") || (type === "activity") ) data = await favorite.getFavoriteData();
+57457:      else data = await this._getFavoriteData(type, id);
+57458:      if ( !data ) return arr;
+57459:      let {
+57460:        img, title, subtitle, value, uses, quantity, modifier, passive,
+57461:        save, range, reference, toggle, suppressed, level
+57462:      } = data;
+57463:
+57464:      if ( foundry.utils.getType(save?.ability) === "Set" ) save = {
+57465:        ...save, ability: save.ability.size > 2
+57466:          ? game.i18n.localize("DND5E.AbbreviationDC")
+57467:          : Array.from(save.ability).map(k => CONFIG.DND5E.abilities[k]?.abbreviation).filterJoin(" / ")
+57468:      };
+57469:
+57470:      const css = [];
+57471:      if ( uses?.max ) {
+57472:        css.push("uses");
+57473:        uses.value = Math.round(uses.value);
+57474:      }
+57475:      else if ( modifier !== undefined ) css.push("modifier");
+57476:      else if ( save?.dc ) css.push("save");
+57477:      else if ( value !== undefined ) css.push("value");
+57478:
+57479:      if ( toggle === false ) css.push("disabled");
+57480:      if ( uses?.max > 99 ) css.push("uses-sm");
+57481:      if ( modifier !== undefined ) {
+57482:        const value = Number(modifier.replace?.(/\s+/g, "") ?? modifier);
+57483:        if ( !isNaN(value) ) modifier = value;
+57484:      }
+57485:
+57486:      const rollableClass = [];
+57487:      if ( this.isEditable && (type !== "slots") ) rollableClass.push("rollable");
+57488:      if ( type === "skill" ) rollableClass.push("skill-name");
+57489:      else if ( type === "tool" ) rollableClass.push("tool-name");
+57490:
+57491:      if ( suppressed ) subtitle = game.i18n.localize("DND5E.Suppressed");
+57492:      const itemId = type === "item" ? favorite.id : type === "activity" ? favorite.item.id : null;
+57493:      arr.push({
+57494:        id, img, type, title, value, uses, sort, save, modifier, passive, range, reference, suppressed, level, itemId,
+57495:        draggable: ["item", "effect"].includes(type),
+57496:        effectId: type === "effect" ? favorite.id : null,
+57497:        parentId: (type === "effect") && (favorite.parent !== favorite.target) ? favorite.parent.id: null,
+57498:        activityId: type === "activity" ? favorite.id : null,
+57499:        key: (type === "skill") || (type === "tool") ? id : null,
+57500:        toggle: toggle === undefined ? null : { applicable: true, value: toggle },
+57501:        quantity: quantity > 1 ? quantity : "",
+57502:        rollableClass: rollableClass.filterJoin(" "),
+57503:        css: css.filterJoin(" "),
+57504:        bareName: type === "slots",
+57505:        subtitle: Array.isArray(subtitle) ? subtitle.filterJoin(" &bull; ") : subtitle
+57506:      });
+57507:      return arr;
+57508:    }, [])).sort((a, b) => a.sort - b.sort);
+57509:  }
+57510:
+57511:  /* -------------------------------------------- */
+57512:
+57513:  /**
+57514:   * Prepare data for a favorited entry.
+57515:   * @param {"skill"|"tool"|"slots"} type  The type of favorite.
+57516:   * @param {string} id                    The favorite's identifier.
+57517:   * @returns {Promise<FavoriteData5e|void>}
+57518:   * @protected
+57519:   */
+57520:  async _getFavoriteData(type, id) {
+57521:    // Spell slots
+57522:    if ( type === "slots" ) {
+57523:      const { value, max, level, type: method } = this.actor.system.spells?.[id] ?? {};
+57524:      const model = CONFIG.DND5E.spellcasting[method];
+57525:      const uses = { value, max, name: `system.spells.${id}.value` };
+57526:      const numericLevel = Number(level);
+57527:      const isCharacter = this.actor.type === "character";
+57528:      const levelLabel = sequenceLabelFromSpellLevel(numericLevel)
+57529:        ?? (Number.isInteger(numericLevel) ? game.i18n.localize(`DND5E.SpellLevel${numericLevel}`) : null);
+57530:      if ( !model || model.isSingleLevel ) return {
+57531:        uses, level, method,
+57532:        title: isCharacter
+57533:          ? game.i18n.format("DND5E.SequenceUsesLabel", { sequence: levelLabel ?? formatNumber(level ?? 0) })
+57534:          : game.i18n.localize(`DND5E.SpellSlots${id.capitalize()}`),
+57535:        subtitle: [
+57536:          levelLabel,
+57537:          game.i18n.localize(`DND5E.Abbreviation${model?.isSR ? "SR" : "LR"}`)
+57538:        ],
+57539:        img: model?.img || CONFIG.DND5E.spellcasting.pact.img
+57540:      };
+57541:
+57542:      const plurals = new Intl.PluralRules(game.i18n.lang, { type: "ordinal" });
+57543:      return {
+57544:        uses, level, method,
+57545:        title: isCharacter
+57546:          ? game.i18n.format("DND5E.SequenceUsesLabel", { sequence: levelLabel ?? formatNumber(level ?? 0) })
+57547:          : levelLabel ?? game.i18n.format(`DND5E.SpellSlotsN.${plurals.select(level)}`, { n: level }),
+57548:        subtitle: game.i18n.localize(`DND5E.Abbreviation${model.isSR ? "SR" : "LR"}`),
+57549:        img: model.img.replace("{id}", id)
+57550:      };
+57551:    }
+57552:
+57553:    // Skills & Tools
+57554:    else {
+57555:      const data = this.actor.system[`${type}s`]?.[id];
+57556:      if ( !data ) return;
+57557:      const { total, ability, passive } = data ?? {};
+57558:      const subtitle = game.i18n.format("DND5E.AbilityPromptTitle", {
+57559:        ability: CONFIG.DND5E.abilities[ability].label
+57560:      });
+57561:      let img;
+57562:      let title;
+57563:      let reference;
+57564:      if ( type === "tool" ) {
+57565:        reference = getBaseItemUUID(CONFIG.DND5E.tools[id]?.id);
+57566:        ({ img, name: title } = getBaseItem(reference, { indexOnly: true }));
+57567:      }
+57568:      else if ( type === "skill" ) ({ icon: img, label: title, reference } = CONFIG.DND5E.skills[id]);
+57569:      return { img, title, subtitle, modifier: total, passive, reference };
+57570:    }
+57571:  }
+57572:
+57573:  /* -------------------------------------------- */
+57574:  /*  Item Preparation Helpers                    */
+57575:  /* -------------------------------------------- */
+57576:
+57577:  /** @inheritDoc */
+57578:  _assignItemCategories(item) {
+57579:    switch ( item.type ) {
+57580:      case "background": return new Set(["background"]);
+57581:      case "class": return new Set(["classes"]);
+57582:      case "facility": return new Set(["facilities"]);
+57583:      case "race": return new Set(["species"]);
+57584:      case "subclass": return new Set(["subclasses"]);
+57585:      default: return super._assignItemCategories(item);
+57586:    }
+57587:  }
+57588:
+57589:  /* -------------------------------------------- */
+57590:

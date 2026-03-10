@@ -1,0 +1,68 @@
+﻿LoTM Pathway Creation Guide
+A design manual for building pathways and sequence abilities with a consistent power budgetfor both human authors and AI-assisted drafting
+Built for a dnd5e-derived Foundry implementation adapted to Lord of the Mysteries-style progression
+Purpose
+This guide gives you a repeatable way to build LoTM pathways without forcing every pathway to play the same way. The core principle is simple: each sequence has a power budget, but different pathways spend that budget differently. A Seer can be balanced against a Warrior without having the same damage profile, because the Seer may spend more of its budget on information, setup, subtle control, and narrative leverage.
+Use the budget as design currency, not as raw damage. A sequence is balanced when its total influence on the campaign matches its tier.
+Core principles
+Do not equate power with damage alone.
+Price abilities by practical impact in play.
+Every sequence should add a clear fantasy and a clear upgrade delta.
+Upper sequences should unlock new kinds of influence, not only larger numbers.
+Abstract pathways are valid as long as their leverage is bounded and priced.
+Glossary
+Power model by sequence
+Treat Sequence 9 through Sequence 0 as a cumulative progression. The total budget reflects full expected capability at that sequence. The gain budget reflects how much additional power a promotion should add.
+Recommended role of each tier band
+Pathway construction framework
+Build each sequence with the same seven-step workflow.
+Write a one-sentence sequence fantasy. What does this sequence let the character do that the previous one could not?
+Set the target budget. Use the total budget for a full package and the gain budget for a promotion package.
+Choose a power vector. Decide how much of the budget goes into conflict, information, movement, ritual leverage, survivability, control, and narrative authority.
+Draft 3-6 features: usually one signature feature, one support feature, one passive trait, and optionally one ritual or prep-based feature.
+Score every feature with the rubric. Record base cost, modifiers, discounts, and final cost.
+Check domain coverage so the sequence is strong where it should be strong without solving every problem at once.
+Run the balance checklist. If it overruns the game, reduce reliability, frequency, scope, or setup ease before cutting the fantasy.
+Suggested feature mix by sequence
+How to quantify subjective abilities
+Utility, control, and narrative authority only feel unmanageable when they are judged as vibes. To make them tractable, score each feature on measurable axes and then adjust for limitations.
+Step 1: assign a base function score
+Step 2: apply impact modifiers
+Step 3: subtract limitation discounts
+Step 4: test domain impact
+After scoring the feature, tag which play domains it affects. A pathway can be weak in direct combat but strong in investigation or ritual leverage and still be balanced.
+AI operating specification
+Use this section as a standing instruction block whenever you ask AI to help build pathway content. The AI should not simply brainstorm cool ideas. It should produce a structured draft that obeys the budget and explains its scoring.
+Required AI rules
+Treat the sequence budget as a cap, not a suggestion.
+Preserve pathway identity rather than distributing budget evenly across all domains.
+Price features by actual impact in play, not by flavor text.
+Bound narrative authority by scope, frequency, preparation, and reliability.
+If a package exceeds budget, reduce reliability, frequency, scope, or ease of use before cutting the core fantasy.
+Output both the total cost and the reasoning used to arrive at it.
+AI input template
+AI output template
+Reusable AI prompt
+Worked micro-example
+Two Sequence 7 gain packages can spend the same budget very differently and still be balanced.
+Warrior-like package
+Enhanced melee pressure and a brief burst of physical dominance.
+Danger-sense passive that raises survivability but does not reveal broad hidden truths.
+Most of the spend goes into direct offense and survivability.
+Approximate spend: 18.
+Seer-like package
+Spirit vision, omen reading, subtle misdirection, and danger intuition.
+Much lower direct damage but stronger investigation, setup, and prep value.
+Most of the spend goes into information, utility, and light control.
+Approximate spend: 18.
+Validation checklist
+Does the sequence have a sharp identity rather than a pile of unrelated tricks?
+Does the total or gain package stay within budget?
+If the pathway is abstract, are its high-impact features bounded by frequency, scope, setup, or risk?
+Would this sequence still matter if the campaign de-emphasized its best domain?
+Does the package create interesting decisions rather than automatic wins?
+Could another pathway of the same sequence oppose it meaningfully in at least some situations?
+Does the sequence add something qualitatively new instead of only inflating previous numbers?
+At high tiers, does the package change scale without erasing all need for preparation, cost, or counterplay?
+Pathway worksheet
+Use this as your manual drafting sheet or ask AI to fill it out.

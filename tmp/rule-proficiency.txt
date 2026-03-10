@@ -1,0 +1,5 @@
+JOURNAL:phbD20Tests00000
+PAGE:Proficiency (zU9fgQbLaVbJvPRX)
+TYPE:text
+
+Proficiency in Sequence Play A character's Proficiency Bonus is replaced by Sequence Bonus (SB) in pathway progression. SB(Q) = 2 + floor((9 - Q) / 2) This yields: Sequence 9-8 = +2, 7-6 = +3, 5-4 = +4, 3-2 = +5, 1-0 = +6. Use SB as the base proficiency term for skills, saves, attacks, and feature scaling unless a specific rule says otherwise. Passive values also gain a tier contribution: Passive = normal passive formula + Tier index .
