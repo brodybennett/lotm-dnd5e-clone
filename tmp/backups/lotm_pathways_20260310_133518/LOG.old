@@ -1,0 +1,5 @@
+2026/03/10-13:32:56.872 45dc Recovering log #152
+2026/03/10-13:32:56.872 45dc Level-0 table #154: started
+2026/03/10-13:32:56.873 45dc Level-0 table #154: 1435 bytes OK
+2026/03/10-13:32:56.876 45dc Delete type=0 #152
+2026/03/10-13:32:56.876 45dc Delete type=3 #151

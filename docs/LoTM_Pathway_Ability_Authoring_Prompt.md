@@ -1,82 +1,131 @@
-# LoTM Pathway Ability Authoring Prompt
+# LoTM Sequence-by-Sequence Authoring Prompt
 
-## Changelog (2026-03-10)
-- Added **Legacy Ability Scaling** guidance to the LoTM Rules compendium page:
-  - Pack: `lotm_rules`
-  - Entry: `Character Pathways`
-  - Page: `Overview`
-- This document provides a production-ready Codex prompt aligned with the current pathway creation guide and rules compendium constraints.
+Use this when you want Codex to build a pathway **one sequence at a time** (single sequence package + single-sequence compendium mutation per run).
 
-## Legacy Ability Scaling (Plain-Language Rule)
-When you create a new sequence package, part of the budget must keep older abilities relevant:
-1. Reserve **25%-35%** of the **gain budget** for legacy upgrades.
-2. Upgrade up to **2 legacy abilities** per promotion package.
-3. Use one upgrade type per legacy upgrade:
-   - **Potency**: stronger numbers.
-   - **Scope**: broader targets, range, area, or duration.
-   - **Efficiency**: better frequency, setup cost, or action/resource economy.
-4. Score legacy upgrades with the same existing rubric and include them in total budget spend.
-5. Relevance check: at least one ability from **2+ sequences below** should still be tactically meaningful; if not, add a legacy upgrade or rider.
+Minimum inputs are pathway name and target sequence.
 
-## Copy/Paste Codex Prompt Template
+## Copy/Paste Prompt (One Sequence Per Run)
 ```text
-You are designing one LoTM pathway sequence package for a Foundry LoTM system.
+You are Codex working inside the Foundry LoTM system repository.
 
-MODE: sequence_by_sequence
+Your job is to create/update exactly ONE sequence package in this run for one pathway:
+- Sequence package for the target sequence only
+- Ability/features for the target sequence only
+- Actual Foundry compendium creation/update for pathway metadata (if needed) + ability folder + target-sequence ability record(s)
 
-Follow these authorities in order:
-1) Current LoTM Rules compendium constraints, including Character Pathways -> Overview and Legacy Ability Scaling.
-2) Current LoTM Pathway Creation Guide (budget model, rubric, and workflow).
-3) Lord of Mysteries Fandom wiki pages for lore alignment.
+Do not split attention across multiple pathways or multiple target sequences.
 
-Hard requirements:
-- Keep package spend at or below target budget.
-- Apply the Legacy Ability Scaling rule exactly:
-  - Reserve 25%-35% of gain budget for legacy upgrades.
-  - Upgrade up to 2 legacy abilities.
-  - Use Potency/Scope/Efficiency upgrade types.
-  - Count legacy upgrades in the same budget math.
-  - Pass the 2+ sequence-below relevance check.
-- Validate lore against LoTM Fandom pages and cite URLs for every lore claim used.
-- If lore conflicts with game balance or local rules, do not ignore it:
-  - Flag the conflict.
-  - Propose a lore-faithful balanced alternative.
-  - State which rule/lore source forced the change.
-
-Input:
+Primary input:
 - Pathway Name: {{PATHWAY_NAME}}
-- Target Sequence: {{TARGET_SEQUENCE}}
-- Package Type (gain|total): {{PACKAGE_TYPE}}
-- Target Budget: {{TARGET_BUDGET}}
-- Primary Domain(s): {{PRIMARY_DOMAINS}}
-- Secondary Domain(s): {{SECONDARY_DOMAINS}}
-- Hard Constraints: {{HARD_CONSTRAINTS}}
+- Target Sequence: {{TARGET_SEQUENCE_0_TO_9}}
 
-Output format (use these exact sections):
-1) Sequence Summary
-2) Budget Overview
-   - Target budget
-   - Planned spend
-   - Reserved budget (if any)
-3) Feature List With Cost Math
-   - For each feature: name, description, domain tags, base score, modifiers, discounts, final cost
-4) Legacy Upgrade Section
-   - Which older abilities were upgraded
-   - Upgrade type (Potency/Scope/Efficiency)
-   - Cost per upgrade
-   - Why this preserves relevance at current sequence
-5) Lore Alignment Table
-   - Columns: Claim | Fandom Page URL | Ability/Feature Mapping | Notes
-6) GM Adjudication Flags
-   - Edge cases, abuse risks, and counterplay notes
-7) Consistency Checks
-   - Budget pass/fail
-   - Legacy scaling pass/fail
-   - Lore alignment pass/fail
+Optional inputs:
+- First-Sequence Name (Sequence 9 name, if pathway/folder does not exist yet): {{FIRST_SEQUENCE_NAME}}
+- Tone/Style goals: {{TONE_GOALS}}
+- Mechanical constraints: {{MECHANICAL_CONSTRAINTS}}
+- Exclusions: {{EXCLUSIONS}}
 
-Additional constraints:
-- Do not output unsupported lore claims without a citation URL.
-- Do not use generic flavor text as a substitute for mechanics.
-- Keep pathway identity coherent and avoid solving every domain at once.
+Authority order (highest to lowest):
+1) Local LoTM Rules compendium constraints (especially Character Pathways -> Overview and Legacy Ability Scaling).
+2) Local LoTM pathway creation guide and docs in this repo.
+3) Lord of Mysteries Fandom wiki for lore alignment (with URL citations per lore claim).
+
+Implementation target (required):
+- You must perform real data mutation in the local Foundry packs, not only output a proposal.
+- Pathway record target pack: `packs/lotm_pathways`
+- Ability record target pack: `packs/lotm_abilities`
+- Use the pathway's first-sequence name as the ability folder name.
+- Create/update records so the resulting target-sequence ability set is immediately visible in Foundry compendiums.
+
+Required working method (take your time, do not rush):
+Phase 1: Grounding and references
+- Inspect local pathway/ability/rules structures first.
+- Build a short reference list from LoTM Fandom pages directly relevant to this pathway.
+- Do not proceed with unverified lore assumptions.
+
+Phase 2: Pathway continuity framing
+- Identify existing pathway state in packs (pathway item, ability folder, already-authored sequence records).
+- If target sequence is 9, establish baseline sequence identity and pathway vector.
+- If target sequence is 8-0, anchor to existing lower-sequence records and preserve pathway identity continuity.
+- Keep counterplay and corruption/risk pressure where appropriate.
+
+Phase 3: Target sequence package and ability
+- Produce only the target-sequence package.
+- For the target sequence, provide:
+  - sequence fantasy statement
+  - package type (total + gain perspective)
+  - budget target and spend breakdown
+  - ability/features for that sequence
+  - ability count target (minimum by budget band):
+    - budget <= 5: at least 2 abilities
+    - budget 6-40: at least 3 abilities
+    - budget 41-143: at least 3-4 abilities
+    - budget >= 144: at least 4 abilities
+  - spirituality scaling for each ability:
+    - baseline effect at normal cost
+    - explicit higher-spend options (upcast tiers) with larger potency/scope/efficiency
+    - scaling must keep lower-sequence abilities relevant at higher sequence play
+- If target sequence is 8-0, apply Legacy Ability Scaling for this promotion step:
+  - reserve 25%-35% of gain budget for legacy upgrades
+  - upgrade up to 2 legacy abilities
+  - upgrade types: Potency, Scope, Efficiency
+  - count legacy upgrades in budget math
+  - enforce 2+ sequence-below relevance check
+
+Phase 4: Final validation
+- Verify target-sequence budget compliance and domain balance.
+- Verify continuity with previously authored adjacent sequences.
+- Verify lore consistency with cited URLs.
+- Flag conflicts and provide lore-faithful balanced alternatives.
+- Verify created/updated target-sequence records exist in the target compendiums.
+
+Output format (use exactly these sections):
+1) Pathway Overview
+2) Reference Sources
+   - Table: claim area | source URL | how used
+3) Sequence Context
+   - Table: previous sequence | target sequence | next sequence | continuity notes
+4) Target Sequence Package and Ability List
+   - target sequence package summary
+   - abilities/features with mechanics
+   - each ability's spirituality scaling tiers (baseline + upcast spend options)
+   - cost math per feature (base/modifiers/discounts/final)
+5) Legacy Ability Scaling Audit
+   - If target sequence is 8-0: table with promotion step | legacy upgrades chosen | type | cost | relevance outcome
+   - If target sequence is 9: state N/A (no promotion predecessor)
+6) Compendium Build Spec
+   - pathway item spec actually written
+   - ability folder actually written (first-sequence name)
+   - target-sequence ability entries actually written with IDs/slugs/sourceClass mapping
+7) Write Verification
+   - exact compendium keys/IDs created or updated
+   - folder ID used
+   - target-sequence ability count written
+   - read-back checks proving records exist
+8) GM Adjudication and Abuse Risks
+9) Final Consistency Checks
+   - budget pass/fail
+   - legacy scaling pass/fail (or N/A for Sequence 9)
+   - lore pass/fail
+
+Hard constraints:
+- One pathway and one target sequence per prompt.
+- No uncited lore claims.
+- No generic flavor-only abilities; every ability needs actionable mechanics.
+- Ability names must be only the ability name (no sequence number, no sequence title, no "Sequence X:" prefixes).
+- Enforce per-sequence minimum ability count by budget band (2-4+ as specified above).
+- Every ability must include spirituality scaling tiers so players can spend more spirituality for larger effects.
+- Keep pathway identity coherent with already-authored sequences.
+- Prefer quality and correctness over speed.
+- Do not stop at planning text; target-sequence pathway/ability records must be written into Foundry compendiums in this run.
 ```
 
+## Quick Use Example
+```text
+Pathway Name: Spectator
+Target Sequence: 7
+First-Sequence Name: Spectator
+Tone/Style goals: paranoia, social control, information warfare
+Mechanical constraints: strong utility/control, weaker direct burst damage
+Exclusions: no time-stop effects
+```
