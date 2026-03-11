@@ -36,6 +36,7 @@ Implementation target (required):
 - Ability record target pack: `packs/lotm_abilities`
 - Use the pathway's first-sequence name as the ability folder name.
 - Create/update records so the resulting target-sequence ability set is immediately visible in Foundry compendiums.
+- Ability placement rule (required): set each ability item's `system.level` from the sequence it is granted at, using `system.level = 9 - grantedSequence` (Sequence 9->level 0, Sequence 8->level 1, ..., Sequence 0->level 9) so it appears in the correct Abilities tab section.
 
 Required working method (take your time, do not rush):
 Phase 1: Grounding and references
@@ -48,6 +49,7 @@ Phase 2: Pathway continuity framing
 - If target sequence is 9, establish baseline sequence identity and pathway vector.
 - If target sequence is 8-0, anchor to existing lower-sequence records and preserve pathway identity continuity.
 - Keep counterplay and corruption/risk pressure where appropriate.
+- Determine/confirm granted-at sequence metadata for affected abilities and preserve section placement compatibility via `system.level = 9 - grantedSequence`.
 
 Phase 3: Target sequence package and ability
 - Produce only the target-sequence package.
@@ -56,6 +58,7 @@ Phase 3: Target sequence package and ability
   - package type (total + gain perspective)
   - budget target and spend breakdown
   - ability/features for that sequence
+  - compendium metadata per ability: granted sequence and `system.level` value (`9 - grantedSequence`)
   - ability count target (minimum by budget band):
     - budget <= 5: at least 2 abilities
     - budget 6-40: at least 3 abilities
@@ -78,6 +81,7 @@ Phase 4: Final validation
 - Verify lore consistency with cited URLs.
 - Flag conflicts and provide lore-faithful balanced alternatives.
 - Verify created/updated target-sequence records exist in the target compendiums.
+- Verify Abilities-tab placement correctness by read-back: each written/updated ability has the correct `system.level` for its granted sequence.
 
 Output format (use exactly these sections):
 1) Pathway Overview
@@ -96,12 +100,12 @@ Output format (use exactly these sections):
 6) Compendium Build Spec
    - pathway item spec actually written
    - ability folder actually written (first-sequence name)
-   - target-sequence ability entries actually written with IDs/slugs/sourceClass mapping
+   - target-sequence ability entries actually written with IDs/slugs/sourceClass mapping and grantedSequence->`system.level` mapping
 7) Write Verification
    - exact compendium keys/IDs created or updated
    - folder ID used
    - target-sequence ability count written
-   - read-back checks proving records exist
+   - read-back checks proving records exist and `system.level` values match sequence-granted placement
 8) GM Adjudication and Abuse Risks
 9) Final Consistency Checks
    - budget pass/fail
@@ -115,6 +119,7 @@ Hard constraints:
 - Ability names must be only the ability name (no sequence number, no sequence title, no "Sequence X:" prefixes).
 - Enforce per-sequence minimum ability count by budget band (2-4+ as specified above).
 - Every ability must include spirituality scaling tiers so players can spend more spirituality for larger effects.
+- Every ability record must set `system.level` to the correct sequence-granted mapping (`system.level = 9 - grantedSequence`) so it appears under the correct section in the character sheet Abilities tab.
 - Keep pathway identity coherent with already-authored sequences.
 - Prefer quality and correctness over speed.
 - Do not stop at planning text; target-sequence pathway/ability records must be written into Foundry compendiums in this run.

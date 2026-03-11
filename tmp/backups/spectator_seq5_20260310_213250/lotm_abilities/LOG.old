@@ -1,0 +1,9 @@
+2026/03/10-21:29:53.403 a920 Recovering log #246
+2026/03/10-21:29:53.403 a920 Level-0 table #248: started
+2026/03/10-21:29:53.405 a920 Level-0 table #248: 9722 bytes OK
+2026/03/10-21:29:53.409 a920 Delete type=0 #246
+2026/03/10-21:29:53.409 a920 Delete type=3 #245
+2026/03/10-21:29:53.409 2bf4 Compacting 4@0 + 1@1 files
+2026/03/10-21:29:53.413 2bf4 Generated table #250@0: 65 keys, 69609 bytes
+2026/03/10-21:29:53.413 2bf4 Compacted 4@0 + 1@1 files => 69609 bytes
+2026/03/10-21:29:53.414 2bf4 compacted to: files[ 0 1 0 0 0 0 0 ]
