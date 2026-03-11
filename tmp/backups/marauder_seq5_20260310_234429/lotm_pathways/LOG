@@ -1,0 +1,5 @@
+2026/03/10-23:42:21.100 8ef8 Recovering log #311
+2026/03/10-23:42:21.100 8ef8 Level-0 table #313: started
+2026/03/10-23:42:21.105 8ef8 Level-0 table #313: 1475 bytes OK
+2026/03/10-23:42:21.140 8ef8 Delete type=0 #311
+2026/03/10-23:42:21.140 8ef8 Delete type=3 #310
