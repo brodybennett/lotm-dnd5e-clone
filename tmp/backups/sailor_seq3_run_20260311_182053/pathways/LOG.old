@@ -1,0 +1,14 @@
+2026/03/11-18:19:04.983 8868 Recovering log #587
+2026/03/11-18:19:04.983 8868 Level-0 table #589: started
+2026/03/11-18:19:04.984 8868 Level-0 table #589: 1689 bytes OK
+2026/03/11-18:19:04.986 8868 Delete type=0 #587
+2026/03/11-18:19:04.987 8868 Delete type=3 #586
+2026/03/11-18:19:04.987 7ecc Compacting 4@0 + 1@1 files
+2026/03/11-18:19:04.988 7ecc Generated table #591@0: 1 keys, 1689 bytes
+2026/03/11-18:19:04.988 7ecc Compacted 4@0 + 1@1 files => 1689 bytes
+2026/03/11-18:19:04.988 7ecc compacted to: files[ 0 6 0 0 0 0 0 ]
+2026/03/11-18:19:04.988 7ecc Delete type=2 #563
+2026/03/11-18:19:04.989 7ecc Delete type=2 #569
+2026/03/11-18:19:04.989 7ecc Delete type=2 #576
+2026/03/11-18:19:04.989 7ecc Delete type=2 #583
+2026/03/11-18:19:04.989 7ecc Delete type=2 #589

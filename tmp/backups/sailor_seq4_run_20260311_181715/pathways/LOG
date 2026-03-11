@@ -1,0 +1,11 @@
+2026/03/11-18:14:44.509 a5ac Recovering log #581
+2026/03/11-18:14:44.509 a5ac Level-0 table #583: started
+2026/03/11-18:14:44.511 a5ac Level-0 table #583: 1586 bytes OK
+2026/03/11-18:14:44.514 a5ac Delete type=0 #581
+2026/03/11-18:14:44.514 a5ac Delete type=3 #580
+2026/03/11-18:14:44.514 a910 Compacting 1@0 + 1@1 files
+2026/03/11-18:14:44.515 a910 Generated table #585@0: 1 keys, 1913 bytes
+2026/03/11-18:14:44.515 a910 Compacted 1@0 + 1@1 files => 1913 bytes
+2026/03/11-18:14:44.516 a910 compacted to: files[ 3 6 0 0 0 0 0 ]
+2026/03/11-18:14:44.516 a910 Delete type=2 #526
+2026/03/11-18:14:44.516 a910 Delete type=2 #530
