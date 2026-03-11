@@ -1,0 +1,5 @@
+2026/03/11-13:13:10.432 22bc Recovering log #460
+2026/03/11-13:13:10.433 22bc Level-0 table #462: started
+2026/03/11-13:13:10.435 22bc Level-0 table #462: 9805 bytes OK
+2026/03/11-13:13:10.440 22bc Delete type=0 #460
+2026/03/11-13:13:10.440 22bc Delete type=3 #459
