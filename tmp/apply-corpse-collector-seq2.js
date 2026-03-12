@@ -3,7 +3,7 @@ const { ClassicLevel } = require('./node-tools/node_modules/classic-level');
 const CORE_VERSION = '13.351';
 const SYSTEM_ID = 'lotm';
 const SYSTEM_VERSION = '5.2.6';
-const MODIFIER = 'codex';
+const MODIFIER = '0000000000000000';
 
 function touchStats(existing, now) {
   return {
