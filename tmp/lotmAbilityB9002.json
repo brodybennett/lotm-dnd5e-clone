@@ -1,0 +1,155 @@
+{
+  "_id": "lotmAbilityB9002",
+  "name": "Radiant Footwork",
+  "type": "spell",
+  "img": "icons/svg/damage/radiant.svg",
+  "system": {
+    "description": {
+      "value": "<p><strong>Baseline (0 Spirituality):</strong> Your dance posture sharpens body control for 1 minute. You gain +5 feet movement speed, advantage on checks to resist being shoved or grappled, and your steps shed dim light in a 5-foot radius. Once per turn when you hit with a weapon attack, add +1 radiant damage.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Movement bonus becomes +10 feet and the radiant damage rider becomes +Potency.</li><li><strong>+4 Spirituality:</strong> Choose one ally within 30 feet when you activate; that ally gains half your movement bonus for the duration.</li><li><strong>+6 Spirituality:</strong> You emit bright light in 10 feet (dim 10 feet beyond). While lit, difficult terrain caused by darkness or fear effects does not reduce your movement.</li></ul><p><em>Counterplay:</em> The stance ends early if you are incapacitated.</p>",
+      "chat": ""
+    },
+    "source": {
+      "custom": "",
+      "rules": "2024",
+      "revision": 1,
+      "license": "",
+      "book": "LoTM Core"
+    },
+    "activation": {
+      "type": "bonus",
+      "condition": "",
+      "value": null
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "target": {
+      "affects": {
+        "choice": false,
+        "count": "1",
+        "type": "self",
+        "special": ""
+      },
+      "template": {
+        "units": "",
+        "contiguous": false,
+        "type": ""
+      }
+    },
+    "range": {
+      "units": "self",
+      "value": null,
+      "special": ""
+    },
+    "uses": {
+      "max": "",
+      "spent": 0,
+      "recovery": []
+    },
+    "level": 0,
+    "school": "trs",
+    "properties": [
+      "somatic"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "always",
+      "prepared": false
+    },
+    "activities": {
+      "bardSeq9Act002": {
+        "type": "utility",
+        "_id": "bardSeq9Act002",
+        "sort": 0,
+        "activation": {
+          "type": "bonus",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "scaling": {
+            "allowed": false
+          },
+          "spellSlot": true,
+          "targets": []
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false,
+          "prompt": true
+        },
+        "uses": {
+          "spent": 0,
+          "recovery": [],
+          "max": ""
+        },
+        "roll": {
+          "prompt": false,
+          "visible": false,
+          "name": "",
+          "formula": ""
+        },
+        "name": "",
+        "img": "",
+        "appliedEffects": []
+      }
+    },
+    "identifier": "lotm-bard-radiant-footwork",
+    "method": "spell",
+    "prepared": 1,
+    "spiritualityCost": null,
+    "sourceClass": "lotm-bard"
+  },
+  "effects": [],
+  "folder": "1Oc180YVyiQmaWwW",
+  "flags": {
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
+      }
+    },
+    "lotm": {
+      "sourceBook": "LoTM Core",
+      "grantedSequence": 9
+    }
+  },
+  "_stats": {
+    "duplicateSource": null,
+    "coreVersion": "13.351",
+    "systemId": "lotm",
+    "systemVersion": "5.2.6",
+    "createdTime": 1773264480682,
+    "modifiedTime": 1773264480682,
+    "lastModifiedBy": "lotmPhase7000000",
+    "exportSource": null
+  },
+  "sort": 600001,
+  "ownership": {
+    "default": 0
+  }
+}

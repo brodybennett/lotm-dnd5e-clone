@@ -1,0 +1,28 @@
+{
+  "key": "!folders!aex1emjqloq59bMQ",
+  "obj": {
+    "name": "Sailor",
+    "type": "Item",
+    "folder": null,
+    "sorting": "a",
+    "sort": 500000,
+    "_id": "aex1emjqloq59bMQ",
+    "description": "Sequence abilities for the Sailor pathway.",
+    "color": null,
+    "flags": {
+      "lotm": {
+        "pathwayIdentifier": "lotm-sailor"
+      }
+    },
+    "_stats": {
+      "duplicateSource": null,
+      "coreVersion": "13.351",
+      "systemId": "lotm",
+      "systemVersion": "5.2.6",
+      "createdTime": 1773161062502,
+      "modifiedTime": 1773271577846,
+      "lastModifiedBy": "lotmPhase7000000",
+      "exportSource": null
+    }
+  }
+}

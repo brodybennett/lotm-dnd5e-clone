@@ -1,0 +1,156 @@
+{
+  "_id": "lotmAbilityA7001",
+  "name": "Interference",
+  "type": "spell",
+  "img": "icons/magic/control/debuff-energy-hold-teal-blue.webp",
+  "system": {
+    "description": {
+      "value": "<p><strong>Baseline (2 Spirituality):</strong> As an action, weave a 30-foot distortion field around your route logic for 10 minutes (concentration). Hostile attempts to track, predict, divine, or intuit your immediate movement within the field suffer <strong>-1d4</strong>. The first time each round a creature in the field attempts to gain advantage from foresight/divination effects against you or your chosen allies, that advantage is canceled.</p><p><strong>Limits:</strong> Interference does not block direct line-of-sight observation or true-name authority effects from higher-sequence entities.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Radius becomes 60 feet and penalty becomes <strong>-1d6</strong>.</li><li><strong>+2 Spirituality:</strong> Choose up to three allies in the field; each can force one hostile tracking/divination roll against them to reroll before the effect ends.</li><li><strong>+4 Spirituality:</strong> When a hostile prediction effect still succeeds in the field, you immediately learn the rough direction of the source and may move up to 10 feet without provoking opportunity attacks.</li></ul><p><em>Corruption Hook:</em> If Interference is used to conceal a deliberate betrayal of sworn truth, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 6 - Scope)</h3><p>At Sequence 6, Interference can be threaded through adjacent lanes. If Interference is cast with at least <strong>+2 Spirituality</strong>, you may anchor one secondary 20-foot pocket within 60 feet of the main field. The pocket inherits baseline anti-tracking pressure. Once per short rest, you may create this secondary pocket without increasing Spirituality cost.</p>",
+      "chat": ""
+    },
+    "source": {
+      "custom": "",
+      "rules": "2024",
+      "revision": 1,
+      "license": "",
+      "book": "LoTM Core"
+    },
+    "activation": {
+      "type": "action",
+      "condition": "",
+      "value": null
+    },
+    "duration": {
+      "value": "10",
+      "units": "minute"
+    },
+    "target": {
+      "affects": {
+        "choice": false,
+        "count": "1",
+        "type": "self",
+        "special": ""
+      },
+      "template": {
+        "units": "",
+        "contiguous": false,
+        "type": ""
+      }
+    },
+    "range": {
+      "units": "self",
+      "special": ""
+    },
+    "uses": {
+      "max": "",
+      "spent": 0,
+      "recovery": []
+    },
+    "level": 2,
+    "school": "abj",
+    "properties": [
+      "vocal",
+      "somatic",
+      "concentration"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "always",
+      "prepared": false
+    },
+    "activities": {
+      "intrfrncA700001": {
+        "type": "utility",
+        "_id": "intrfrncA700001",
+        "sort": 0,
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "scaling": {
+            "allowed": false
+          },
+          "spellSlot": true,
+          "targets": []
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "minute",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false,
+          "prompt": true
+        },
+        "uses": {
+          "spent": 0,
+          "recovery": [],
+          "max": ""
+        },
+        "roll": {
+          "prompt": false,
+          "visible": false,
+          "name": "",
+          "formula": ""
+        },
+        "name": "",
+        "img": "",
+        "appliedEffects": []
+      }
+    },
+    "identifier": "lotm-apprentice-interference",
+    "method": "spell",
+    "prepared": 1,
+    "spiritualityCost": null,
+    "sourceClass": "lotm-apprentice"
+  },
+  "effects": [],
+  "folder": "Nj4rb53Um04UoPSi",
+  "flags": {
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
+      }
+    },
+    "lotm": {
+      "sourceBook": "LoTM Core",
+      "grantedSequence": 7
+    }
+  },
+  "_stats": {
+    "duplicateSource": null,
+    "coreVersion": "13.351",
+    "systemId": "lotm",
+    "systemVersion": "5.2.6",
+    "createdTime": 1773252767396,
+    "modifiedTime": 1773253053872,
+    "lastModifiedBy": "lotmPhase0000000",
+    "exportSource": null
+  },
+  "sort": 500200,
+  "ownership": {
+    "default": 0
+  }
+}

@@ -1,0 +1,5261 @@
+[
+  {
+    "key": "!items!lotmAbilityL9001",
+    "obj": {
+      "_id": "lotmAbilityL9001",
+      "name": "Riptide Command",
+      "type": "spell",
+      "img": "icons/magic/water/wave-water-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (0 Spirituality):</strong> As an action, bark a command at one creature you can see within 30 feet that can hear you. The target makes a Strength saving throw against your spell save DC. On a failure, choose one effect: (a) move the target up to 10 feet toward you or away from you along a surface, or (b) knock the target prone. After the effect resolves, you may move up to 10 feet toward the target; that target cannot make an opportunity attack against this movement.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Range becomes 60 feet, and you may target up to two creatures (separate saves).</li><li><strong>+2 Spirituality:</strong> On a failed save, apply both baseline effects (forced movement and prone), and the target cannot take reactions until the start of your next turn.</li><li><strong>+4 Spirituality:</strong> If cast during rain, heavy wind, or within 30 feet of open water, each failed target also takes thunder damage equal to your Potency and is pushed an additional 10 feet.</li></ul><p><em>Counterplay:</em> Deafened creatures ignore the command; creatures immune to forced movement ignore that portion only.</p><p><em>Corruption Hook:</em> If you use this only to humiliate a clearly weaker foe, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 8 - Scope)</h3><p>At Sequence 8, your command rides a wider current. When you cast Riptide Command with at least <strong>+1 Spirituality</strong>, you may target one additional creature within 10 feet of your original target. Resolve a separate save for that second creature. Once per short rest, you may apply this rider without paying the +1 surcharge.</p><h3>Legacy Upgrade (Sequence 7 - Potency)</h3><p>At Sequence 7, Riptide Command carries true storm impact. When cast with at least <strong>+2 Spirituality</strong>, each failed target takes thunder damage equal to your <strong>Potency</strong>. If the target is already prone, you may drag it an additional 5 feet instead of dealing this damage. This rider may apply to only one target per cast.</p><h3>Legacy Upgrade (Sequence 6 - Efficiency)</h3><p>At Sequence 6, Riptide Command can be threaded through your movement economy. Once per round, if you moved at least 15 feet this turn, reduce Riptide Command's spirituality surcharge by <strong>1</strong> (minimum 0). When this discount applies, you may also shift 5 feet after resolution without provoking opportunity attacks.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": "creature that can hear you"
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "30",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 0,
+        "school": "enc",
+        "properties": [
+          "vocal"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail9CmdAct001": {
+            "type": "utility",
+            "_id": "sail9CmdAct001",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-riptide-command",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 9
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773269711412,
+        "modifiedTime": 1773270624869,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700000,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL9002",
+    "obj": {
+      "_id": "lotmAbilityL9002",
+      "name": "Phantom Scales",
+      "type": "spell",
+      "img": "icons/magic/defensive/armor-scale-skin-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (0 Spirituality):</strong> As a bonus action, spectral scales surface along your skin for 1 minute (concentration). You gain a swim speed equal to your walking speed, can breathe underwater, and have advantage on checks and saves to resist being shoved, knocked prone, or grappled. Once on each of your turns, if you moved at least 10 feet, gain +1 AC against the next melee attack that targets you before the start of your next turn.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Duration becomes 10 minutes, and you ignore difficult terrain from water, mud, rigging, and rain-soaked ground.</li><li><strong>+2 Spirituality:</strong> While active, the first time each round you take bludgeoning, piercing, or slashing damage, reduce it by your Potency.</li><li><strong>+4 Spirituality:</strong> While active, when a creature misses you with a melee attack, you may use your reaction to force a Strength save; on a failure, that creature is pushed 10 feet and falls prone if standing on a slick or unstable surface.</li></ul><p><em>Counterplay:</em> Effects that restrain or immobilize still stop your movement; anti-magic suppresses the scale veil.</p><p><em>Corruption Hook:</em> If you keep the veil active only to provoke unnecessary violence, gain 1 Corruption at effect end.</p><h3>Legacy Upgrade (Sequence 7 - Efficiency)</h3><p>At Sequence 7, Phantom Scales becomes easier to sustain in real combat flow. Once per short rest, you may activate Phantom Scales without concentration for its base 1-minute duration. If you choose to maintain concentration for upcast effects, you gain advantage on concentration checks tied to Phantom Scales.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "bonus",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "self",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 0,
+        "school": "trs",
+        "properties": [
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a drop of seawater",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail9ScaAct002": {
+            "type": "utility",
+            "_id": "sail9ScaAct002",
+            "sort": 0,
+            "activation": {
+              "type": "bonus",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-phantom-scales",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 9
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773269711412,
+        "modifiedTime": 1773270354791,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700001,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL8001",
+    "obj": {
+      "_id": "lotmAbilityL8001",
+      "name": "Wrath",
+      "type": "spell",
+      "img": "icons/magic/air/wind-whirl-cyclone-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (1 Spirituality):</strong> As a bonus action, enter a storm-wrath state for 1 minute (concentration). While active, you gain advantage on Strength (Athletics) checks and saves against being moved or knocked prone. Once on each of your turns, if you moved at least 10 feet before hitting a creature with a weapon attack or unarmed strike, that hit deals extra thunder damage equal to your Potency.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> You also gain a swim speed equal to your walking speed and ignore difficult terrain caused by water, rain, spray, mud, or unstable deck footing.</li><li><strong>+2 Spirituality:</strong> The first creature you hit each round must succeed on a Strength save or be pushed 10 feet.</li><li><strong>+4 Spirituality:</strong> For the duration, you may take one extra 10-foot movement after each of your turns; this movement does not provoke opportunity attacks from creatures you damaged that turn.</li></ul><p><em>Counterplay:</em> Effects that restrain, immobilize, or silence your movement options still disrupt your momentum line.</p><p><em>Corruption Hook:</em> If you remain in Wrath after all credible threats are neutralized, gain 1 Corruption when the effect ends.</p><h3>Legacy Upgrade (Sequence 6 - Potency)</h3><p>At Sequence 6, Wrath carries heavier storm force. While Wrath is active, your first qualifying momentum hit each turn deals additional thunder damage equal to <strong>pathway tier</strong>. If the target fails a Strength save against one of your Wrath riders, increase forced movement by 5 feet.</p><h3>Legacy Upgrade (Sequence 5 - Efficiency)</h3><p>At Sequence 5, Wrath becomes easier to maintain in long engagements. Once per short rest, you may activate Wrath at baseline cost without concentration. If you do concentrate on Wrath, you gain advantage on concentration checks made to sustain it.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "bonus",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "self",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 1,
+        "school": "trs",
+        "properties": [
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a clenched fist dampened with saltwater",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail8WrathAct01": {
+            "type": "utility",
+            "_id": "sail8WrathAct01",
+            "sort": 0,
+            "activation": {
+              "type": "bonus",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-wrath",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 8
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270069899,
+        "modifiedTime": 1773270865598,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700100,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL8002",
+    "obj": {
+      "_id": "lotmAbilityL8002",
+      "name": "Raging Blow",
+      "type": "spell",
+      "img": "icons/magic/air/lightning-strike-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (1 Spirituality):</strong> As an action, make one melee weapon attack or unarmed strike. On a hit, the attack deals extra thunder damage equal to your Potency + your proficiency bonus, and the target must make a Strength saving throw. On a failed save, you choose to knock it prone or push it up to 10 feet.</p><p><strong>Momentum Clause:</strong> If you moved at least 10 feet straight toward the target this turn, add +1d4 thunder damage.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> On a failed save, the target also cannot take reactions until the start of your next turn.</li><li><strong>+2 Spirituality:</strong> You may chain the impact to a second creature within 5 feet of the first target; make a second attack roll with disadvantage. On a hit, it takes thunder damage equal to your Potency.</li><li><strong>+4 Spirituality:</strong> If the primary target fails its save, it is stunned until the end of your current turn instead of being pushed/prone.</li></ul><p><em>Counterplay:</em> Missed attacks expend the action and spirituality normally; creatures immune to stun ignore only the stun rider.</p><p><em>Corruption Hook:</em> If you use Raging Blow against a helpless or restrained target for spectacle, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": "one creature you can hit in melee"
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "touch",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 1,
+        "school": "evo",
+        "properties": [
+          "somatic"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail8BlowAct002": {
+            "type": "utility",
+            "_id": "sail8BlowAct002",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-raging-blow",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 8
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270069899,
+        "modifiedTime": 1773270069899,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700101,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL7001",
+    "obj": {
+      "_id": "lotmAbilityL7001",
+      "name": "Navigation",
+      "type": "spell",
+      "img": "icons/magic/perception/eye-ringed-glow-angry-large-teal.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (1 Spirituality):</strong> As a bonus action, lock onto a route line for 10 minutes (concentration). Choose one destination, quarry, or extraction point you are aware of within 1 mile. While active, you always know the fastest traversable path toward it, ignore nonmagical weather penalties to Perception for navigation, and gain +10 feet movement on your first move each turn if that move advances along the chosen route.</p><p><strong>Command Rider:</strong> Once per round while this is active, when you move at least 15 feet toward your route line, your next forced-movement effect this turn gains +5 feet.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Range becomes 5 miles and one ally within 30 feet shares your route-line movement bonus.</li><li><strong>+2 Spirituality:</strong> For the duration, you and affected allies cannot be surprised by environmental hazards on the route (reefs, collapse, sudden squalls, deck breaks) unless magically concealed.</li><li><strong>+4 Spirituality:</strong> Once during duration, immediately reposition yourself up to 20 feet along the route as a free movement that ignores opportunity attacks.</li></ul><p><em>Counterplay:</em> Magical maze effects, dimensional lockouts, and false-destination deception can still mislead or block route lines.</p><p><em>Corruption Hook:</em> If you abandon allied safety solely to preserve your chosen route objective, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 5 - Scope)</h3><p>At Sequence 5, Navigation can hold two route-threads at once. When cast with at least <strong>+2 Spirituality</strong>, choose two distinct objectives (or one objective and one fallback extraction line). You and up to two allies can benefit from either route movement bonus each turn.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "bonus",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "10",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "self",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 2,
+        "school": "div",
+        "properties": [
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a traced compass sigil in damp air",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail7NavAct001": {
+            "type": "utility",
+            "_id": "sail7NavAct001",
+            "sort": 0,
+            "activation": {
+              "type": "bonus",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-navigation",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 7
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270354791,
+        "modifiedTime": 1773270865598,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700200,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL7002",
+    "obj": {
+      "_id": "lotmAbilityL7002",
+      "name": "Drowning Film",
+      "type": "spell",
+      "img": "icons/magic/water/water-blob-ice-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (2 Spirituality):</strong> As an action, lash one creature within 60 feet with a pressurized membrane of seawater. The target makes a Constitution saving throw. On a failure, it is <strong>silenced</strong> and can speak only in broken gasps until the end of your next turn, and its speed is reduced by 10 feet. At the end of each of its turns it repeats the save, ending the effect on a success.</p><p><strong>Suffocation Pressure:</strong> While affected, a creature cannot cast spells with verbal components unless it first succeeds on a DC 10 Constitution check.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Target up to two creatures within 15 feet of each other (separate saves).</li><li><strong>+2 Spirituality:</strong> On failed save, target is also restrained until end of your next turn or until it succeeds on a Strength (Athletics) check against your spell save DC as an action.</li><li><strong>+4 Spirituality:</strong> Duration becomes concentration up to 1 minute; creatures failing their save at turn end take thunder damage equal to your Potency.</li></ul><p><em>Counterplay:</em> Creatures that do not breathe are immune to silence-by-fluid pressure and ignore the suffocation clause.</p><p><em>Corruption Hook:</em> If used for prolonged cruelty against a surrendered foe, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "60",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 2,
+        "school": "enc",
+        "properties": [
+          "somatic"
+        ],
+        "materials": {
+          "value": "a thin sheet of saltwater across your palm",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail7FilmAct002": {
+            "type": "utility",
+            "_id": "sail7FilmAct002",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-drowning-film",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 7
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270354791,
+        "modifiedTime": 1773270354791,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700201,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL7003",
+    "obj": {
+      "_id": "lotmAbilityL7003",
+      "name": "Azure Surge",
+      "type": "spell",
+      "img": "icons/magic/water/projectile-ice-shard-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (2 Spirituality):</strong> As an action, release a roaring crescent of blue water in a 20-foot line, 5 feet wide. Creatures in the line make a Strength saving throw. On failure, they take thunder damage equal to <strong>2 x Potency</strong> and are pushed 10 feet; on success, they take half damage and are not pushed. You may then move 10 feet in the surge direction without provoking opportunity attacks from affected creatures.</p><p><strong>Restorative Undertow:</strong> Choose one ally touched by the edge of the surge; it gains temporary HP equal to your Potency.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Line becomes 30 feet and push distance becomes 15 feet on failed save.</li><li><strong>+2 Spirituality:</strong> Affected hostile creatures that fail cannot take opportunity attacks until start of your next turn.</li><li><strong>+4 Spirituality:</strong> The restorative undertow instead restores HP equal to your Potency + your pathway tier to up to two allies in the surge path.</li></ul><p><em>Counterplay:</em> Large anchored creatures or those immune to forced movement ignore only push effects.</p><p><em>Corruption Hook:</em> If you repeatedly discharge Azure Surge in confined civilian spaces without necessity, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "line",
+            "size": "20",
+            "width": "5"
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 2,
+        "school": "evo",
+        "properties": [
+          "somatic"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail7SurgeAct003": {
+            "type": "utility",
+            "_id": "sail7SurgeAct003",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-azure-surge",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 7
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270354791,
+        "modifiedTime": 1773270354791,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700202,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL6001",
+    "obj": {
+      "_id": "lotmAbilityL6001",
+      "name": "Tempest Glide",
+      "type": "spell",
+      "img": "icons/magic/air/wind-stream-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (2 Spirituality):</strong> As a bonus action, cloak yourself in a spiraling wind current for 10 minutes (concentration). You gain +15 feet movement, ignore nonmagical difficult terrain, and can hover up to 10 feet above stable ground or water while moving. Falling damage you take is reduced by <strong>5 x Potency</strong>.</p><p><strong>Command Momentum:</strong> If you end movement adjacent to a hostile creature, that creature has disadvantage on opportunity attacks against creatures other than you until the start of your next turn.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Hover height becomes 20 feet and you gain a swim speed equal to your movement.</li><li><strong>+2 Spirituality:</strong> You may move across liquid surfaces and vertical rigging/walls without checks while the effect lasts.</li><li><strong>+4 Spirituality:</strong> Once per round, after you move at least 20 feet, force one adjacent creature to make a Strength save or be pushed 10 feet and knocked prone.</li></ul><p><em>Counterplay:</em> Restraining effects, anti-flight wards, and enclosed spaces can still deny glide lines.</p><p><em>Corruption Hook:</em> If you use Tempest Glide to abandon allies in a declared stand, gain 1 Corruption at effect end.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "bonus",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "10",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "self",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 3,
+        "school": "trs",
+        "properties": [
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a spiral traced in sea mist",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail6GlideAct01": {
+            "type": "utility",
+            "_id": "sail6GlideAct01",
+            "sort": 0,
+            "activation": {
+              "type": "bonus",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-tempest-glide",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 6
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270624869,
+        "modifiedTime": 1773270624869,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700300,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL6002",
+    "obj": {
+      "_id": "lotmAbilityL6002",
+      "name": "Windblade Tithe",
+      "type": "spell",
+      "img": "icons/magic/air/air-wave-gust.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (2 Spirituality):</strong> As an action, launch a compressed crescent blade of air at a creature within 90 feet. Make a spell attack roll. On hit, it deals slashing damage equal to <strong>2d6 + Potency</strong> and the target must make a Strength save; on failure, it is pulled or pushed 10 feet (your choice).</p><p><strong>Authority Rider:</strong> If the target was moved by one of your effects earlier this round, add your pathway tier to damage.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Fire a second blade at the same or another target within 30 feet of the first.</li><li><strong>+2 Spirituality:</strong> On failed save, the target also cannot take reactions until the start of your next turn.</li><li><strong>+4 Spirituality:</strong> Replace with a 30-foot line blade (Dexterity save for creatures in line); on failure take <strong>3d6 + Potency</strong> slashing and are pushed 15 feet.</li></ul><p><em>Counterplay:</em> Full cover blocks line of effect; reaction denial applies only on failed save.</p><p><em>Corruption Hook:</em> If you use this as punishment on noncombatants to enforce obedience, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "90",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 3,
+        "school": "evo",
+        "properties": [
+          "somatic"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail6BladeAct02": {
+            "type": "utility",
+            "_id": "sail6BladeAct02",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-windblade-tithe",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 6
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270624869,
+        "modifiedTime": 1773270624869,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700301,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL6003",
+    "obj": {
+      "_id": "lotmAbilityL6003",
+      "name": "Sea Voice Requisition",
+      "type": "spell",
+      "img": "icons/magic/water/water-wave-foam-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (2 Spirituality):</strong> As an action, command nearby water and wind pressure in a 20-foot radius centered on a point within 60 feet for 1 minute (concentration). Choose one mode when cast:</p><ul><li><strong>Command Tide:</strong> hostile creatures treat the zone as difficult terrain and must make a Strength save when entering; on failure they are pushed 10 feet to a space of your choice within the zone.</li><li><strong>Command Current:</strong> you and allies in the zone gain advantage on checks to hold footing, navigate, swim, or resist forced movement, and can understand shouted speech through storm noise clearly.</li></ul><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Radius becomes 30 feet.</li><li><strong>+2 Spirituality:</strong> You can switch between Command Tide and Command Current once per round as a bonus action.</li><li><strong>+4 Spirituality:</strong> Once during duration, issue a surge order: each hostile creature in zone makes a Strength save or is knocked prone and silenced until end of its next turn.</li></ul><p><em>Counterplay:</em> Areas without available air/water flow, or anti-magic suppression, weaken or end the zone.</p><p><em>Corruption Hook:</em> If you enforce command order against panicking civilians instead of stabilizing them, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "20"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "60",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 3,
+        "school": "con",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a drop of seawater flicked into the wind",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail6VoiceAct03": {
+            "type": "utility",
+            "_id": "sail6VoiceAct03",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-sea-voice-requisition",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 6
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270624869,
+        "modifiedTime": 1773270624869,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700302,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL5001",
+    "obj": {
+      "_id": "lotmAbilityL5001",
+      "name": "Lightning Bolt Arrow",
+      "type": "spell",
+      "img": "icons/magic/lightning/bolt-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (3 Spirituality):</strong> As an action, condense storm charge into a single piercing bolt and fire it at a creature within 120 feet. Make a spell attack roll. On hit, the target takes lightning damage equal to <strong>3d6 + Potency</strong> and must succeed on a Constitution save or be unable to take reactions until the start of your next turn.</p><p><strong>Conduction Rule:</strong> If the target stands in water, rain-soaked ground, or on wet ship rigging, it takes additional thunder damage equal to your pathway tier.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> You can arc the bolt to a second target within 10 feet of the first; make a second attack roll with disadvantage.</li><li><strong>+2 Spirituality:</strong> On failed Constitution save, target is also pushed 10 feet in a direction you choose.</li><li><strong>+4 Spirituality:</strong> Replace single-target shot with a 30-foot line; creatures in line make Dexterity saves, taking <strong>4d6 + Potency</strong> lightning on failure and half on success.</li></ul><p><em>Counterplay:</em> Full cover blocks line of effect; insulated or anti-lightning protections reduce or negate damage per table rules.</p><p><em>Corruption Hook:</em> If used as coercive punishment against subdued targets, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 4 - Potency)</h3><p>At Sequence 4, Lightning Bolt Arrow carries calamity-grade charge. When cast with at least <strong>+2 Spirituality</strong>, increase its base damage by your <strong>pathway tier</strong>, and treat the Conduction Rule as active regardless of terrain moisture for the primary target.</p><h3>Legacy Upgrade (Sequence 3 - Efficiency)</h3><p>At Sequence 3, Lightning Bolt Arrow becomes a rapid sovereign punishment. Once per round, if you have moved at least 10 feet this turn, reduce this ability's spirituality spend by <strong>1</strong> (minimum 0). On that discounted cast, chain targeting ignores disadvantage for the first jumped target.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "120",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 4,
+        "school": "evo",
+        "properties": [
+          "somatic"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail5BoltAct001": {
+            "type": "utility",
+            "_id": "sail5BoltAct001",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-lightning-bolt-arrow",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 5
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270865598,
+        "modifiedTime": 1773271344728,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700400,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL5002",
+    "obj": {
+      "_id": "lotmAbilityL5002",
+      "name": "Ocean Current Manipulation",
+      "type": "spell",
+      "img": "icons/magic/water/wave-water-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (2 Spirituality):</strong> As an action, establish a controlled current field in a 30-foot radius centered on a point within 90 feet for 1 minute (concentration). Choose one mode when cast:</p><ul><li><strong>Riptide Mode:</strong> Hostile creatures treat area as difficult terrain and must make a Strength save when entering or starting turn there; on failure, they are moved up to 10 feet by the current.</li><li><strong>Escort Mode:</strong> You and allies gain +10 feet movement while in the area and advantage on checks to maintain footing, swim, or resist forced movement.</li></ul><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Radius increases to 40 feet.</li><li><strong>+2 Spirituality:</strong> You may switch modes once per round as a bonus action.</li><li><strong>+4 Spirituality:</strong> When a hostile creature fails its save, you can also force it prone if it is on a slick or water-covered surface.</li></ul><p><em>Counterplay:</em> Extremely dry enclosed spaces, anti-magic, or terrain without fluid/air flow can weaken or suppress current effects.</p><p><em>Corruption Hook:</em> If used to sweep innocents into hazards for expediency, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 4 - Scope)</h3><p>At Sequence 4, Ocean Current Manipulation can be cast as a roaming front. When cast with at least <strong>+2 Spirituality</strong>, you may move the current field up to 15 feet at the start of each of your turns. Once per cast, you may split the field into two 20-foot-radius zones that remain within 60 feet of each other.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "30"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "90",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 4,
+        "school": "con",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a loop of wet cord",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail5CurrentAct02": {
+            "type": "utility",
+            "_id": "sail5CurrentAct02",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-ocean-current-manipulation",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 5
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270865598,
+        "modifiedTime": 1773271131127,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700401,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL5003",
+    "obj": {
+      "_id": "lotmAbilityL5003",
+      "name": "Water Curtain",
+      "type": "spell",
+      "img": "icons/magic/water/barrier-ice-wall.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (2 Spirituality):</strong> As an action, raise a vertical curtain of pressurized water up to 20 feet long, 10 feet high, and 1 foot thick within 60 feet for 1 minute (concentration). The curtain provides heavy obscurement through it and grants half cover to creatures directly behind it. Crossing it costs 10 feet extra movement.</p><p><strong>State Shift:</strong> As a bonus action on your turn, choose one stance:</p><ul><li><strong>Liquid Veil:</strong> Creatures passing through the curtain must make a Strength save or be pushed 5 feet and lose reactions until start of next turn.</li><li><strong>Rigid Sheen:</strong> Curtain becomes semi-solid; weapon attacks passing through have disadvantage, and first hit each round on the curtain-facing ally is reduced by your Potency.</li></ul><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Length increases to 30 feet.</li><li><strong>+2 Spirituality:</strong> You may create two separate 10-foot segments instead of one line.</li><li><strong>+4 Spirituality:</strong> Once during duration, collapse the curtain in a 15-foot cone; creatures in cone make Strength saves or are knocked prone and pushed 10 feet.</li></ul><p><em>Counterplay:</em> Fire/heat hazards may thin the curtain at GM discretion; anti-magic ends it immediately.</p><p><em>Corruption Hook:</em> If you deploy Water Curtain to trap bystanders as shields, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "line",
+            "size": "20",
+            "width": "1"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "60",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 4,
+        "school": "abj",
+        "properties": [
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a palmful of seawater",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "activities": {
+          "sail5CurtainAct03": {
+            "type": "utility",
+            "_id": "sail5CurtainAct03",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-water-curtain",
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 5
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773270865598,
+        "modifiedTime": 1773270865598,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700402,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL4001",
+    "obj": {
+      "_id": "lotmAbilityL4001",
+      "name": "Hurricane Dominion",
+      "type": "spell",
+      "img": "icons/magic/air/wind-tornado-wall-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (4 Spirituality):</strong> As an action, summon a controlled hurricane domain in a 30-foot radius centered on a point within 120 feet for 1 minute (concentration). Hostile creatures treat the area as difficult terrain, ranged weapon attacks through the area have disadvantage, and each hostile creature that starts its turn inside must make a Strength save. On failure, it takes thunder damage equal to <strong>Potency + pathway tier</strong> and is moved up to 10 feet in a direction you choose within the area.</p><p><strong>Authority Clause:</strong> You can move the domain up to 20 feet as a bonus action each round, provided it remains within 120 feet of you.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Radius increases to 40 feet and forced movement becomes 15 feet.</li><li><strong>+4 Spirituality:</strong> Creatures failing their save are also deafened and cannot take reactions until the start of their next turn.</li><li><strong>+6 Spirituality:</strong> Once during duration, collapse the domain into a violent eye-wall burst; each hostile creature in area makes a Strength save or is knocked prone and pushed to the edge of the domain.</li></ul><p><em>Counterplay:</em> Anchored/immovable creatures ignore forced movement portions; anti-magic suppression ends the domain.</p><p><em>Corruption Hook:</em> If you invoke Hurricane Dominion in dense civilian zones without evacuation effort, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 3 - Scope)</h3><p>At Sequence 3, Hurricane Dominion expands into multi-front control. When cast with at least <strong>+4 Spirituality</strong>, you may maintain a secondary 20-foot mini-eye within 40 feet of the primary domain. The mini-eye shares your law riders but cannot use the collapse burst.</p><h3>Legacy Upgrade (Sequence 2 - Efficiency)</h3><p>At Sequence 2, Hurricane Dominion becomes easier to sustain under sovereign command. Once per short rest, you may cast Hurricane Dominion without concentration for its first 3 rounds. While this efficiency mode is active, moving the domain as a bonus action costs no additional spirituality surcharge.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "30"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "120",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 5,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a spiraled line of seawater in the air",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail4HurrAct001": {
+            "type": "utility",
+            "_id": "sail4HurrAct001",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-hurricane-dominion"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 4
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271131127,
+        "modifiedTime": 1773271577846,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700500,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL4002",
+    "obj": {
+      "_id": "lotmAbilityL4002",
+      "name": "Tsunami Judgment",
+      "type": "spell",
+      "img": "icons/magic/water/wave-water-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (4 Spirituality):</strong> As an action, launch a crushing surge in a 60-foot line that is 15 feet wide. Creatures in the line make a Strength save. On failure, a creature takes bludgeoning damage equal to <strong>3d6 + Potency</strong>, is pushed 20 feet, and falls prone. On success, it takes half damage and is pushed 5 feet.</p><p><strong>Command Undertow:</strong> Choose up to two allies touched by the wave edge; each may immediately move up to 10 feet without provoking opportunity attacks.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Line length increases to 80 feet and width to 20 feet.</li><li><strong>+4 Spirituality:</strong> Hostile creatures that fail their save are also silenced until the end of their next turn.</li><li><strong>+6 Spirituality:</strong> After resolution, create a lingering flood lane (20-foot by 20-foot) until start of your next turn; hostiles entering it must save or be knocked prone.</li></ul><p><em>Counterplay:</em> Creatures with freedom-of-movement style effects ignore prone/push riders as appropriate.</p><p><em>Corruption Hook:</em> If used purely to drown fleeing noncombatants, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "line",
+            "size": "60",
+            "width": "15"
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 5,
+        "school": "evo",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail4TsunAct002": {
+            "type": "utility",
+            "_id": "sail4TsunAct002",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-tsunami-judgment"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 4
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271131127,
+        "modifiedTime": 1773271131127,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700501,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL4003",
+    "obj": {
+      "_id": "lotmAbilityL4003",
+      "name": "Thunder Chain Edict",
+      "type": "spell",
+      "img": "icons/magic/lightning/bolt-strike-sparks-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (3 Spirituality):</strong> As an action, designate one creature within 90 feet as the primary target of a thunder edict. The target makes a Constitution save. On failure it takes thunder damage equal to <strong>2d8 + Potency</strong> and you may jump the edict to one additional creature within 15 feet of it (second creature makes its own save, same damage on failure). A successful save halves damage.</p><p><strong>Edict Pressure:</strong> A creature that fails cannot willingly move closer to you until the start of your next turn.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Maximum jumps increase to two additional creatures.</li><li><strong>+2 Spirituality:</strong> Failed targets cannot take reactions until start of your next turn.</li><li><strong>+4 Spirituality:</strong> If at least two targets fail saves, choose one failed target to become stunned until end of your current turn.</li></ul><p><em>Counterplay:</em> Thunder immunity/resistance applies normally; line of effect is required for each jump.</p><p><em>Corruption Hook:</em> If used to enforce petty obedience outside true danger, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "90",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 5,
+        "school": "evo",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail4ThunAct003": {
+            "type": "utility",
+            "_id": "sail4ThunAct003",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-thunder-chain-edict"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 4
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271131127,
+        "modifiedTime": 1773271131127,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700502,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL4004",
+    "obj": {
+      "_id": "lotmAbilityL4004",
+      "name": "Cataclysmic Roar",
+      "type": "spell",
+      "img": "icons/magic/sonic/explosion-shock-wave-teal.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (3 Spirituality):</strong> As an action, release a devastating roar in a 30-foot cone. Creatures in the cone make a Constitution save. On failure, they take thunder damage equal to <strong>2d6 + Potency</strong>, are deafened until the end of their next turn, and immediately lose concentration on one active effect. On success, they take half damage and keep concentration.</p><p><strong>Structural Shock:</strong> Fragile barriers, doors, and similar nonmagical objects in the cone take double damage.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Cone extends to 45 feet.</li><li><strong>+2 Spirituality:</strong> Failed targets are also knocked prone.</li><li><strong>+4 Spirituality:</strong> Choose one failed target carrying a sealed artifact, active talisman, or maintained ritual focus; it must succeed on a Wisdom save or that item/effect is suppressed until the end of your next turn.</li></ul><p><em>Counterplay:</em> Creatures immune to deafened ignore only that rider; concentration break follows normal concentration rules when relevant.</p><p><em>Corruption Hook:</em> If used for intimidation spectacle against captives, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "cone",
+            "size": "30"
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 5,
+        "school": "evo",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail4RoarAct004": {
+            "type": "utility",
+            "_id": "sail4RoarAct004",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-cataclysmic-roar"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 4
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271131127,
+        "modifiedTime": 1773271131127,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700503,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL3001",
+    "obj": {
+      "_id": "lotmAbilityL3001",
+      "name": "Sea King's Territory",
+      "type": "spell",
+      "img": "icons/magic/water/barrier-arc-wave-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (4 Spirituality):</strong> As an action, establish a sovereign sea-domain in a 40-foot radius centered on a point within 120 feet for 1 minute (concentration). Choose one domain law when cast:</p><ul><li><strong>Dominion of Undertow:</strong> hostile creatures in the domain have speed reduced by 15 feet and make a Strength save when they start their turn; on failure, you reposition them up to 10 feet within the domain.</li><li><strong>Dominion of Storm Track:</strong> you and allies gain +15 feet movement, ignore storm/water difficult terrain, and can move through allied spaces without extra cost.</li></ul><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Radius becomes 50 feet and you may switch law once per round as a bonus action.</li><li><strong>+4 Spirituality:</strong> Hostiles failing saves in Undertow law also lose reactions until the start of their next turn.</li><li><strong>+6 Spirituality:</strong> Once during duration, issue a king's redirection: move up to three failed hostiles simultaneously up to 15 feet each.</li></ul><p><em>Counterplay:</em> Anchored or immovable targets ignore reposition portions; anti-magic and dead-air zones suppress the domain.</p><p><em>Corruption Hook:</em> If you impose domain law to deny aid to drowning civilians, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 2 - Potency)</h3><p>At Sequence 2, Sea King's Territory gains catastrophe pressure. When cast with at least <strong>+4 Spirituality</strong>, hostile creatures that fail Undertow law saves take additional thunder damage equal to your <strong>Potency</strong>. Once per round, you may force one failed hostile to repeat its save immediately; on a second failure, it is restrained until the end of its next turn.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "40"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "120",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 6,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a circle of seawater traced at your feet",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail3TerrAct001": {
+            "type": "utility",
+            "_id": "sail3TerrAct001",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-sea-kings-territory"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 3
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271344728,
+        "modifiedTime": 1773271577846,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700600,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL3002",
+    "obj": {
+      "_id": "lotmAbilityL3002",
+      "name": "Storm Regalia",
+      "type": "spell",
+      "img": "icons/magic/lightning/bolts-forked-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (3 Spirituality):</strong> As a bonus action, wreath yourself in royal storm force for 1 minute (concentration). While active, your lightning and thunder effects gain +Potency damage to one target per cast, and you gain resistance to lightning and thunder damage. Once per turn, after dealing lightning/thunder damage, move up to 10 feet without provoking opportunity attacks from damaged creatures.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Duration becomes 10 minutes.</li><li><strong>+4 Spirituality:</strong> The first hostile creature you damage each round must make a Constitution save or become deafened and unable to take reactions until start of its next turn.</li><li><strong>+6 Spirituality:</strong> You gain a 20-foot fly speed while this effect lasts (cannot hover), and may descend safely at effect end.</li></ul><p><em>Counterplay:</em> Silence and anti-magic can shut down command casting lines despite active regalia.</p><p><em>Corruption Hook:</em> If you sustain Regalia only for intimidation over compliant civilians, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "bonus",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "self",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 6,
+        "school": "trs",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a crackle of charged mist",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail3RegaAct002": {
+            "type": "utility",
+            "_id": "sail3RegaAct002",
+            "sort": 0,
+            "activation": {
+              "type": "bonus",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-storm-regalia"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 3
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271344728,
+        "modifiedTime": 1773271344728,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700601,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL3003",
+    "obj": {
+      "_id": "lotmAbilityL3003",
+      "name": "Abyssal Tide Warrant",
+      "type": "spell",
+      "img": "icons/magic/water/projectile-wave-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (4 Spirituality):</strong> As an action, issue a deep-sea warrant against up to two creatures within 90 feet. Each target makes a Strength save. On failure, a target is marked by abyssal pressure until end of your next turn: it takes bludgeoning damage equal to <strong>2d8 + Potency</strong>, cannot fly above 10 feet, and is pulled 10 feet toward a point you choose on the ground or water surface.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Target up to three creatures.</li><li><strong>+4 Spirituality:</strong> Failed targets are also restrained until end of your next turn (or until they use an action to pass a Strength check vs your spell save DC).</li><li><strong>+6 Spirituality:</strong> At the start of your next turn, each target that remained marked must save again or be knocked prone and silenced until end of that turn.</li></ul><p><em>Counterplay:</em> Creatures immune to restraint/forced movement ignore only those riders while still resolving damage/save outcomes.</p><p><em>Corruption Hook:</em> If you apply warrant pressure to extract false confessions, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "2",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "90",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 6,
+        "school": "enc",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail3WarrAct003": {
+            "type": "utility",
+            "_id": "sail3WarrAct003",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-abyssal-tide-warrant"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 3
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271344728,
+        "modifiedTime": 1773271344728,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700602,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL3004",
+    "obj": {
+      "_id": "lotmAbilityL3004",
+      "name": "Thunderclap Mandate",
+      "type": "spell",
+      "img": "icons/magic/sonic/explosion-shock-wave-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (3 Spirituality):</strong> As an action, issue a kingly thunderclap in a 40-foot cone. Creatures in the cone make a Constitution save. On failure, they take thunder damage equal to <strong>2d6 + Potency</strong>, are deafened until end of their next turn, and must immediately drop concentration on one spell/effect they are maintaining.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Cone extends to 60 feet.</li><li><strong>+3 Spirituality:</strong> Failed targets are also frightened of you until the end of your next turn.</li><li><strong>+6 Spirituality:</strong> Choose one failed target; it is stunned until the end of your current turn.</li></ul><p><em>Counterplay:</em> Creatures immune to deafened/fear/stun ignore those specific riders only.</p><p><em>Corruption Hook:</em> If used to silence legitimate dissent outside immediate crisis, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "cone",
+            "size": "40"
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 6,
+        "school": "evo",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail3MandAct004": {
+            "type": "utility",
+            "_id": "sail3MandAct004",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-thunderclap-mandate"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 3
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271344728,
+        "modifiedTime": 1773271344728,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700603,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL2001",
+    "obj": {
+      "_id": "lotmAbilityL2001",
+      "name": "Descent of Calamity",
+      "type": "spell",
+      "img": "icons/magic/air/wind-tornado-wall-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (8 Spirituality):</strong> As an action, call down a catastrophe state over a 60-foot radius centered on a point within 180 feet for 1 minute (concentration). Choose one mode when cast:</p><ul><li><strong>Stormfall:</strong> each hostile creature that starts its turn in the area makes a Constitution save; on failure it takes lightning damage equal to <strong>2d8 + Potency</strong> and cannot take reactions until start of its next turn.</li><li><strong>Tidebreak:</strong> each hostile creature that starts its turn in the area makes a Strength save; on failure it is moved up to 15 feet and knocked prone if it collides with obstacle or hazardous edge.</li></ul><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Radius increases to 80 feet.</li><li><strong>+4 Spirituality:</strong> You may switch mode once per round as a bonus action.</li><li><strong>+8 Spirituality:</strong> Once during duration, trigger a calamity crest: every hostile creature in the area repeats the mode save immediately with disadvantage.</li></ul><p><em>Counterplay:</em> Immovable targets ignore displacement, and anti-magic suppression ends the catastrophe state.</p><p><em>Corruption Hook:</em> If invoked primarily for territorial terror over civilians, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 1 - Scope)</h3><p>At Sequence 1, Descent of Calamity can sustain dual catastrophe theaters. When cast with at least <strong>+4 Spirituality</strong>, you may establish a linked secondary zone (40-foot radius) within 300 feet of the primary; both zones share your mode and concentration. Once per round, when a hostile fails in either zone, you may force another hostile in the opposite zone to make the same save with disadvantage.</p><h3>Legacy Upgrade (Sequence 0 - Efficiency)</h3><p>At Sequence 0, Descent of Calamity gains sovereign upkeep. The first <strong>+4 Spirituality</strong> option used each casting is free. In addition, once per round you may move one active calamity zone up to 20 feet without spending actions, and if concentration ends naturally, one zone may persist until the end of your next turn.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "60"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "180",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 7,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a spiral of charged sea-mist",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail2DescAct001": {
+            "type": "utility",
+            "_id": "sail2DescAct001",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-descent-of-calamity"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 2
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272521384,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL2002",
+    "obj": {
+      "_id": "lotmAbilityL2002",
+      "name": "Source of Wrath",
+      "type": "spell",
+      "img": "icons/magic/control/fear-fright-monster-grin-red-orange.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (6 Spirituality):</strong> As an action, designate yourself or one willing ally within 30 feet as a Vessel of Wrath for 1 minute (concentration). The vessel gains +2 to attack rolls and save DCs of pathway abilities, +20 feet movement, and advantage on Strength/Constitution saves. At the end of each of its turns, it makes a Wisdom save (DC = 8 + your Potency). On failure, it must use its next action to aggressively engage the nearest hostile and cannot take the Dodge action that turn.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> The vessel also gains temporary HP equal to <strong>2 x Potency</strong>.</li><li><strong>+4 Spirituality:</strong> You may designate a second willing vessel within 30 feet (both roll end-turn control saves separately).</li><li><strong>+8 Spirituality:</strong> While active, once per vessel, you may replace a failed Wisdom control save with a success.</li></ul><p><em>Counterplay:</em> Charm immunity does not block this effect, but calm/emotion-suppression magic can end the vessel state at GM discretion.</p><p><em>Corruption Hook:</em> If used to knowingly strip an ally's agency for convenience, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 1 - Efficiency)</h3><p>At Sequence 1, Source of Wrath gains command smoothing. The first <strong>+2 Spirituality</strong> upcast option each casting is free. In addition, once per round while the effect is active, when a vessel fails its end-turn Wisdom control save, you may spend 1 Spirituality to treat the failure as success and immediately reposition that vessel up to 10 feet.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": "willing target"
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "30",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 7,
+        "school": "enc",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a drop of blood in seawater",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail2WrthAct002": {
+            "type": "utility",
+            "_id": "sail2WrthAct002",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-source-of-wrath"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 2
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272126646,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700701,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL2003",
+    "obj": {
+      "_id": "lotmAbilityL2003",
+      "name": "Magnetic Pole Pull",
+      "type": "spell",
+      "img": "icons/magic/lightning/bolt-strike-multi-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (5 Spirituality):</strong> As an action, establish polar command between two points you can see within 120 feet for 1 minute (concentration). Draw a 40-foot line between those points as a magnetic axis. Creatures entering or starting turn on the axis make a Strength save; on failure choose pull or push up to 15 feet along the axis. Metal gear and held metal objects impose disadvantage on this save.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Axis length becomes 60 feet and width becomes 10 feet.</li><li><strong>+4 Spirituality:</strong> Failed targets are disarmed if holding a metal weapon (weapon lands at a point on the axis you choose).</li><li><strong>+8 Spirituality:</strong> Once during duration, invert polarity: every creature on axis immediately repeats the save; on failure it is dragged to the center and knocked prone.</li></ul><p><em>Counterplay:</em> Non-metallic loadouts and anchor effects reduce/control displacement outcomes.</p><p><em>Corruption Hook:</em> If used to publicly torture restrained targets via metal drag, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "line",
+            "size": "40",
+            "width": "5"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "120",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 7,
+        "school": "trs",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "two iron filings pinched between wet fingers",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail2MagnAct003": {
+            "type": "utility",
+            "_id": "sail2MagnAct003",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-magnetic-pole-pull"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 2
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773271577846,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700702,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL2004",
+    "obj": {
+      "_id": "lotmAbilityL2004",
+      "name": "Sound of Horror",
+      "type": "spell",
+      "img": "icons/magic/sonic/explosion-shock-wave-teal.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (5 Spirituality):</strong> As an action, release a dread-charged sea hymn in a 60-foot sphere centered on you. Hostile creatures that can hear you make a Wisdom save. On failure, they become frightened of you until the end of your next turn and subtract your pathway tier from their next attack roll or ability check before then.</p><p><strong>Command Fracture:</strong> Creatures currently concentrating that fail the save must also make concentration checks with disadvantage.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Radius increases to 90 feet.</li><li><strong>+4 Spirituality:</strong> Failed targets also cannot speak above a whisper until end of their next turn (verbal spellcasting blocked unless they pass a Constitution check vs your spell save DC).</li><li><strong>+8 Spirituality:</strong> Choose up to two failed targets; each is stunned until the end of your current turn.</li></ul><p><em>Counterplay:</em> Deafened creatures ignore this ability entirely; fear immunity removes frightened rider only.</p><p><em>Corruption Hook:</em> If used as pure morale-crushing spectacle on surrendering foes, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "",
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": "creatures that can hear you"
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "60"
+          }
+        },
+        "range": {
+          "units": "self",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 7,
+        "school": "enc",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal"
+        ],
+        "materials": {
+          "value": "",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail2HorrAct004": {
+            "type": "utility",
+            "_id": "sail2HorrAct004",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-sound-of-horror"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 2
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773271577846,
+        "lastModifiedBy": "lotmPhase7000000",
+        "exportSource": null
+      },
+      "sort": 700703,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL1001",
+    "obj": {
+      "_id": "lotmAbilityL1001",
+      "name": "Incarnation of Light",
+      "type": "spell",
+      "img": "icons/magic/lightning/bolt-strike-blue-white.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (7 Spirituality):</strong> As a bonus action, assume lightning-incarnate state for 1 minute (concentration). While active, you gain fly speed 60 ft (hover), resistance to lightning and thunder, and can move through hostile spaces as crackling transit without provoking opportunity attacks. Once per turn when you move at least 20 feet before hitting, your next pathway attack deals extra lightning damage equal to <strong>Potency + 1d8</strong>.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Flight speed becomes 90 ft and you may pass through solid barriers up to 1 foot thick made of nonmagical material.</li><li><strong>+4 Spirituality:</strong> Your first hit each round discharges chain thunder to up to two additional enemies within 20 feet for <strong>Potency</strong> lightning damage (Dexterity save halves).</li><li><strong>+8 Spirituality:</strong> Once during the duration, you may blink 300 feet to a visible point as part of movement, leaving a thunder burst; nearby hostile creatures make Constitution saves or lose reactions until their next turn.</li></ul><p><em>Counterplay:</em> Grounding sigils, silence fields that suppress vocal component execution, and anti-teleport wards can limit lightning transit benefits.</p><p><em>Corruption Hook:</em> If used to terrorize noncombatants with deliberate overflight and strike feints, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "bonus",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "self",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "self",
+          "value": null,
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 8,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "ionized mist gathered on your palm",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail1IncAct001": {
+            "type": "utility",
+            "_id": "sail1IncAct001",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-incarnation-of-light"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 1
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272126646,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL1002",
+    "obj": {
+      "_id": "lotmAbilityL1002",
+      "name": "Heavenly Punishment",
+      "type": "spell",
+      "img": "icons/magic/lightning/strike-beam-bolt-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (9 Spirituality):</strong> As an action, pronounce judgment on one creature you can see within 300 feet. The target makes a Constitution save. On failure, it takes <strong>8d8 lightning + Potency</strong> and is stunned until the start of its next turn; on success, it takes half damage and is not stunned. If the target is in heavy rain, seawater, or standing water, it has disadvantage on the save.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Range increases to 600 feet and damage increases by <strong>2d8</strong>.</li><li><strong>+4 Spirituality:</strong> You may name up to three judged targets in a 30-foot sphere; each rolls separately.</li><li><strong>+8 Spirituality:</strong> Primary target that fails save by 5+ is incapacitated until the end of its next turn and cannot benefit from resistance to lightning during that window.</li></ul><p><em>Counterplay:</em> Full cover, lightning immunity, and sovereign anti-strike domains can blunt or negate the decree.</p><p><em>Corruption Hook:</em> If invoked as execution theater rather than tactical necessity, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 0 - Potency)</h3><p>At Sequence 0, Heavenly Punishment becomes divine verdict pressure. When cast with at least <strong>+4 Spirituality</strong>, each target that fails its save takes additional lightning damage equal to <strong>2 x Potency</strong>, and one failed target of your choice cannot benefit from damage reduction or resistance riders until the start of your next turn. Once per casting, you may immediately redirect one residual bolt to a second target within 60 feet for <strong>Potency</strong> lightning damage (Dexterity save halves).</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": null,
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "300",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 8,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic"
+        ],
+        "materials": {
+          "value": "a silvered rod etched with storm runes",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail1HvlyAct002": {
+            "type": "utility",
+            "_id": "sail1HvlyAct002",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-heavenly-punishment"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 1
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272521384,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL1003",
+    "obj": {
+      "_id": "lotmAbilityL1003",
+      "name": "Storm Hell",
+      "type": "spell",
+      "img": "icons/magic/air/weather-lightning-rain.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (10 Spirituality):</strong> As an action, establish a storm-annihilation field in a 90-foot radius centered on a point within 240 feet for 1 minute (concentration). Hostile creatures in the zone treat terrain as difficult terrain, and when they start their turns there they make a Strength save: on failure they are dragged 15 feet in a direction you choose and take <strong>3d8 thunder</strong>; on success they take half damage and resist forced movement this turn. Allies you choose ignore the difficult terrain.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Radius increases to 120 feet.</li><li><strong>+4 Spirituality:</strong> You may define two storm vectors instead of one; each hostile failing its save is moved by the vector most disadvantageous to it.</li><li><strong>+8 Spirituality:</strong> Once per round, when a hostile fails its save, you may impose one command effect: disarm, prone, or silence until the start of its next turn.</li></ul><p><em>Counterplay:</em> Anchored creatures, sealed structures, and weather-nullification rites reduce reposition pressure.</p><p><em>Corruption Hook:</em> If sustained to maximize collateral destruction where surrender is available, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "90"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "240",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 8,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a shard of magnetized black stone",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail1StrmAct003": {
+            "type": "utility",
+            "_id": "sail1StrmAct003",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-storm-hell"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 1
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272126646,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL1004",
+    "obj": {
+      "_id": "lotmAbilityL1004",
+      "name": "Ocean of Lightning",
+      "type": "spell",
+      "img": "icons/magic/lightning/bolt-cloud-sky.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (8 Spirituality):</strong> As an action, flood a 60-foot radius area within 180 feet with conductive stormwater for 1 minute (concentration). The area becomes hazardous. The first time each hostile enters or starts its turn there, it makes a Dexterity save: on failure it takes <strong>4d8 lightning</strong> and suffers -10 ft speed until end of turn; on success it takes half damage and no speed penalty. Allied creatures you designate can treat the zone as normal terrain and gain +10 ft speed while inside.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Radius increases to 80 feet and hostile speed penalty becomes -15 ft.</li><li><strong>+4 Spirituality:</strong> You create up to three conductive nodes in the zone; when a hostile fails a save, one node arcs to another hostile within 20 feet for <strong>Potency</strong> lightning damage.</li><li><strong>+8 Spirituality:</strong> Once each round, issue a surge command to relocate all nodes up to 30 feet each and immediately force one additional save from up to three hostiles now adjacent to nodes.</li></ul><p><em>Counterplay:</em> Lightning immunity, insulating barriers, and storm-severing ritual circles can isolate parts of the zone.</p><p><em>Corruption Hook:</em> If used to deny all retreat routes to fleeing civilians, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "60"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "180",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 8,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a vial of seawater flashed with static",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail1OcnAct004": {
+            "type": "utility",
+            "_id": "sail1OcnAct004",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-ocean-of-lightning"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 1
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272126646,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL0001",
+    "obj": {
+      "_id": "lotmAbilityL0001",
+      "name": "Tyrant's Edict",
+      "type": "spell",
+      "img": "icons/magic/lightning/bolt-strike-blue-white.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (14 Spirituality):</strong> As an action, proclaim a tyrant-law in a 90-foot radius centered on a point within 300 feet for 1 minute (concentration). Choose one law when cast:</p><ul><li><strong>Kneel to Thunder:</strong> hostile creatures that start their turns in the area make a Wisdom save; on failure, their speed becomes 0 and they cannot take reactions until the start of their next turn.</li><li><strong>Break and Advance:</strong> hostile creatures that start their turns in the area make a Strength save; on failure, you move them up to 20 feet in a direction of your choice and they suffer <strong>2d8 thunder</strong>.</li></ul><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+4 Spirituality:</strong> Radius becomes 120 feet and you may apply both laws simultaneously.</li><li><strong>+8 Spirituality:</strong> Once per round as a bonus action, issue an immediate edict pulse forcing one hostile in the area to repeat the save against one chosen law.</li><li><strong>+12 Spirituality:</strong> Hostiles that fail saves by 5+ are also stunned until the end of their current turn.</li></ul><p><em>Counterplay:</em> Superior authority domains, immunity to forced movement, and anti-command sanctums can reduce edict pressure.</p><p><em>Corruption Hook:</em> If used to crush surrendering enemies without strategic need, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "90"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "300",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 9,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "saltwater traced into a command sigil",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail0EdctAct001": {
+            "type": "utility",
+            "_id": "sail0EdctAct001",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-tyrants-edict"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 0
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272521384,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL0002",
+    "obj": {
+      "_id": "lotmAbilityL0002",
+      "name": "World-Sea Dominion",
+      "type": "spell",
+      "img": "icons/magic/water/wave-water-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (16 Spirituality):</strong> As an action, establish a sovereign storm-sea domain in a 150-foot radius centered on a point within 500 feet for 10 minutes (concentration). Hostile creatures in the area treat terrain as difficult terrain, and the first time each round they move more than 15 feet they take <strong>3d8 lightning</strong>. Allies you designate gain +20 feet movement and ignore nonmagical storm, rain, and wave penalties.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+4 Spirituality:</strong> Radius becomes 240 feet and allies in the domain gain resistance to lightning and thunder.</li><li><strong>+8 Spirituality:</strong> You may create up to three calm-current corridors (10 feet wide) inside the domain; allies moving through corridors can Dash without provoking opportunity attacks.</li><li><strong>+12 Spirituality:</strong> Domain duration becomes 1 hour, and during that hour your side automatically succeeds on checks to navigate, hold course, or maintain formation in extreme weather.</li></ul><p><em>Counterplay:</em> Dry-seal ritual circles, weather-nullification fields, and superior sea authority can puncture sections of the domain.</p><p><em>Corruption Hook:</em> If sustained to deny rescue operations for political intimidation, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "10",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "ft",
+            "contiguous": false,
+            "type": "radius",
+            "size": "150"
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "500",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 9,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic",
+          "concentration"
+        ],
+        "materials": {
+          "value": "a bowl of seawater stirred with lightning-marked iron",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail0WseaAct002": {
+            "type": "utility",
+            "_id": "sail0WseaAct002",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-world-sea-dominion"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 0
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272521384,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL0003",
+    "obj": {
+      "_id": "lotmAbilityL0003",
+      "name": "Heavenfall Tribunal",
+      "type": "spell",
+      "img": "icons/magic/lightning/beam-impact-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (17 Spirituality):</strong> As an action, call a tribunal strike on up to three creatures you can see within 800 feet. Each target makes a Constitution save. On failure, a target takes <strong>10d8 lightning + Potency</strong>, is knocked prone, and loses reactions until the start of its next turn. On success, it takes half damage and is not knocked prone.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+4 Spirituality:</strong> Add two additional targets, or strike the same target twice (second strike at half damage).</li><li><strong>+8 Spirituality:</strong> Failing targets also cannot gain advantage on attack rolls or saves until the end of their next turn.</li><li><strong>+12 Spirituality:</strong> One chosen target that fails by 5+ is incapacitated until the end of its next turn and its lightning resistance is suppressed for this resolution.</li></ul><p><em>Counterplay:</em> Full cover, immunity to lightning, and equal-or-higher divine adjudication can deflect or dull the tribunal.</p><p><em>Corruption Hook:</em> If invoked as spectacle punishment to terrorize bystanders, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "action",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": null,
+          "units": "inst"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "3",
+            "type": "creature",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "ft",
+          "value": "800",
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 9,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic"
+        ],
+        "materials": {
+          "value": "a shard of skyglass wrapped in wet cloth",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail0HvflAct003": {
+            "type": "utility",
+            "_id": "sail0HvflAct003",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-heavenfall-tribunal"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 0
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272521384,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  },
+  {
+    "key": "!items!lotmAbilityL0004",
+    "obj": {
+      "_id": "lotmAbilityL0004",
+      "name": "Sovereign of Tempest",
+      "type": "spell",
+      "img": "icons/magic/air/wind-tornado-cyclone-blue.webp",
+      "system": {
+        "description": {
+          "value": "<p><strong>Baseline (15 Spirituality):</strong> As a bonus action, enthrone yourself in a sovereign tempest state for 1 minute (no concentration). You gain fly speed 120 feet (hover), resistance to all damage except psychic and radiant, and immunity to being moved against your will by equal-or-lower sequence effects. Once per round, after you move at least 30 feet, you may unleash a tempest wake: creatures in a 20-foot line behind your path make Dexterity saves or take <strong>4d8 thunder</strong> and fall prone.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+4 Spirituality:</strong> You may take one additional bonus action each round that can only be used to issue edict pulses, reposition domain vectors, or trigger tempest wake.</li><li><strong>+8 Spirituality:</strong> When you or an ally within 60 feet would fail a Strength, Constitution, or Spirituality save, you may force a reroll (once per round).</li><li><strong>+12 Spirituality:</strong> Once during duration, declare <em>Sovereign Momentum</em>: for one round your movement cannot be reduced, and hostile opportunity attacks against you and designated allies automatically miss.</li></ul><p><em>Counterplay:</em> Radiant suppression fields, anti-flight authority, and superior divine mandates can limit the tempest state.</p><p><em>Corruption Hook:</em> If used to prolong conflict for domination rather than resolution, gain 1 Corruption.</p>",
+          "chat": ""
+        },
+        "activation": {
+          "type": "bonus",
+          "condition": "",
+          "value": null
+        },
+        "duration": {
+          "value": "1",
+          "units": "minute"
+        },
+        "target": {
+          "affects": {
+            "choice": false,
+            "count": "1",
+            "type": "self",
+            "special": ""
+          },
+          "template": {
+            "units": "",
+            "contiguous": false,
+            "type": ""
+          }
+        },
+        "range": {
+          "units": "self",
+          "value": null,
+          "special": ""
+        },
+        "source": {
+          "custom": "",
+          "rules": "2024",
+          "revision": 1,
+          "license": "",
+          "book": "LoTM Core"
+        },
+        "uses": {
+          "max": "",
+          "spent": 0,
+          "recovery": []
+        },
+        "level": 9,
+        "school": "con",
+        "preparation": {
+          "mode": "always",
+          "prepared": false
+        },
+        "method": "spell",
+        "prepared": 1,
+        "spiritualityCost": null,
+        "sourceClass": "lotm-sailor",
+        "properties": [
+          "vocal",
+          "somatic"
+        ],
+        "materials": {
+          "value": "a knot of stormwind bound in wet cloth",
+          "consumed": false,
+          "cost": 0,
+          "supply": 0
+        },
+        "activities": {
+          "sail0SvgtAct004": {
+            "type": "utility",
+            "_id": "sail0SvgtAct004",
+            "sort": 0,
+            "activation": {
+              "type": "action",
+              "value": null,
+              "override": false
+            },
+            "consumption": {
+              "scaling": {
+                "allowed": false
+              },
+              "spellSlot": true,
+              "targets": []
+            },
+            "description": {
+              "chatFlavor": ""
+            },
+            "duration": {
+              "units": "inst",
+              "concentration": false,
+              "override": false
+            },
+            "effects": [],
+            "range": {
+              "override": false
+            },
+            "target": {
+              "template": {
+                "contiguous": false,
+                "units": "ft"
+              },
+              "affects": {
+                "choice": false
+              },
+              "override": false,
+              "prompt": true
+            },
+            "uses": {
+              "spent": 0,
+              "recovery": [],
+              "max": ""
+            },
+            "roll": {
+              "prompt": false,
+              "visible": false,
+              "name": "",
+              "formula": ""
+            },
+            "name": "",
+            "img": "",
+            "appliedEffects": []
+          }
+        },
+        "identifier": "lotm-sailor-sovereign-of-tempest"
+      },
+      "effects": [],
+      "folder": "aex1emjqloq59bMQ",
+      "flags": {
+        "dnd5e": {
+          "riders": {
+            "activity": [],
+            "effect": []
+          }
+        },
+        "lotm": {
+          "sourceBook": "LoTM Core",
+          "grantedSequence": 0
+        }
+      },
+      "_stats": {
+        "duplicateSource": null,
+        "coreVersion": "13.351",
+        "systemId": "lotm",
+        "systemVersion": "5.2.6",
+        "createdTime": 1773271577846,
+        "modifiedTime": 1773272521384,
+        "lastModifiedBy": "codex",
+        "exportSource": null
+      },
+      "sort": 700700,
+      "ownership": {
+        "default": 0
+      }
+    }
+  }
+]

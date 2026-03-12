@@ -1,0 +1,66 @@
+{
+  "key": "!items!lotmPathway00006",
+  "obj": {
+    "_id": "lotmPathway00006",
+    "name": "Sailor",
+    "type": "class",
+    "img": "icons/magic/air/wind-tornado-wall-blue.webp",
+    "system": {
+      "description": {
+        "value": "<p><strong>Pathway Vector:</strong> forceful storm-borne authority, sea-forged mobility, and relentless momentum that pressures enemies into bad positions.</p><p><strong>Sequence 9 Package (Total Budget 2):</strong> Riptide Command, Phantom Scales.</p><p><strong>Sequence 8 Package (Gain Budget +3):</strong> Wrath, Raging Blow, and one legacy scope upgrade to Riptide Command.</p><p><strong>Sequence 7 Package (Gain Budget +13):</strong> Navigation, Drowning Film, Azure Surge, plus two legacy upgrades (Riptide Command and Phantom Scales).</p><p><strong>Sequence 6 Package (Gain Budget +9):</strong> Tempest Glide, Windblade Tithe, Sea Voice Requisition, plus two legacy upgrades (Riptide Command and Wrath).</p><p><strong>Sequence 5 Package (Gain Budget +13):</strong> Lightning Bolt Arrow, Ocean Current Manipulation, Water Curtain, plus two legacy upgrades (Navigation and Wrath).</p><p><strong>Sequence 4 Package (Gain Budget +33):</strong> Hurricane Dominion, Tsunami Judgment, Thunder Chain Edict, Cataclysmic Roar, plus two legacy upgrades (Lightning Bolt Arrow and Ocean Current Manipulation).</p><p><strong>Sequence 3 Package (Gain Budget +20):</strong> Sea King's Territory, Storm Regalia, Abyssal Tide Warrant, Thunderclap Mandate, plus two legacy upgrades (Hurricane Dominion and Lightning Bolt Arrow).</p><p><strong>Sequence 2 Package (Gain Budget +50):</strong> Descent of Calamity, Source of Wrath, Magnetic Pole Pull, Sound of Horror, plus two legacy upgrades (Sea King's Territory and Hurricane Dominion).</p><p><strong>Sequence 1 Package (Gain Budget +74):</strong> Incarnation of Light, Heavenly Punishment, Storm Hell, Ocean of Lightning, plus two legacy upgrades (Descent of Calamity and Source of Wrath).</p><p><strong>Sequence 0 Package (Gain Budget +114):</strong> Tyrant's Edict, World-Sea Dominion, Heavenfall Tribunal, Sovereign of Tempest, plus two legacy upgrades (Heavenly Punishment and Descent of Calamity).</p><p><strong>Continuity Anchor:</strong> Sequence 0 completes Sailor as Tyrant authority: storm, sea, and lightning become binding laws that dictate movement, tempo, and survival across the battlefield and surrounding region.</p>",
+        "chat": ""
+      },
+      "source": {
+        "custom": "",
+        "rules": "2024",
+        "revision": 1,
+        "license": "",
+        "book": "LoTM Core"
+      },
+      "startingEquipment": [],
+      "identifier": "lotm-sailor",
+      "levels": 1,
+      "advancement": [],
+      "spellcasting": {
+        "progression": "full",
+        "ability": "cha",
+        "preparation": {
+          "formula": ""
+        }
+      },
+      "wealth": "4d4*10",
+      "primaryAbility": {
+        "value": [
+          "cha"
+        ],
+        "all": false
+      },
+      "hd": {
+        "denomination": "d8",
+        "spent": 0,
+        "additional": ""
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "flags": {
+      "lotm": {
+        "sourceBook": "LoTM Core"
+      }
+    },
+    "_stats": {
+      "duplicateSource": null,
+      "coreVersion": "13.351",
+      "systemId": "lotm",
+      "systemVersion": "5.2.6",
+      "createdTime": 1773269624496,
+      "modifiedTime": 1773272521384,
+      "lastModifiedBy": "codex",
+      "exportSource": null
+    },
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    }
+  }
+}

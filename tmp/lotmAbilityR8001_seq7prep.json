@@ -1,0 +1,157 @@
+{
+  "_id": "lotmAbilityR8001",
+  "name": "Deductive Threading",
+  "type": "spell",
+  "img": "icons/magic/perception/eye-ringed-glow-angry-small-teal.webp",
+  "system": {
+    "description": {
+      "value": "<p><strong>Baseline (1 Spirituality):</strong> As an action, profile one creature you can see within 60 feet for 1 minute (concentration). Make a Spirituality (Investigation) check contested by the target's passive Deception. On a success, establish a deduction profile. Once per round while the profile persists, when the target makes an attack roll, check, or saving throw, you may use your reaction to impose <strong>-1d4</strong> after the roll but before outcome is confirmed. You also gain advantage on Insight checks against that target for the duration.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Profile up to two creatures in range (separate contested checks).</li><li><strong>+2 Spirituality:</strong> Penalty die increases to <strong>-1d6</strong>; if the profiled target fails an Intelligence save against your spell save DC, it cannot take reactions until the start of its next turn.</li><li><strong>+4 Spirituality:</strong> For the first two rounds, you may apply the penalty once each round without spending your reaction.</li></ul><p><em>Counterplay:</em> Breaking line of sight for a full round or masking intent with anti-divination effects ends the profile early.</p><p><em>Corruption Hook:</em> If you use this ability to deliberately frame an innocent target with fabricated logic, gain 1 Corruption.</p>",
+      "chat": ""
+    },
+    "source": {
+      "custom": "",
+      "rules": "2024",
+      "revision": 1,
+      "license": "",
+      "book": "LoTM Core"
+    },
+    "activation": {
+      "type": "action",
+      "condition": "",
+      "value": null
+    },
+    "duration": {
+      "value": "1",
+      "units": "minute"
+    },
+    "target": {
+      "affects": {
+        "choice": false,
+        "count": "1",
+        "type": "creature",
+        "special": ""
+      },
+      "template": {
+        "units": "",
+        "contiguous": false,
+        "type": ""
+      }
+    },
+    "range": {
+      "units": "ft",
+      "value": "60",
+      "special": ""
+    },
+    "uses": {
+      "max": "",
+      "spent": 0,
+      "recovery": []
+    },
+    "level": 1,
+    "school": "div",
+    "properties": [
+      "vocal",
+      "somatic",
+      "concentration"
+    ],
+    "materials": {
+      "value": "a page of analytical notes",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "always",
+      "prepared": false
+    },
+    "activities": {
+      "readerSeq8Act001": {
+        "type": "utility",
+        "_id": "readerSeq8Act001",
+        "sort": 0,
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "scaling": {
+            "allowed": false
+          },
+          "spellSlot": true,
+          "targets": []
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "minute",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false,
+          "prompt": true
+        },
+        "uses": {
+          "spent": 0,
+          "recovery": [],
+          "max": ""
+        },
+        "roll": {
+          "prompt": false,
+          "visible": false,
+          "name": "",
+          "formula": ""
+        },
+        "name": "",
+        "img": "",
+        "appliedEffects": []
+      }
+    },
+    "identifier": "lotm-reader-deductive-threading",
+    "method": "spell",
+    "prepared": 1,
+    "spiritualityCost": null,
+    "sourceClass": "lotm-reader"
+  },
+  "effects": [],
+  "folder": "x8Lrk4sDZhUbnJXx",
+  "flags": {
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
+      }
+    },
+    "lotm": {
+      "sourceBook": "LoTM Core",
+      "grantedSequence": 8
+    }
+  },
+  "_stats": {
+    "duplicateSource": null,
+    "coreVersion": "13.351",
+    "systemId": "lotm",
+    "systemVersion": "5.2.6",
+    "createdTime": 1773273893570,
+    "modifiedTime": 1773273893570,
+    "lastModifiedBy": "codex",
+    "exportSource": null
+  },
+  "sort": 600100,
+  "ownership": {
+    "default": 0
+  }
+}

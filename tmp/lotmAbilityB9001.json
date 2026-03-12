@@ -1,0 +1,155 @@
+{
+  "_id": "lotmAbilityB9001",
+  "name": "Sunrise Chorus",
+  "type": "spell",
+  "img": "icons/svg/bard.svg",
+  "system": {
+    "description": {
+      "value": "<p><strong>Baseline (0 Spirituality):</strong> You sing a clear, uplifting refrain. Choose up to 2 allies who can hear you within 30 feet (you can include yourself). Each target immediately ends one mundane fear effect; against supernatural fear, each target immediately repeats its saving throw with advantage. Until the end of your next turn, targets gain a +1 bonus to attack rolls and Wisdom saves.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+2 Spirituality:</strong> Target up to 4 allies and grant temporary HP equal to your Potency.</li><li><strong>+4 Spirituality:</strong> Duration becomes 1 minute (concentration); affected allies gain advantage on fear saves while they can hear your song.</li><li><strong>+6 Spirituality:</strong> Once during duration, each affected ally can add your Potency to one failed save against fear or charm, potentially turning it into a success.</li></ul><p><em>Counterplay:</em> The sustained effect ends if you are silenced, unable to vocalize, or voluntarily stop performing.</p>",
+      "chat": ""
+    },
+    "source": {
+      "custom": "",
+      "rules": "2024",
+      "revision": 1,
+      "license": "",
+      "book": "LoTM Core"
+    },
+    "activation": {
+      "type": "action",
+      "condition": "",
+      "value": null
+    },
+    "duration": {
+      "value": "1",
+      "units": "round"
+    },
+    "target": {
+      "affects": {
+        "choice": false,
+        "count": "2",
+        "type": "creature",
+        "special": "allies who can hear you"
+      },
+      "template": {
+        "units": "",
+        "contiguous": false,
+        "type": ""
+      }
+    },
+    "range": {
+      "units": "ft",
+      "value": "30",
+      "special": ""
+    },
+    "uses": {
+      "max": "",
+      "spent": 0,
+      "recovery": []
+    },
+    "level": 0,
+    "school": "enc",
+    "properties": [
+      "vocal"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "always",
+      "prepared": false
+    },
+    "activities": {
+      "bardSeq9Act001": {
+        "type": "utility",
+        "_id": "bardSeq9Act001",
+        "sort": 0,
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "scaling": {
+            "allowed": false
+          },
+          "spellSlot": true,
+          "targets": []
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false,
+          "prompt": true
+        },
+        "uses": {
+          "spent": 0,
+          "recovery": [],
+          "max": ""
+        },
+        "roll": {
+          "prompt": false,
+          "visible": false,
+          "name": "",
+          "formula": ""
+        },
+        "name": "",
+        "img": "",
+        "appliedEffects": []
+      }
+    },
+    "identifier": "lotm-bard-sunrise-chorus",
+    "method": "spell",
+    "prepared": 1,
+    "spiritualityCost": null,
+    "sourceClass": "lotm-bard"
+  },
+  "effects": [],
+  "folder": "1Oc180YVyiQmaWwW",
+  "flags": {
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
+      }
+    },
+    "lotm": {
+      "sourceBook": "LoTM Core",
+      "grantedSequence": 9
+    }
+  },
+  "_stats": {
+    "duplicateSource": null,
+    "coreVersion": "13.351",
+    "systemId": "lotm",
+    "systemVersion": "5.2.6",
+    "createdTime": 1773264480682,
+    "modifiedTime": 1773264480682,
+    "lastModifiedBy": "lotmPhase7000000",
+    "exportSource": null
+  },
+  "sort": 600000,
+  "ownership": {
+    "default": 0
+  }
+}

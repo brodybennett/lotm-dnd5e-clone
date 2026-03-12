@@ -1,0 +1,155 @@
+{
+  "_id": "lotmAbilityM7001",
+  "name": "Decryption",
+  "type": "spell",
+  "img": "icons/sundries/books/book-symbol-triangle-silver-blue.webp",
+  "system": {
+    "description": {
+      "value": "<p><strong>Baseline (0 Spirituality):</strong> Spend 1 action analyzing one scene object, spoken statement, sigil, coded note, or behavior pattern within 60 feet. Make a Spirituality (Investigation) check against DC 13 (or opposed by active deception). On success, extract one hidden structure: true intent, missing clause, disguised trigger, or concealed linkage between two clues.</p><p><strong>Cryptologist Limit:</strong> You reveal structure, not omniscience. If the clue was never present, Decryption cannot fabricate it.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Ask one additional focused question about the same target and get one extra reliable clue.</li><li><strong>+2 Spirituality:</strong> Extend to all relevant clues in a 20-foot area and identify one deliberate false lead automatically.</li><li><strong>+4 Spirituality:</strong> Bind one decoded weakness for 10 minutes; first ally check exploiting that weakness gains advantage and +Potency bonus.</li></ul><p><strong>Counterplay:</strong> Layered ciphers, anti-divination seals, fabricated memories, or intentionally contradictory evidence can impose disadvantage or partial reads.</p><p><em>Corruption Hook:</em> If you knowingly conceal a decrypted lethal risk from allies for personal gain, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 5 - Potency)</h3><p>At Sequence 5, Decryption can parse bizarro-level contradiction seams. If Decryption is cast with at least <strong>+2 Spirituality</strong>, you may designate one decoded falsehood as \"compromised\" for 1 minute: the first creature relying on that falsehood takes <strong>-1d4</strong> on its related check or save, and your next Clause Hijack against it gains advantage.</p><h3>Legacy Upgrade (Sequence 4 - Efficiency)</h3><p>At Sequence 4, Decryption can parse host-state feeds from active parasites. When targeting a parasitized host, Decryption may be used as a <strong>bonus action</strong> and gains a minimum result floor equal to <strong>10 + Potency</strong> for non-opposed checks. If cast with at least <strong>+2 Spirituality</strong>, you may immediately chain one free yes/no clarification about current host intent.</p><h3>Legacy Upgrade (Sequence 3 - Scope)</h3><p>At Sequence 3, Decryption may treat one active Deceit construct as a readable object. When this interaction is used, Decryption can map up to <strong>three</strong> linked contradiction seams at once, and one ally of your choice gains advantage on the first check exploiting any mapped seam this round.</p>",
+      "chat": ""
+    },
+    "source": {
+      "custom": "",
+      "rules": "2024",
+      "revision": 1,
+      "license": "",
+      "book": "LoTM Core"
+    },
+    "activation": {
+      "type": "action",
+      "condition": "",
+      "value": null
+    },
+    "duration": {
+      "value": "",
+      "units": "inst"
+    },
+    "target": {
+      "affects": {
+        "choice": false,
+        "count": "1",
+        "type": "object",
+        "special": ""
+      },
+      "template": {
+        "units": "",
+        "contiguous": false,
+        "type": ""
+      }
+    },
+    "range": {
+      "units": "ft",
+      "special": "60"
+    },
+    "uses": {
+      "max": "",
+      "spent": 0,
+      "recovery": []
+    },
+    "level": 2,
+    "school": "div",
+    "properties": [
+      "vocal",
+      "somatic"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "always",
+      "prepared": false
+    },
+    "activities": {
+      "decryptActM7001": {
+        "type": "utility",
+        "_id": "decryptActM7001",
+        "sort": 0,
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "scaling": {
+            "allowed": false
+          },
+          "spellSlot": true,
+          "targets": []
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false,
+          "prompt": true
+        },
+        "uses": {
+          "spent": 0,
+          "recovery": [],
+          "max": ""
+        },
+        "roll": {
+          "prompt": false,
+          "visible": false,
+          "name": "",
+          "formula": ""
+        },
+        "name": "",
+        "img": "",
+        "appliedEffects": []
+      }
+    },
+    "identifier": "lotm-marauder-decryption",
+    "method": "spell",
+    "prepared": 1,
+    "spiritualityCost": null,
+    "sourceClass": "lotm-marauder"
+  },
+  "effects": [],
+  "folder": "RybjEFRw1oKZTAHB",
+  "flags": {
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
+      }
+    },
+    "lotm": {
+      "sourceBook": "LoTM Core",
+      "grantedSequence": 7
+    }
+  },
+  "_stats": {
+    "duplicateSource": null,
+    "coreVersion": "13.351",
+    "systemId": "lotm",
+    "systemVersion": "5.2.6",
+    "createdTime": 1773203870789,
+    "modifiedTime": 1773204855206,
+    "lastModifiedBy": "lotmPhase3000000",
+    "exportSource": null
+  },
+  "sort": 300120,
+  "ownership": {
+    "default": 0
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "_id": "lotmAbilityM9001",
+  "name": "Superior Observation",
+  "type": "spell",
+  "img": "icons/magic/perception/eye-ringed-green.webp",
+  "system": {
+    "description": {
+      "value": "<p><strong>Baseline (0 Spirituality):</strong> For 10 minutes (concentration), your perception locks onto value, concealment seams, and behavioral tells. As an action, scan creatures and containers within 30 feet. Make a Spirituality (Perception or Investigation) check against DC 12 (or against a target's passive Deception if actively masking intent). On success, identify which scanned target currently carries the highest-value portable item, and gain <strong>+1d4</strong> on your next check this scene to locate hidden compartments, forged paperwork, or exploitable wording tied to that target.</p><p><strong>Loophole Clause:</strong> If you can quote a literal phrase from a posted rule, contract, or spoken order that leaves ambiguity, you may use Charisma (Deception) instead of Spirituality for this scan.</p><p><strong>Higher Spend (upcast):</strong></p><ul><li><strong>+1 Spirituality:</strong> Range increases to 60 feet, and you learn one item category on a scanned target (key, coin, document, charm, weapon).</li><li><strong>+2 Spirituality:</strong> Mark one scanned target for 1 hour. Your first Sleight of Hand or Deception check against that target gains advantage.</li><li><strong>+4 Spirituality:</strong> During the scan, you also detect one hidden creature or hidden compartment in range if it contains something materially valuable; additionally, choose one scanned target and learn the exact pocket, sheath, or container currently holding its highest-value portable item.</li></ul><p><strong>Counterplay:</strong> Worthless decoys, anti-divination wards, and strict sensory denial (darkness, silence, heavy obstruction) can block or mislead this read at GM discretion.</p><p><em>Corruption Hook:</em> If you knowingly violate an agreement immediately after using Superior Observation to exploit it, gain 1 Corruption.</p><h3>Legacy Upgrade (Sequence 7 - Scope)</h3><p>At Sequence 7, Superior Observation can read subtle clues and traces normally missed by common observers. If cast with at least <strong>+1 Spirituality</strong>, choose one extra output: concealed recent interaction (within 1 hour), hidden transfer route between two holders, or forged-document stress marks. If cast with at least <strong>+2 Spirituality</strong>, you may preserve one observed clue as a \"decoded anchor\" for 10 minutes; your next Decryption check tied to that anchor has advantage.</p>",
+      "chat": ""
+    },
+    "source": {
+      "custom": "",
+      "rules": "2024",
+      "revision": 1,
+      "license": "",
+      "book": "LoTM Core"
+    },
+    "activation": {
+      "type": "action",
+      "condition": "",
+      "value": null
+    },
+    "duration": {
+      "value": "10",
+      "units": "minute"
+    },
+    "target": {
+      "affects": {
+        "choice": false,
+        "count": "1",
+        "type": "self",
+        "special": ""
+      },
+      "template": {
+        "units": "",
+        "contiguous": false,
+        "type": ""
+      }
+    },
+    "range": {
+      "units": "self",
+      "special": ""
+    },
+    "uses": {
+      "max": "",
+      "spent": 0,
+      "recovery": []
+    },
+    "level": 0,
+    "school": "div",
+    "properties": [
+      "vocal",
+      "somatic",
+      "concentration"
+    ],
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "always",
+      "prepared": false
+    },
+    "activities": {
+      "supObsActM90001": {
+        "type": "utility",
+        "_id": "supObsActM90001",
+        "sort": 0,
+        "activation": {
+          "type": "action",
+          "value": null,
+          "override": false
+        },
+        "consumption": {
+          "scaling": {
+            "allowed": false
+          },
+          "spellSlot": true,
+          "targets": []
+        },
+        "description": {
+          "chatFlavor": ""
+        },
+        "duration": {
+          "units": "minute",
+          "concentration": false,
+          "override": false
+        },
+        "effects": [],
+        "range": {
+          "override": false
+        },
+        "target": {
+          "template": {
+            "contiguous": false,
+            "units": "ft"
+          },
+          "affects": {
+            "choice": false
+          },
+          "override": false,
+          "prompt": true
+        },
+        "uses": {
+          "spent": 0,
+          "recovery": [],
+          "max": ""
+        },
+        "roll": {
+          "prompt": false,
+          "visible": false,
+          "name": "",
+          "formula": ""
+        },
+        "name": "",
+        "img": "",
+        "appliedEffects": []
+      }
+    },
+    "identifier": "lotm-marauder-superior-observation",
+    "method": "spell",
+    "prepared": 1,
+    "spiritualityCost": null,
+    "sourceClass": "lotm-marauder"
+  },
+  "effects": [],
+  "folder": "RybjEFRw1oKZTAHB",
+  "flags": {
+    "dnd5e": {
+      "riders": {
+        "activity": [],
+        "effect": []
+      }
+    },
+    "lotm": {
+      "sourceBook": "LoTM Core",
+      "grantedSequence": 9
+    }
+  },
+  "_stats": {
+    "duplicateSource": null,
+    "coreVersion": "13.351",
+    "systemId": "lotm",
+    "systemVersion": "5.2.6",
+    "createdTime": 1773203125070,
+    "modifiedTime": 1773203870789,
+    "lastModifiedBy": "lotmPhase7000000",
+    "exportSource": null
+  },
+  "sort": 300000,
+  "ownership": {
+    "default": 0
+  }
+}
