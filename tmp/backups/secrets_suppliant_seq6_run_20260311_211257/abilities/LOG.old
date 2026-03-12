@@ -1,0 +1,8 @@
+2026/03/11-21:09:20.227 9020 Recovering log #983
+2026/03/11-21:09:20.231 9020 Delete type=0 #983
+2026/03/11-21:09:20.231 9020 Delete type=2 #984
+2026/03/11-21:09:20.232 9020 Delete type=3 #981
+2026/03/11-21:09:20.232 abb4 Compacting 4@0 + 1@1 files
+2026/03/11-21:09:20.240 abb4 Generated table #986@0: 263 keys, 417441 bytes
+2026/03/11-21:09:20.240 abb4 Compacted 4@0 + 1@1 files => 417441 bytes
+2026/03/11-21:09:20.240 abb4 compacted to: files[ 0 1 0 0 0 0 0 ]
