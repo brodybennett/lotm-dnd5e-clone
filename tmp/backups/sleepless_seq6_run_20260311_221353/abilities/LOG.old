@@ -1,0 +1,9 @@
+2026/03/11-22:11:05.921 af60 Recovering log #1125
+2026/03/11-22:11:05.921 af60 Level-0 table #1127: started
+2026/03/11-22:11:05.922 af60 Level-0 table #1127: 10684 bytes OK
+2026/03/11-22:11:05.925 af60 Delete type=0 #1125
+2026/03/11-22:11:05.925 af60 Delete type=3 #1124
+2026/03/11-22:11:05.926 1abc Compacting 4@0 + 1@1 files
+2026/03/11-22:11:05.934 1abc Generated table #1129@0: 297 keys, 480436 bytes
+2026/03/11-22:11:05.934 1abc Compacted 4@0 + 1@1 files => 480436 bytes
+2026/03/11-22:11:05.935 1abc compacted to: files[ 0 1 0 0 0 0 0 ]

@@ -1,0 +1,5 @@
+2026/03/11-22:11:05.892 53fc Recovering log #859
+2026/03/11-22:11:05.892 53fc Level-0 table #861: started
+2026/03/11-22:11:05.895 53fc Level-0 table #861: 1473 bytes OK
+2026/03/11-22:11:05.898 53fc Delete type=0 #859
+2026/03/11-22:11:05.898 53fc Delete type=3 #858
