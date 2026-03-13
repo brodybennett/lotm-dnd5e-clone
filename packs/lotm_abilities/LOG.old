@@ -1,5 +1,8 @@
-2026/03/12-22:19:57.281 736c Recovering log #1929
-2026/03/12-22:19:57.281 736c Level-0 table #1931: started
-2026/03/12-22:19:57.283 736c Level-0 table #1931: 11313 bytes OK
-2026/03/12-22:19:57.286 736c Delete type=0 #1929
-2026/03/12-22:19:57.286 736c Delete type=3 #1928
+2026/03/12-23:30:21.648 1d0c Recovering log #2031
+2026/03/12-23:30:21.648 1d0c Level-0 table #2033: started
+2026/03/12-23:30:21.650 1d0c Level-0 table #2033: 12072 bytes OK
+2026/03/12-23:30:21.653 1d0c Delete type=0 #2031
+2026/03/12-23:30:21.654 1d0c Delete type=2 #2032
+2026/03/12-23:30:21.654 1d0c Delete type=3 #2030
+2026/03/12-23:30:21.656 abb8 Compacting 5@0 + 1@1 files
+2026/03/12-23:30:21.657 abb8 compacted to: files[ 5 1 0 0 0 0 0 ]
