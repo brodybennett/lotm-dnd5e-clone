@@ -1,0 +1,13 @@
+2026/03/12-21:46:49.329 8ea8 Recovering log #1460
+2026/03/12-21:46:49.329 8ea8 Level-0 table #1462: started
+2026/03/12-21:46:49.331 8ea8 Level-0 table #1462: 1571 bytes OK
+2026/03/12-21:46:49.335 8ea8 Delete type=0 #1460
+2026/03/12-21:46:49.335 8ea8 Delete type=3 #1459
+2026/03/12-21:46:49.335 ac54 Compacting 4@0 + 0@1 files
+2026/03/12-21:46:49.336 ac54 Generated table #1464@0: 1 keys, 1571 bytes
+2026/03/12-21:46:49.336 ac54 Compacted 4@0 + 0@1 files => 1571 bytes
+2026/03/12-21:46:49.337 ac54 compacted to: files[ 0 15 0 0 0 0 0 ]
+2026/03/12-21:46:49.337 ac54 Delete type=2 #1441
+2026/03/12-21:46:49.337 ac54 Delete type=2 #1448
+2026/03/12-21:46:49.337 ac54 Delete type=2 #1455
+2026/03/12-21:46:49.337 ac54 Delete type=2 #1462
