@@ -1,0 +1,7 @@
+Legacy Ability Scaling
+When designing a promotion package, preserve pathway continuity by explicitly investing in earlier sequence abilities so they remain relevant at higher tiers.
+  - Reserve 25%-35% of gain budget for upgrading legacy abilities.
+  - Upgrade up to 2 legacy abilities per promotion package.
+  - Use one upgrade type per legacy upgrade: Potency (stronger numbers), Scope (range, targets, duration, or area), or Efficiency (frequency, setup/action cost, or resource pressure).
+  - Score legacy upgrades with the same feature rubric and count their cost against sequence budget.
+  - Relevance check: at least one ability from 2+ sequences below should remain tactically meaningful in normal play; if not, add a legacy upgrade or rider effect.
