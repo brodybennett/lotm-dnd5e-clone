@@ -3066,6 +3066,7 @@
 "DND5E.SpiritualityTempMax": "Temporary Maximum Spirituality",
 "DND5E.SpiritualityFormula": "Spirituality Formula",
 "DND5E.SpiritualityDerivedFormula": "PB + SPI Modifier + (9 - Sequence #)",
+"DND5E.SpiritualityDerivedFormulaPathway": "{base} + ({ability} mod x {scale})",
 "DND5E.SpiritualityDerivedHint": "Spirituality Max: {formula}",
 "DND5E.Corruption": "Corruption",
 "DND5E.CorruptionCurrent": "Current Corruption",

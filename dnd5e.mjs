@@ -1,6 +1,12 @@
 /**
  * @import { TargetDescriptor5e, UnitConfiguration } from "./_types.mjs";
  */
+import {
+  getLotmPathwayAbilityCap,
+  getLotmPathwayAttributeBonuses,
+  getLotmPathwayResourceShift,
+  getLotmPathwayScalingProfile
+} from "./pathway-scaling.mjs";
 
 /* -------------------------------------------- */
 /*  Formatters                                  */
@@ -40800,8 +40806,12 @@ class AttributesFields {
     const spiritualityBase = Number.isFinite(this.pathway?.spiritualityBase)
       ? Math.max(Math.floor(this.pathway.spiritualityBase), 0)
       : pathwaySpiritualityBaseFromSequence(sequence);
-    const spiritualityModifier = Number(this.abilities?.wis?.mod) || 0;
-    spirituality.max = Math.max(spiritualityBase + (spiritualityModifier * (2 + tier)), 0);
+    const spiritAbility = this.parent?.type === "character" ? actorPathwaySpiritAbility(this.parent) : "wis";
+    const spiritAbilityLabel = CONFIG.DND5E.abilities?.[spiritAbility]?.label
+      ?? game.i18n.localize("DND5E.AbilityWis");
+    const spiritScale = 2 + tier;
+    const spiritualityModifier = Number(this.abilities?.[spiritAbility]?.mod) || 0;
+    spirituality.max = Math.max(spiritualityBase + (spiritualityModifier * spiritScale), 0);
     spirituality.temp = Math.max(Number(spirituality.temp) || 0, 0);
     spirituality.tempmax = Number(spirituality.tempmax) || 0;
     spirituality.effectiveMax = Math.max(spirituality.max + spirituality.temp + spirituality.tempmax, 0);
@@ -40809,7 +40819,11 @@ class AttributesFields {
     spirituality.pct = Math.clamp(
       spirituality.effectiveMax ? (spirituality.value / spirituality.effectiveMax) * 100 : 0, 0, 100
     );
-    spirituality.formula = game.i18n.localize("DND5E.SpiritualityDerivedFormulaPathway");
+    spirituality.formula = game.i18n.format("DND5E.SpiritualityDerivedFormulaPathway", {
+      base: spiritualityBase,
+      ability: spiritAbilityLabel,
+      scale: spiritScale
+    });
   }
 
   /* -------------------------------------------- */
@@ -41242,6 +41256,8 @@ class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
   prepareAbilities({ rollData={}, originalSaves }={}) {
     const flags = this.parent.flags.lotm ?? {};
     const { prof = 0, ac } = this.attributes ?? {};
+    const pathwaySequence = this.parent?.type === "character" ? actorPathwaySequence(this.parent) : LOTM_MAX_SEQUENCE;
+    const pathwayProfile = this.parent?.type === "character" ? actorPathwayScalingProfile(this.parent) : null;
     const pathwayTier = this.parent?.type === "character" ? Math.max(Number(this.pathway?.tier) || 0, 0) : 0;
     const pathwayPotency = this.parent?.type === "character"
       ? (Number(this.attributes?.potency) || Number(this.pathway?.potency) || prof)
@@ -41251,6 +41267,24 @@ class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
     const abilityCap = this.parent?.type === "character"
       ? pathwayAbilityCapFromTier(this.pathway?.tier ?? 0)
       : CONFIG.DND5E.maxAbilityScore;
+    const pathwayBonuses = this.parent?.type === "character"
+      ? getLotmPathwayAttributeBonuses(pathwaySequence, pathwayProfile)
+      : {};
+    for ( const [id, abl] of Object.entries(this.abilities) ) {
+      const pathwayBonus = Number(pathwayBonuses[id]) || 0;
+      const laneCap = this.parent?.type === "character"
+        ? getLotmPathwayAbilityCap(pathwaySequence, pathwayProfile, id)
+        : abilityCap;
+      const baseValue = Number(abl.value) || 0;
+      const boostedValue = baseValue + pathwayBonus;
+      if ( Number.isFinite(laneCap) ) {
+        abl.max = Number.isFinite(abl.max) ? Math.max(abl.max, laneCap) : laneCap;
+        abl.value = Math.max(baseValue, Math.min(boostedValue, laneCap));
+      } else {
+        if ( !Number.isFinite(abl.max) ) abl.max = abilityCap;
+        abl.value = boostedValue;
+      }
+    }
     Object.values(this.abilities).forEach(a => a.mod = Math.floor((a.value - 10) / 2));
     const checkBonus = simplifyBonus(this.bonuses?.abilities?.check, rollData);
     const saveBonus = simplifyBonus(this.bonuses?.abilities?.save, rollData);
@@ -41279,8 +41313,6 @@ class CommonTemplate extends ActorDataModel$1.mixin(CurrencyTemplate) {
       if ( Number.isNumeric(abl.saveProf.term) ) abl.save.value += abl.saveProf.flat;
       abl.attack = abl.mod + prof;
       abl.dc = 8 + abl.mod + pathwayPotency + dcBonus;
-
-      if ( !Number.isFinite(abl.max) ) abl.max = abilityCap;
 
       // Adjust rolling mode
       if ( this.parent.hasConditionEffect("abilityCheckDisadvantage") ) {
@@ -45373,6 +45405,7 @@ function clampPathwayAdjustment(value, base, minPct, maxPct) {
  * Build normalized pathway stats for an actor from sequence.
  * @param {number} sequence  Pathway sequence.
  * @param {object} [options={}]
+ * @param {number} [options.resourceShift=0]   Zero-sum HP versus spirituality shift.
  * @param {number} [options.durabilityAdj=0]   Pathway durability adjustment.
  * @param {number} [options.spiritualityAdj=0] Pathway spirituality adjustment.
  * @returns {{
@@ -45386,7 +45419,7 @@ function clampPathwayAdjustment(value, base, minPct, maxPct) {
  *   spiritualityBase: number
  * }}
  */
-function pathwayStatsForSequence(sequence, { durabilityAdj=0, spiritualityAdj=0 }={}) {
+function pathwayStatsForSequence(sequence, { resourceShift=0, durabilityAdj=0, spiritualityAdj=0 }={}) {
   const normalized = normalizePathwaySequence(sequence);
   const tier = pathwayTierFromSequence(normalized);
   const budget = pathwayBudgetFromSequence(normalized);
@@ -45395,6 +45428,9 @@ function pathwayStatsForSequence(sequence, { durabilityAdj=0, spiritualityAdj=0 
   const resistance = pathwayResistanceFromSequence(normalized);
   const hpBase = pathwayHpBaseFromSequence(normalized);
   const spiritualityBase = pathwaySpiritualityBaseFromSequence(normalized);
+  const shift = Math.clamp(Number(resourceShift) || 0, -0.12, 0.12);
+  const shiftedHpBase = Math.max(Math.round(hpBase * (1 + shift)), 0);
+  const shiftedSpiritualityBase = Math.max(Math.round(spiritualityBase * (1 - shift)), 0);
   return {
     sequence: normalized,
     tier,
@@ -45402,8 +45438,8 @@ function pathwayStatsForSequence(sequence, { durabilityAdj=0, spiritualityAdj=0 
     sequenceBonus,
     potency,
     resistance,
-    hpBase: hpBase + clampPathwayAdjustment(durabilityAdj, hpBase, -0.15, 0.15),
-    spiritualityBase: spiritualityBase + clampPathwayAdjustment(spiritualityAdj, spiritualityBase, -0.10, 0.20)
+    hpBase: shiftedHpBase + clampPathwayAdjustment(durabilityAdj, shiftedHpBase, -0.15, 0.15),
+    spiritualityBase: shiftedSpiritualityBase + clampPathwayAdjustment(spiritualityAdj, shiftedSpiritualityBase, -0.10, 0.20)
   };
 }
 
@@ -45551,14 +45587,64 @@ function actorPathwaySequence(actor) {
 /* -------------------------------------------- */
 
 /**
+ * Determine the actor's active pathway class.
+ * @param {Actor5e} actor  Actor to evaluate.
+ * @returns {Item5e|null}
+ */
+function actorPrimaryPathwayClass(actor) {
+  if ( actor?.type !== "character" ) return null;
+  const classes = [...(actor.itemTypes?.class ?? [])];
+  if ( !classes.length ) return null;
+  classes.sort((a, b) => {
+    const levelDelta = (Number(b.system?.levels) || 0) - (Number(a.system?.levels) || 0);
+    if ( levelDelta ) return levelDelta;
+    const sortDelta = (Number(a.sort) || 0) - (Number(b.sort) || 0);
+    if ( sortDelta ) return sortDelta;
+    return String(a.name ?? "").localeCompare(String(b.name ?? ""), "en");
+  });
+  return classes[0] ?? null;
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine the active pathway scaling profile for an actor.
+ * @param {Actor5e} actor  Actor to evaluate.
+ * @returns {ReturnType<typeof getLotmPathwayScalingProfile>}
+ */
+function actorPathwayScalingProfile(actor) {
+  const pathwayClass = actorPrimaryPathwayClass(actor);
+  const primaryAbility = Array.from(pathwayClass?.system?.primaryAbility?.value ?? [])[0];
+  return getLotmPathwayScalingProfile(pathwayClass?.identifier ?? pathwayClass?.system?.identifier ?? "", {
+    spellcastingAbility: pathwayClass?.system?.spellcasting?.ability ?? "wis",
+    primaryAbility
+  });
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Determine the spirit anchor ability for an actor's pathway.
+ * @param {Actor5e} actor  Actor to evaluate.
+ * @returns {string}
+ */
+function actorPathwaySpiritAbility(actor) {
+  return actorPathwayScalingProfile(actor).spiritAbility || "wis";
+}
+
+/* -------------------------------------------- */
+
+/**
  * Determine actor pathway stats.
  * @param {Actor5e} actor  Actor to evaluate.
  * @returns {ReturnType<typeof pathwayStatsForSequence>}
  */
 function actorPathwayStats(actor) {
   const sequence = actorPathwaySequence(actor);
+  const profile = actorPathwayScalingProfile(actor);
   const pathwayData = actor?.system?.pathway ?? {};
   return pathwayStatsForSequence(sequence, {
+    resourceShift: getLotmPathwayResourceShift(profile, sequence),
     durabilityAdj: Number(pathwayData?.durabilityAdj) || 0,
     spiritualityAdj: Number(pathwayData?.spiritualityAdj) || 0
   });
