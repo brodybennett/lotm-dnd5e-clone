@@ -1,0 +1,9 @@
+2026/03/18-20:54:21.658 14890 Recovering log #2667
+2026/03/18-20:54:21.658 14890 Level-0 table #2669: started
+2026/03/18-20:54:21.662 14890 Level-0 table #2669: 7245 bytes OK
+2026/03/18-20:54:21.665 14890 Delete type=0 #2667
+2026/03/18-20:54:21.665 14890 Delete type=3 #2666
+2026/03/18-20:54:21.666 debc Compacting 4@0 + 1@1 files
+2026/03/18-20:54:21.688 debc Generated table #2671@0: 751 keys, 1319280 bytes
+2026/03/18-20:54:21.688 debc Compacted 4@0 + 1@1 files => 1319280 bytes
+2026/03/18-20:54:21.689 debc compacted to: files[ 0 1 0 0 0 0 0 ]
