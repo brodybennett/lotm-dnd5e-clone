@@ -7,7 +7,8 @@ import {
   getLotmPathwayAttributeBonuses,
   getLotmPathwayCumulativeAttributePoints,
   getLotmPathwayResourceShift,
-  getLotmPathwayScalingProfile
+  getLotmPathwayScalingProfile,
+  lotmPathwayTierFromSequence
 } from "../pathway-scaling.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -52,11 +53,15 @@ function computeRow(identifier, sequence) {
   const hpBase = baseHp(sequence);
   const spBase = baseSpirituality(sequence);
   const hp = Math.max(Math.round(hpBase * (1 + shift)), 0);
-  const spirituality = Math.max(Math.round(spBase * (1 - shift)), 0);
+  const spiritualityBase = Math.max(Math.round(spBase * (1 - shift)), 0);
   const bonuses = getLotmPathwayAttributeBonuses(sequence, profile);
   const points = Object.values(bonuses).reduce((total, value) => total + value, 0);
-  const resourceBalance = (hp / hpBase) + (spirituality / spBase);
+  const resourceBalance = (hp / hpBase) + (spiritualityBase / spBase);
   const attributes = Object.fromEntries(ABILITIES.map(ability => [ability, BASELINE_ABILITY + (bonuses[ability] || 0)]));
+  const spiritAbility = profile.spiritAbility;
+  const spiritScale = 2 + lotmPathwayTierFromSequence(sequence);
+  const spiritModifier = Math.floor(((attributes[spiritAbility] || BASELINE_ABILITY) - 10) / 2);
+  const spiritualityMax = Math.max(spiritualityBase + (spiritModifier * spiritScale), 0);
   return {
     identifier,
     name: pathwayNameFromIdentifier(identifier),
@@ -64,7 +69,11 @@ function computeRow(identifier, sequence) {
     sequence,
     shift,
     hp,
-    spirituality,
+    spiritualityBase,
+    spiritualityMax,
+    spiritAbility,
+    spiritScale,
+    spiritModifier,
     bonuses,
     points,
     attributes,
@@ -117,11 +126,12 @@ function buildReport(rows, testMessages) {
   const sequenceTable = SEQUENCES.map(sequence => {
     const sequenceRows = bySequence.get(sequence);
     const hpValues = sequenceRows.map(row => row.hp);
-    const spValues = sequenceRows.map(row => row.spirituality);
+    const spBaseValues = sequenceRows.map(row => row.spiritualityBase);
+    const spMaxValues = sequenceRows.map(row => row.spiritualityMax);
     const mostDurable = [...sequenceRows].sort((a, b) => b.hp - a.hp)[0];
-    const deepestReserve = [...sequenceRows].sort((a, b) => b.spirituality - a.spirituality)[0];
+    const deepestReserve = [...sequenceRows].sort((a, b) => b.spiritualityMax - a.spiritualityMax)[0];
     const balanceDrift = Math.max(...sequenceRows.map(row => Math.abs(row.resourceBalance - 2)));
-    return `| ${sequence} | ${baseHp(sequence)} | ${baseSpirituality(sequence)} | ${getLotmPathwayCumulativeAttributePoints(sequence)} | ${Math.min(...hpValues)}-${Math.max(...hpValues)} | ${Math.min(...spValues)}-${Math.max(...spValues)} | ${mostDurable.name} | ${deepestReserve.name} | ${balanceDrift.toFixed(4)} |`;
+    return `| ${sequence} | ${baseHp(sequence)} | ${baseSpirituality(sequence)} | ${getLotmPathwayCumulativeAttributePoints(sequence)} | ${Math.min(...hpValues)}-${Math.max(...hpValues)} | ${Math.min(...spBaseValues)}-${Math.max(...spBaseValues)} | ${Math.min(...spMaxValues)}-${Math.max(...spMaxValues)} | ${mostDurable.name} | ${deepestReserve.name} | ${balanceDrift.toFixed(4)} |`;
   }).join("\n");
 
   const spotlightSequences = [7, 5, 2, 0];
@@ -130,7 +140,7 @@ function buildReport(rows, testMessages) {
     return spotlightNames.map(identifier => {
       const row = rows.find(entry => (entry.sequence === sequence) && (entry.identifier === identifier));
       const abilitySpread = ABILITIES.map(ability => `${abilityCode(ability)} ${row.attributes[ability]}`).join(", ");
-      return `| ${sequence} | ${row.name} | ${row.hp} | ${row.spirituality} | ${abilitySpread} |`;
+      return `| ${sequence} | ${row.name} | ${row.hp} | ${row.spiritualityBase} | ${row.spiritualityMax} | ${abilitySpread} |`;
     });
   }).join("\n");
 
@@ -148,6 +158,7 @@ function buildReport(rows, testMessages) {
     "- every pathway receives the same cumulative pathway-attribute point budget at a given sequence",
     "- HP/SPI resource shifts remain zero-sum within a tight rounding tolerance",
     "- canonical pathway-only attributes (baseline 10 + pathway growth) stay within lane caps at every sequence",
+    "- runtime spirituality max remains readable from the same pathway profiles by applying each pathway's spirit anchor and tier scale",
     "",
     "## Pathway Profiles",
     "",
@@ -157,16 +168,18 @@ function buildReport(rows, testMessages) {
     "",
     "## Sequence Economy Ranges",
     "",
-    "| Sequence | Base HP | Base SPI | Pathway Attribute Points | HP Range | SPI Range | Highest HP | Highest SPI | Max Resource Drift |",
-    "|---|---:|---:|---:|---:|---:|---|---|---:|",
+    "SPI Base Range reflects the zero-sum resource shift only. Runtime SPI Max Range applies the live formula `spiritualityBase + spiritAbility.mod * (2 + tier)`.",
+    "",
+    "| Sequence | Base HP | Base SPI | Pathway Attribute Points | HP Range | SPI Base Range | Runtime SPI Max Range | Highest HP | Highest SPI Max | Max Resource Drift |",
+    "|---|---:|---:|---:|---:|---:|---:|---|---|---:|",
     sequenceTable,
     "",
     "## Representative Chassis Snapshots",
     "",
     "Attributes shown below are the canonical pathway-only totals using a flat baseline of 10 in every ability, so the table isolates pathway growth rather than character build choices.",
     "",
-    "| Sequence | Pathway | HP | SPI | Attributes |",
-    "|---|---|---:|---:|---|",
+    "| Sequence | Pathway | HP | SPI Base | SPI Max | Attributes |",
+    "|---|---|---:|---:|---:|---|",
     spotlightTable,
     ""
   ].join("\n");

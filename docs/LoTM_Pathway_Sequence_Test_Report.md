@@ -20,6 +20,7 @@ All pathway profiles passed the shared sequence checks below:
 - every pathway receives the same cumulative pathway-attribute point budget at a given sequence
 - HP/SPI resource shifts remain zero-sum within a tight rounding tolerance
 - canonical pathway-only attributes (baseline 10 + pathway growth) stay within lane caps at every sequence
+- runtime spirituality max remains readable from the same pathway profiles by applying each pathway's spirit anchor and tier scale
 
 ## Pathway Profiles
 
@@ -50,38 +51,40 @@ All pathway profiles passed the shared sequence checks below:
 
 ## Sequence Economy Ranges
 
-| Sequence | Base HP | Base SPI | Pathway Attribute Points | HP Range | SPI Range | Highest HP | Highest SPI | Max Resource Drift |
-|---|---:|---:|---:|---:|---:|---|---|---:|
-| 9 | 12 | 8 | 0 | 11-13 | 7-9 | Criminal | Apprentice | 0.0833 |
-| 8 | 16 | 11 | 1 | 14-18 | 10-12 | Warrior | Apothecary | 0.0625 |
-| 7 | 32 | 24 | 2 | 28-36 | 21-27 | Warrior | Spectator | 0.0313 |
-| 6 | 42 | 33 | 3 | 38-46 | 30-36 | Criminal | Apprentice | 0.0195 |
-| 5 | 58 | 46 | 4 | 52-64 | 41-51 | Criminal | Mystery Pryer | 0.0135 |
-| 4 | 98 | 79 | 6 | 90-106 | 73-85 | Criminal | Mystery Pryer | 0.0057 |
-| 3 | 122 | 99 | 7 | 112-132 | 91-107 | Criminal | Mystery Pryer | 0.0038 |
-| 2 | 182 | 149 | 9 | 171-189 | 143-158 | Apothecary | Mystery Pryer | 0.0018 |
-| 1 | 270 | 223 | 11 | 254-281 | 214-236 | Apothecary | Mystery Pryer | 0.0010 |
-| 0 | 407 | 337 | 14 | 374-431 | 317-364 | Apothecary | Sailor | 0.0011 |
+SPI Base Range reflects the zero-sum resource shift only. Runtime SPI Max Range applies the live formula `spiritualityBase + spiritAbility.mod * (2 + tier)`.
+
+| Sequence | Base HP | Base SPI | Pathway Attribute Points | HP Range | SPI Base Range | Runtime SPI Max Range | Highest HP | Highest SPI Max | Max Resource Drift |
+|---|---:|---:|---:|---:|---:|---:|---|---|---:|
+| 9 | 12 | 8 | 0 | 11-13 | 7-9 | 7-9 | Criminal | Apprentice | 0.0833 |
+| 8 | 16 | 11 | 1 | 14-18 | 10-12 | 10-12 | Warrior | Apothecary | 0.0625 |
+| 7 | 32 | 24 | 2 | 28-36 | 21-27 | 21-27 | Warrior | Apothecary | 0.0313 |
+| 6 | 42 | 33 | 3 | 38-46 | 30-36 | 30-39 | Criminal | Apprentice | 0.0195 |
+| 5 | 58 | 46 | 4 | 52-64 | 41-51 | 42-54 | Criminal | Spectator | 0.0135 |
+| 4 | 98 | 79 | 6 | 90-106 | 73-85 | 77-93 | Criminal | Spectator | 0.0057 |
+| 3 | 122 | 99 | 7 | 112-132 | 91-107 | 95-115 | Criminal | Spectator | 0.0038 |
+| 2 | 182 | 149 | 9 | 171-189 | 143-158 | 151-170 | Apothecary | Spectator | 0.0018 |
+| 1 | 270 | 223 | 11 | 254-281 | 214-236 | 224-247 | Apothecary | Spectator | 0.0010 |
+| 0 | 407 | 337 | 14 | 374-431 | 317-364 | 329-376 | Apothecary | Sailor | 0.0011 |
 
 ## Representative Chassis Snapshots
 
 Attributes shown below are the canonical pathway-only totals using a flat baseline of 10 in every ability, so the table isolates pathway growth rather than character build choices.
 
-| Sequence | Pathway | HP | SPI | Attributes |
-|---|---|---:|---:|---|
-| 7 | Warrior | 36 | 21 | STR 11, DEX 10, CON 11, INT 10, SPI 10, CHA 10 |
-| 7 | Spectator | 28 | 27 | STR 10, DEX 10, CON 10, INT 11, SPI 10, CHA 11 |
-| 7 | Sailor | 35 | 22 | STR 11, DEX 10, CON 10, INT 10, SPI 10, CHA 11 |
-| 7 | Apothecary | 30 | 25 | STR 10, DEX 10, CON 10, INT 10, SPI 12, CHA 10 |
-| 5 | Warrior | 63 | 42 | STR 12, DEX 10, CON 11, INT 10, SPI 11, CHA 10 |
-| 5 | Spectator | 52 | 51 | STR 10, DEX 10, CON 10, INT 13, SPI 10, CHA 11 |
-| 5 | Sailor | 60 | 44 | STR 11, DEX 10, CON 11, INT 10, SPI 10, CHA 12 |
-| 5 | Apothecary | 56 | 48 | STR 10, DEX 10, CON 10, INT 11, SPI 13, CHA 10 |
-| 2 | Warrior | 186 | 146 | STR 14, DEX 11, CON 13, INT 10, SPI 11, CHA 10 |
-| 2 | Spectator | 175 | 155 | STR 10, DEX 10, CON 10, INT 16, SPI 11, CHA 12 |
-| 2 | Sailor | 175 | 155 | STR 12, DEX 11, CON 12, INT 10, SPI 10, CHA 14 |
-| 2 | Apothecary | 189 | 143 | STR 10, DEX 10, CON 11, INT 12, SPI 16, CHA 10 |
-| 0 | Warrior | 407 | 337 | STR 15, DEX 12, CON 14, INT 10, SPI 13, CHA 10 |
-| 0 | Spectator | 407 | 337 | STR 10, DEX 10, CON 10, INT 19, SPI 12, CHA 13 |
-| 0 | Sailor | 374 | 364 | STR 13, DEX 12, CON 14, INT 10, SPI 10, CHA 15 |
-| 0 | Apothecary | 431 | 317 | STR 10, DEX 10, CON 12, INT 13, SPI 19, CHA 10 |
+| Sequence | Pathway | HP | SPI Base | SPI Max | Attributes |
+|---|---|---:|---:|---:|---|
+| 7 | Warrior | 36 | 21 | 21 | STR 11, DEX 10, CON 11, INT 10, SPI 10, CHA 10 |
+| 7 | Spectator | 28 | 27 | 27 | STR 10, DEX 10, CON 10, INT 11, SPI 10, CHA 11 |
+| 7 | Sailor | 35 | 22 | 22 | STR 11, DEX 10, CON 10, INT 10, SPI 10, CHA 11 |
+| 7 | Apothecary | 30 | 25 | 27 | STR 10, DEX 10, CON 10, INT 10, SPI 12, CHA 10 |
+| 5 | Warrior | 63 | 42 | 42 | STR 12, DEX 10, CON 11, INT 10, SPI 11, CHA 10 |
+| 5 | Spectator | 52 | 51 | 54 | STR 10, DEX 10, CON 10, INT 13, SPI 10, CHA 11 |
+| 5 | Sailor | 60 | 44 | 47 | STR 11, DEX 10, CON 11, INT 10, SPI 10, CHA 12 |
+| 5 | Apothecary | 56 | 48 | 51 | STR 10, DEX 10, CON 10, INT 11, SPI 13, CHA 10 |
+| 2 | Warrior | 186 | 146 | 151 | STR 14, DEX 11, CON 13, INT 10, SPI 11, CHA 10 |
+| 2 | Spectator | 175 | 155 | 170 | STR 10, DEX 10, CON 10, INT 16, SPI 11, CHA 12 |
+| 2 | Sailor | 175 | 155 | 165 | STR 12, DEX 11, CON 12, INT 10, SPI 10, CHA 14 |
+| 2 | Apothecary | 189 | 143 | 158 | STR 10, DEX 10, CON 11, INT 12, SPI 16, CHA 10 |
+| 0 | Warrior | 407 | 337 | 349 | STR 15, DEX 12, CON 14, INT 10, SPI 13, CHA 10 |
+| 0 | Spectator | 407 | 337 | 361 | STR 10, DEX 10, CON 10, INT 19, SPI 12, CHA 13 |
+| 0 | Sailor | 374 | 364 | 376 | STR 13, DEX 12, CON 14, INT 10, SPI 10, CHA 15 |
+| 0 | Apothecary | 431 | 317 | 341 | STR 10, DEX 10, CON 12, INT 13, SPI 19, CHA 10 |
