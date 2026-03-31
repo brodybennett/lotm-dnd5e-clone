@@ -1,0 +1,8 @@
+2026/03/31-13:44:35.511 473c Recovering log #300
+2026/03/31-13:44:35.517 473c Delete type=0 #300
+2026/03/31-13:44:35.518 473c Delete type=2 #301
+2026/03/31-13:44:35.518 473c Delete type=3 #299
+2026/03/31-13:44:35.519 c81c Compacting 7@0 + 1@1 files
+2026/03/31-13:44:35.577 c81c Generated table #303@0: 977 keys, 1801320 bytes
+2026/03/31-13:44:35.577 c81c Compacted 7@0 + 1@1 files => 1801320 bytes
+2026/03/31-13:44:35.578 c81c compacted to: files[ 0 2 0 0 0 0 0 ]

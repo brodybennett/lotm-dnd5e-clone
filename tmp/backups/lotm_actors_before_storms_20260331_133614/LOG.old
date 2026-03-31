@@ -1,0 +1,7 @@
+2026/03/31-13:33:21.818 155ac Recovering log #272
+2026/03/31-13:33:21.819 155ac Level-0 table #274: started
+2026/03/31-13:33:21.825 155ac Level-0 table #274: 242325 bytes OK
+2026/03/31-13:33:21.828 155ac Delete type=0 #272
+2026/03/31-13:33:21.828 155ac Delete type=3 #271
+2026/03/31-13:33:21.828 3a74 Compacting 4@0 + 1@1 files
+2026/03/31-13:33:21.845 3a74 compacted to: files[ 4 2 0 0 0 0 0 ]
